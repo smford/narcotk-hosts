@@ -5,7 +5,7 @@ import (
 	"flag"
 	"fmt"
 	_ "github.com/mattn/go-sqlite3"
-	_ "github.com/spf13/pflag"
+	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"log"
 	"os"
@@ -28,9 +28,15 @@ func printConfig() {
 func init() {
 	fmt.Println("Starting init function\n")
 	configFile := flag.String("configfile", "", "configuration file to use")
-	flag.Parse()
+	listnetworks := flag.Bool("listnetworks", false, "list all networks")
+	pflag.CommandLine.AddGoFlagSet(flag.CommandLine)
+	pflag.Parse()
+	viper.BindPFlags(pflag.CommandLine)
 
 	viper.AddConfigPath(".")
+
+	// have to use the below otherwise go complains about listnetworks being defined but not used
+	_ = listnetworks
 
 	if *configFile == "" {
 		viper.SetConfigName("narco-hosts-config")
@@ -57,10 +63,14 @@ func init() {
 func main() {
 	fmt.Println("Starting main function\n")
 	printConfig()
-	listAllNetworks(viper.GetString("DatabaseFile"))
+	if viper.GetBool("listnetworks") {
+		listNetworks(viper.GetString("DatabaseFile"))
+		os.Exit(0)
+	}
 }
 
-func listAllNetworks(databaseFile string) {
+func listNetworks(databaseFile string) {
+	fmt.Println("Starting listNetworks function\n")
 	db, err := sql.Open("sqlite3", databaseFile)
 	if err != nil {
 		log.Fatal(err)
