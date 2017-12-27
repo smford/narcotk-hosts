@@ -1,10 +1,14 @@
 package main
 
 import (
+	"database/sql"
 	"flag"
 	"fmt"
+	_ "github.com/mattn/go-sqlite3"
 	_ "github.com/spf13/pflag"
 	"github.com/spf13/viper"
+	"log"
+	"os"
 )
 
 func printConfig() {
@@ -52,7 +56,31 @@ func init() {
 
 func main() {
 	fmt.Println("Starting main function\n")
-
 	printConfig()
+	listAllNetworks(viper.GetString("DatabaseFile"))
+}
 
+func listAllNetworks(databaseFile string) {
+	db, err := sql.Open("sqlite3", databaseFile)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+	sqlquery := "select * from networks"
+	rows, err := db.Query(sqlquery)
+	for rows.Next() {
+		var network string
+		var cidr string
+		var description string
+		err = rows.Scan(&network, &cidr, &description)
+		fmt.Printf("%-15s  %-18s  %s\n", network, cidr, description)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
+	err = rows.Err()
+	if err != nil {
+		log.Fatal(err)
+	}
+	os.Exit(0)
 }
