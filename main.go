@@ -28,7 +28,8 @@ func printConfig() {
 func init() {
 	fmt.Println("Starting init function\n")
 	configFile := flag.String("configfile", "", "configuration file to use")
-	listnetworks := flag.Bool("listnetworks", false, "list all networks")
+	// listnetworks := flag.Bool("listnetworks", false, "list all networks")
+	flag.Bool("listnetworks", false, "list all networks")
 	pflag.CommandLine.AddGoFlagSet(flag.CommandLine)
 	pflag.Parse()
 	viper.BindPFlags(pflag.CommandLine)
@@ -36,7 +37,7 @@ func init() {
 	viper.AddConfigPath(".")
 
 	// have to use the below otherwise go complains about listnetworks being defined but not used
-	_ = listnetworks
+	// _ = listnetworks
 
 	if *configFile == "" {
 		viper.SetConfigName("narco-hosts-config")
@@ -65,8 +66,9 @@ func main() {
 	printConfig()
 	if viper.GetBool("listnetworks") {
 		listNetworks(viper.GetString("DatabaseFile"))
-		os.Exit(0)
+		//os.Exit(0)
 	}
+	listHosts(viper.GetString("DatabaseFile"), "")
 }
 
 func listNetworks(databaseFile string) {
@@ -87,6 +89,47 @@ func listNetworks(databaseFile string) {
 		if err != nil {
 			log.Fatal(err)
 		}
+	}
+	err = rows.Err()
+	if err != nil {
+		log.Fatal(err)
+	}
+	os.Exit(0)
+}
+
+func listHosts(databaseFile string, network string) {
+	fmt.Println("Starting listHosts function\n")
+	sqlquery := "select * from hosts"
+	if len(network) != 0 {
+		fmt.Println("Displaying hosts from network: " + network)
+		sqlquery = sqlquery + " where network like '" + network + "'"
+	} else {
+		fmt.Println("Displaying ALL hosts from ALL networks")
+	}
+	fmt.Println("sqlquery= " + sqlquery)
+
+	db, err := sql.Open("sqlite3", databaseFile)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
+	rows, err := db.Query(sqlquery)
+	for rows.Next() {
+		var hostid string
+		var network string
+		var ipsuffix int
+		var ipaddress string
+		var fqdn string
+		var short1 string
+		var short2 string
+		var short3 string
+		var short4 string
+		err = rows.Scan(&hostid, &network, &ipsuffix, &ipaddress, &fqdn, &short1, &short2, &short3, &short4)
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Printf("%-15s    %s  %s  %s  %s  %s\n", ipaddress, fqdn, short1, short2, short3, short4)
 	}
 	err = rows.Err()
 	if err != nil {
