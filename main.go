@@ -30,6 +30,7 @@ func init() {
 	configFile := flag.String("configfile", "", "configuration file to use")
 	// listnetworks := flag.Bool("listnetworks", false, "list all networks")
 	flag.Bool("listnetworks", false, "list all networks")
+	flag.String("shownetwork", "", "display hosts within a particular network")
 	pflag.CommandLine.AddGoFlagSet(flag.CommandLine)
 	pflag.Parse()
 	viper.BindPFlags(pflag.CommandLine)
@@ -68,7 +69,7 @@ func main() {
 		listNetworks(viper.GetString("DatabaseFile"))
 		//os.Exit(0)
 	}
-	listHosts(viper.GetString("DatabaseFile"), "")
+	listHosts(viper.GetString("DatabaseFile"), viper.GetString("shownetwork"))
 }
 
 func listNetworks(databaseFile string) {
