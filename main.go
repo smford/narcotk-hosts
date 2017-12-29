@@ -28,9 +28,9 @@ func printConfig() {
 func init() {
 	fmt.Println("Starting init function\n")
 	configFile := flag.String("configfile", "", "configuration file to use")
-	// listnetworks := flag.Bool("listnetworks", false, "list all networks")
+	flag.Bool("help", false, "display help information")
 	flag.Bool("listnetworks", false, "list all networks")
-	flag.String("shownetwork", "", "display hosts within a particular network")
+	flag.String("network", "", "display hosts within a particular network")
 	pflag.CommandLine.AddGoFlagSet(flag.CommandLine)
 	pflag.Parse()
 	viper.BindPFlags(pflag.CommandLine)
@@ -65,11 +65,17 @@ func init() {
 func main() {
 	fmt.Println("Starting main function\n")
 	printConfig()
+
+	if viper.GetBool("help") {
+		displayHelp()
+		os.Exit(0)
+	}
+
 	if viper.GetBool("listnetworks") {
 		listNetworks(viper.GetString("DatabaseFile"))
 		//os.Exit(0)
 	}
-	listHosts(viper.GetString("DatabaseFile"), viper.GetString("shownetwork"))
+	listHosts(viper.GetString("DatabaseFile"), viper.GetString("network"))
 }
 
 func listNetworks(databaseFile string) {
@@ -136,5 +142,55 @@ func listHosts(databaseFile string, network string) {
 	if err != nil {
 		log.Fatal(err)
 	}
+	os.Exit(0)
+}
+
+func displayHelp() {
+	helpmessage := `
+Options:
+  -help           Display help information
+  -showheader     Prepend ./header.txt to the output [default=false]
+  -displayconfig  Prints out the applied configuration
+  -version
+
+Commands:
+  Print all hosts in a network:
+      -network=192.168.1
+
+  List all networks:
+      -listnetworks
+
+  Add a new network:
+      -addnetwork=192.168.2 -cidr=192.168.2.0/24 -desc="Management Network"
+
+  Delete a network:
+      -delnetwork=192.168.3
+
+  Adding a host:
+      -addhost=server-1-199.domain.com -network=192.168.1 -ipaddress=192.168.1.13 -short1=server-1-199 -short2=server
+
+  Update a host:
+      -updatehost=server-1-199.domain.com -host=server-1-200.domain.com -network=192.168.1 -ipaddress=192.168.1.200 -short1=server-1-200
+
+  Delete a host:
+      -delhost=server-1-200.domain.com -network=192.168.1
+
+  Configuration file:
+      -configfile=/path/to/file.yaml
+
+  Database file:
+      -database=/path/to/somefile.db
+
+  Start Web Service:
+      -startweb
+
+  Port to listen upon:
+      -listenport=23000
+
+  IP Address to listen upon:
+      -listenip=10.0.0.14
+`
+	fmt.Printf("%s", helpmessage)
+
 	os.Exit(0)
 }
