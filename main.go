@@ -20,7 +20,7 @@ func printConfig() {
 	fmt.Printf("ListenIP:      %s\n", viper.GetString("ListenIP"))
 	fmt.Printf("LogFile:       %s\n", viper.GetString("LogFile"))
 	fmt.Printf("Verbose:       %s\n", viper.GetString("Verbose"))
-	fmt.Printf("DatabaseFile:  %s\n", viper.GetString("DatabaseFile"))
+	fmt.Printf("Database:      %s\n", viper.GetString("Database"))
 	fmt.Printf("HeaderFile:    %s\n", viper.GetString("HeaderFile"))
 	fmt.Printf("PrintColumns:  %s\n", viper.GetString("PrintColumns"))
 }
@@ -181,6 +181,9 @@ Commands:
 
   Database file:
       -database=/path/to/somefile.db
+
+  Setup a new blank database file:
+      -setupdb
 
   Start Web Service:
       -startweb
