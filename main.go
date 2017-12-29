@@ -28,6 +28,7 @@ func printConfig() {
 func init() {
 	fmt.Println("Starting init function\n")
 	configFile := flag.String("configfile", "", "configuration file to use")
+	flag.String("databasefile", "", "database file to use")
 	flag.Bool("help", false, "display help information")
 	flag.Bool("listnetworks", false, "list all networks")
 	flag.String("network", "", "display hosts within a particular network")
