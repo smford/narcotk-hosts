@@ -28,7 +28,7 @@ func printConfig() {
 func init() {
 	fmt.Println("Starting init function\n")
 	configFile := flag.String("configfile", "", "configuration file to use")
-	flag.String("databasefile", "", "database file to use")
+	flag.String("database", "", "database file to use")
 	flag.Bool("help", false, "display help information")
 	flag.Bool("listnetworks", false, "list all networks")
 	flag.String("network", "", "display hosts within a particular network")
@@ -57,7 +57,7 @@ func init() {
 		viper.SetDefault("ListenIP", "127.0.0.1")
 		viper.SetDefault("LogFile", "./logs.txt")
 		viper.SetDefault("Verbose", true)
-		viper.SetDefault("DatabaseFile", "./narcotk_hosts_all.db")
+		viper.SetDefault("Database", "./narcotk_hosts_all.db")
 		viper.SetDefault("HeaderFile", "./header.txt")
 		viper.SetDefault("PrintColumns", "blank")
 	}
@@ -73,10 +73,10 @@ func main() {
 	}
 
 	if viper.GetBool("listnetworks") {
-		listNetworks(viper.GetString("DatabaseFile"))
+		listNetworks(viper.GetString("Database"))
 		//os.Exit(0)
 	}
-	listHosts(viper.GetString("DatabaseFile"), viper.GetString("network"))
+	listHosts(viper.GetString("Database"), viper.GetString("network"))
 }
 
 func listNetworks(databaseFile string) {

@@ -6,7 +6,7 @@
     "ListenIP": "127.0.0.1",
     "LogFile": "./logs.txt",
     "Verbose": true,
-    "DatabaseFile": "./narcotk_hosts_all.db",
+    "Database": "./narcotk_hosts_all.db",
     "HeaderFile": "./header.txt",
     "PrintColumns": "blank"
 }
