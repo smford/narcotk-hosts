@@ -1,0 +1,16 @@
+CREATE TABLE hosts (
+hostid text PRIMARY KEY,
+network text NOT NULL,
+ipsuffix integer NOT NULL,
+ipaddress text NOT NULL,
+fqdn text NOT NULL,
+short1 text NOT NULL DEFAULT '',
+short2 text NOT NULL DEFAULT '',
+short3 text NOT NULL DEFAULT '',
+short4 text NOT NULL DEFAULT ''
+, mac INTEGER DEFAULT '');
+CREATE TABLE networks (
+network text PRIMARY KEY,
+cidr text NOT NULL,
+description text NOT NULL DEFAULT ''
+);

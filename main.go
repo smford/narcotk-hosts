@@ -31,6 +31,7 @@ func init() {
 	flag.String("database", "", "database file to use")
 	flag.Bool("help", false, "display help information")
 	flag.Bool("listnetworks", false, "list all networks")
+	flag.Bool("showmac", false, "show mac addresses of hosts")
 	flag.String("network", "", "display hosts within a particular network")
 	pflag.CommandLine.AddGoFlagSet(flag.CommandLine)
 	pflag.Parse()
@@ -76,7 +77,7 @@ func main() {
 		listNetworks(viper.GetString("Database"))
 		//os.Exit(0)
 	}
-	listHosts(viper.GetString("Database"), viper.GetString("network"))
+	listHosts(viper.GetString("Database"), viper.GetString("network"), viper.GetBool("showmac"))
 }
 
 func listNetworks(databaseFile string) {
@@ -105,7 +106,7 @@ func listNetworks(databaseFile string) {
 	os.Exit(0)
 }
 
-func listHosts(databaseFile string, network string) {
+func listHosts(databaseFile string, network string, showmac bool) {
 	fmt.Println("Starting listHosts function\n")
 	sqlquery := "select * from hosts"
 	if len(network) != 0 {
@@ -133,11 +134,16 @@ func listHosts(databaseFile string, network string) {
 		var short2 string
 		var short3 string
 		var short4 string
-		err = rows.Scan(&hostid, &network, &ipsuffix, &ipaddress, &fqdn, &short1, &short2, &short3, &short4)
+		var mac string
+		err = rows.Scan(&hostid, &network, &ipsuffix, &ipaddress, &fqdn, &short1, &short2, &short3, &short4, &mac)
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Printf("%-15s    %s  %s  %s  %s  %s\n", ipaddress, fqdn, short1, short2, short3, short4)
+		if showmac {
+			fmt.Printf("%-17s  %-15s    %s  %s  %s  %s  %s\n", mac, ipaddress, fqdn, short1, short2, short3, short4)
+		} else {
+			fmt.Printf("%-15s    %s  %s  %s  %s  %s\n", ipaddress, fqdn, short1, short2, short3, short4)
+		}
 	}
 	err = rows.Err()
 	if err != nil {
@@ -158,6 +164,9 @@ Commands:
   Print all hosts in a network:
       -network=192.168.1
 
+  Show MAC addresses:
+      -showmac
+      
   List all networks:
       -listnetworks
 
@@ -168,7 +177,7 @@ Commands:
       -delnetwork=192.168.3
 
   Adding a host:
-      -addhost=server-1-199.domain.com -network=192.168.1 -ipaddress=192.168.1.13 -short1=server-1-199 -short2=server
+      -addhost=server-1-199.domain.com -network=192.168.1 -ipaddress=192.168.1.13 -short1=server-1-199 -short2=server -mac=de:ad:be:ef:ca:fe
 
   Update a host:
       -updatehost=server-1-199.domain.com -host=server-1-200.domain.com -network=192.168.1 -ipaddress=192.168.1.200 -short1=server-1-200
