@@ -39,9 +39,6 @@ func init() {
 
 	viper.AddConfigPath(".")
 
-	// have to use the below otherwise go complains about listnetworks being defined but not used
-	// _ = listnetworks
-
 	if *configFile == "" {
 		viper.SetConfigName("narco-hosts-config")
 	} else {
@@ -155,53 +152,53 @@ func listHosts(databaseFile string, network string, showmac bool) {
 func displayHelp() {
 	helpmessage := `
 Options:
-  -help           Display help information
-  -showheader     Prepend ./header.txt to the output [default=false]
-  -displayconfig  Prints out the applied configuration
-  -version
+  --help           Display help information
+  --showheader     Prepend ./header.txt to the output [default=false]
+  --displayconfig  Prints out the applied configuration
+  --version
 
 Commands:
   Print all hosts in a network:
-      -network=192.168.1
+      --network=192.168.1
 
   Show MAC addresses:
-      -showmac
+      --showmac
       
   List all networks:
-      -listnetworks
+      --listnetworks
 
   Add a new network:
-      -addnetwork=192.168.2 -cidr=192.168.2.0/24 -desc="Management Network"
+      --addnetwork=192.168.2 --cidr=192.168.2.0/24 --desc="Management Network"
 
   Delete a network:
-      -delnetwork=192.168.3
+      --delnetwork=192.168.3
 
   Adding a host:
-      -addhost=server-1-199.domain.com -network=192.168.1 -ipaddress=192.168.1.13 -short1=server-1-199 -short2=server -mac=de:ad:be:ef:ca:fe
+      --addhost=server-1-199.domain.com --network=192.168.1 --ipaddress=192.168.1.13 --short1=server-1-199 --short2=server --mac=de:ad:be:ef:ca:fe
 
   Update a host:
-      -updatehost=server-1-199.domain.com -host=server-1-200.domain.com -network=192.168.1 -ipaddress=192.168.1.200 -short1=server-1-200
+      --updatehost=server-1-199.domain.com --host=server-1-200.domain.com --network=192.168.1 --ipaddress=192.168.1.200 --short1=server-1-200
 
   Delete a host:
-      -delhost=server-1-200.domain.com -network=192.168.1
+      --delhost=server-1-200.domain.com --network=192.168.1
 
   Configuration file:
-      -configfile=/path/to/file.yaml
+      --configfile=/path/to/file.yaml
 
   Database file:
-      -database=/path/to/somefile.db
+      --database=/path/to/somefile.db
 
   Setup a new blank database file:
-      -setupdb
+      --setupdb
 
   Start Web Service:
-      -startweb
+      --startweb
 
   Port to listen upon:
-      -listenport=23000
+      --listenport=23000
 
   IP Address to listen upon:
-      -listenip=10.0.0.14
+      --listenip=10.0.0.14
 `
 	fmt.Printf("%s", helpmessage)
 
