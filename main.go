@@ -33,6 +33,7 @@ func init() {
 	flag.Bool("listnetworks", false, "list all networks")
 	flag.Bool("showmac", false, "show mac addresses of hosts")
 	flag.String("network", "", "display hosts within a particular network")
+	flag.Bool("setupdb", false, "setup a new database")
 	pflag.CommandLine.AddGoFlagSet(flag.CommandLine)
 	pflag.Parse()
 	viper.BindPFlags(pflag.CommandLine)
@@ -70,11 +71,51 @@ func main() {
 		os.Exit(0)
 	}
 
+	if viper.GetBool("setupdb") {
+		setupdb(viper.GetString("Database"))
+		os.Exit(0)
+	}
+
 	if viper.GetBool("listnetworks") {
 		listNetworks(viper.GetString("Database"))
 		//os.Exit(0)
 	}
 	listHosts(viper.GetString("Database"), viper.GetString("network"), viper.GetBool("showmac"))
+}
+
+func setupdb(databasefile string) {
+	fmt.Println("Setting up a new database file: " + databasefile)
+
+	db, err := sql.Open("sqlite3", databasefile)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+	sqlquery := `
+	CREATE TABLE hosts (
+	  hostid text PRIMARY KEY,
+	  network text NOT NULL,
+	  ipsuffix integer NOT NULL,
+	  ipaddress text NOT NULL,
+	  fqdn text NOT NULL,
+	  short1 text NOT NULL DEFAULT '',
+	  short2 text NOT NULL DEFAULT '',
+	  short3 text NOT NULL DEFAULT '',
+	  short4 text NOT NULL DEFAULT ''
+	  , mac INTEGER DEFAULT '');
+	  CREATE TABLE networks (
+	    network text PRIMARY KEY,
+	    cidr text NOT NULL,
+	    description text NOT NULL DEFAULT ''
+	  );
+	  `
+
+	_, err = db.Exec(sqlquery)
+
+	if err != nil {
+		log.Printf("%q: %s\n", err, sqlquery)
+		return
+	}
 }
 
 func listNetworks(databaseFile string) {
@@ -189,7 +230,7 @@ Commands:
       --database=/path/to/somefile.db
 
   Setup a new blank database file:
-      --setupdb
+      --setupdb  --database=./newfile.db
 
   Start Web Service:
       --startweb
