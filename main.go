@@ -34,6 +34,7 @@ func init() {
 	flag.Bool("showmac", false, "show mac addresses of hosts")
 	flag.String("network", "", "display hosts within a particular network")
 	flag.Bool("setupdb", false, "setup a new database")
+	flag.Bool("version", false, "display version information")
 	pflag.CommandLine.AddGoFlagSet(flag.CommandLine)
 	pflag.Parse()
 	viper.BindPFlags(pflag.CommandLine)
@@ -71,6 +72,11 @@ func main() {
 		os.Exit(0)
 	}
 
+	if viper.GetBool("version") {
+		displayVersion()
+		os.Exit(0)
+	}
+
 	if viper.GetBool("setupdb") {
 		setupdb(viper.GetString("Database"))
 		os.Exit(0)
@@ -81,6 +87,10 @@ func main() {
 		//os.Exit(0)
 	}
 	listHosts(viper.GetString("Database"), viper.GetString("network"), viper.GetBool("showmac"))
+}
+
+func displayVersion() {
+	fmt.Println("narcotk-hosts: 0.1")
 }
 
 func setupdb(databasefile string) {
