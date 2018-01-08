@@ -11,8 +11,8 @@ import (
 	"os"
 )
 
-func printConfig() {
-	fmt.Println("Starting printConfig function")
+func displayConfig() {
+	fmt.Println("Starting displayConfig function")
 	fmt.Printf("Networks:      %s\n", viper.GetString("Networks"))
 	fmt.Printf("ShowHeader:    %s\n", viper.GetString("ShowHeader"))
 	fmt.Printf("ListAll:       %s\n", viper.GetString("ListAll"))
@@ -31,6 +31,7 @@ func init() {
 	flag.String("cidr", "", "cidr of network, used with --adnetwork and --desc")
 	configFile := flag.String("configfile", "", "configuration file to use")
 	flag.String("database", "", "database file to use")
+	flag.Bool("displayconfig", false, "display configuration")
 	flag.String("desc", "", "description of network, used with --addnetwork and --cidr")
 	flag.Bool("help", false, "display help information")
 	flag.Bool("listnetworks", false, "list all networks")
@@ -68,10 +69,14 @@ func init() {
 
 func main() {
 	fmt.Println("Starting main function\n")
-	printConfig()
 
 	if viper.GetBool("help") {
 		displayHelp()
+		os.Exit(0)
+	}
+
+	if viper.GetBool("displayconfig") {
+		displayConfig()
 		os.Exit(0)
 	}
 
