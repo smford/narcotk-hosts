@@ -278,6 +278,9 @@ Commands:
   Delete a network:
       --delnetwork=192.168.3
 
+  Update a network:
+      --updatenetwork=192.168.2 --network=192.168.3 --cidr=192.168.3/24 --desc="3rd Management Network"
+
   Adding a host:
       --addhost=server-1-199.domain.com --network=192.168.1 --ipaddress=192.168.1.13 --short1=server-1-199 --short2=server --short3=serv --short4=ser --mac=de:ad:be:ef:ca:fe
 
