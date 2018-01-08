@@ -91,9 +91,6 @@ func main() {
 	if viper.GetString("delnetwork") != "" {
 		delNetwork(viper.GetString("Database"), viper.GetString("delnetwork"))
 		os.Exit(0)
-	} else {
-		fmt.Println("Error: you must provide a network to delete")
-		fmt.Println("delnetwork arg=" + viper.GetString("delnetwork"))
 	}
 
 	if viper.GetBool("version") {
