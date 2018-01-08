@@ -141,6 +141,8 @@ func addHost(databaseFile string, addhost string, network string, ipaddress stri
 	fmt.Println(short3)
 	fmt.Println(short4)
 	fmt.Println(mac)
+	//hostid :=
+	sqlquery := "insert into hosts (hostid, network, ipsuffix, ipaddress, fqdn, short1, short2, short3, short4, mac) values "
 }
 
 func addNetwork(databaseFile string, network string, cidr string, desc string) {
