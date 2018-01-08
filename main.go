@@ -27,7 +27,10 @@ func printConfig() {
 
 func init() {
 	fmt.Println("Starting init function\n")
+	flag.String("addnetwork", "", "add a new network, used with --cidr and --desc")
+	flag.String("cidr", "", "cidr of network, used with --adnetwork and --desc")
 	configFile := flag.String("configfile", "", "configuration file to use")
+	flag.String("desc", "", "description of network, used with --addnetwork and --cidr")
 	flag.String("database", "", "database file to use")
 	flag.Bool("help", false, "display help information")
 	flag.Bool("listnetworks", false, "list all networks")
@@ -86,7 +89,40 @@ func main() {
 		listNetworks(viper.GetString("Database"))
 		//os.Exit(0)
 	}
+
+	if viper.GetString("addnetwork") != "" {
+		if (viper.GetString("cidr") == "") || (viper.GetString("desc") == "") {
+			fmt.Println("Error: When using --addnetwork you must also provide --cidr and --desc")
+			os.Exit(1)
+		} else {
+			addNetwork(viper.GetString("Database"), viper.GetString("addnetwork"), viper.GetString("cidr"), viper.GetString("desc"))
+			os.Exit(0)
+		}
+	}
+
 	listHosts(viper.GetString("Database"), viper.GetString("network"), viper.GetBool("showmac"))
+}
+
+func addNetwork(databaseFile string, network string, cidr string, desc string) {
+	fmt.Println("Adding new network: " + network + "\nCIDR: " + cidr + "\nDescription: " + desc)
+	sqlquery := "insert into networks (network, cidr, description) values ('" + network + "', '" + cidr + "', '" + desc + "')"
+	fmt.Println("addNetwork query: " + sqlquery)
+	runSql(databaseFile, sqlquery)
+}
+
+func runSql(databaseFile string, sqlquery string) {
+	fmt.Println("Running generic runSql function")
+	fmt.Println("runSql query: " + sqlquery)
+	db, err := sql.Open("sqlite3", databaseFile)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+	_, err = db.Exec(sqlquery)
+	if err != nil {
+		log.Printf("%q: %s\n", err, sqlquery)
+		return
+	}
 }
 
 func displayVersion() {
