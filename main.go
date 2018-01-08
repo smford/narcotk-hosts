@@ -279,10 +279,11 @@ Commands:
       --delnetwork=192.168.3
 
   Adding a host:
-      --addhost=server-1-199.domain.com --network=192.168.1 --ipaddress=192.168.1.13 --short1=server-1-199 --short2=server --mac=de:ad:be:ef:ca:fe
+      --addhost=server-1-199.domain.com --network=192.168.1 --ipaddress=192.168.1.13 --short1=server-1-199 --short2=server --short3=serv --short4=ser --mac=de:ad:be:ef:ca:fe
 
   Update a host:
-      --updatehost=server-1-199.domain.com --host=server-1-200.domain.com --network=192.168.1 --ipaddress=192.168.1.200 --short1=server-1-200
+  --updatehost=server-1-199.domain.com --host=server-1-200.domain.com --network=192.168.1 --ipaddress=192.168.1.200 --short1=server-1-200 --short2=server --short3=serv --short4=ser --mac=de:ad:be:ef:ca:fe
+  ** When updating a host entry, all fields will be updated
 
   Delete a host:
       --delhost=server-1-200.domain.com --network=192.168.1
