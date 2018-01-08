@@ -167,7 +167,7 @@ func setupdb(databasefile string) {
 	  short2 text NOT NULL DEFAULT '',
 	  short3 text NOT NULL DEFAULT '',
 	  short4 text NOT NULL DEFAULT ''
-	  , mac INTEGER DEFAULT '');
+	  , mac TEXT DEFAULT '');
 	  CREATE TABLE networks (
 	    network text PRIMARY KEY,
 	    cidr text NOT NULL,
