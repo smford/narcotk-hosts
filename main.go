@@ -100,7 +100,7 @@ func main() {
 
 	if viper.GetBool("listnetworks") {
 		listNetworks(viper.GetString("Database"))
-		//os.Exit(0)
+		os.Exit(0)
 	}
 
 	if viper.GetString("addnetwork") != "" {
@@ -206,7 +206,6 @@ func listNetworks(databaseFile string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	os.Exit(0)
 }
 
 func listHosts(databaseFile string, network string, showmac bool) {
