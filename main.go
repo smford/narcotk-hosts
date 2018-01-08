@@ -31,6 +31,7 @@ func init() {
 	flag.String("cidr", "", "cidr of network, used with --adnetwork and --desc")
 	configFile := flag.String("configfile", "", "configuration file to use")
 	flag.String("database", "", "database file to use")
+	flag.String("delnetwork", "", "delete a network")
 	flag.Bool("displayconfig", false, "display configuration")
 	flag.String("desc", "", "description of network, used with --addnetwork and --cidr")
 	flag.Bool("help", false, "display help information")
@@ -80,6 +81,13 @@ func main() {
 		os.Exit(0)
 	}
 
+	if viper.GetString("delnetwork") != "" {
+		delNetwork(viper.GetString("Database"), viper.GetString("delnetwork"))
+		os.Exit(0)
+	} else {
+		fmt.Println("Error: you must provide a network to delete")
+	}
+
 	if viper.GetBool("version") {
 		displayVersion()
 		os.Exit(0)
@@ -113,6 +121,12 @@ func addNetwork(databaseFile string, network string, cidr string, desc string) {
 	sqlquery := "insert into networks (network, cidr, description) values ('" + network + "', '" + cidr + "', '" + desc + "')"
 	fmt.Println("addNetwork query: " + sqlquery)
 	runSql(databaseFile, sqlquery)
+}
+
+func delNetwork(databasefile string, network string) {
+	fmt.Println("Deleting network: " + network)
+	sqlquery := "delete from networks where network like '" + network + "'"
+	runSql(databasefile, sqlquery)
 }
 
 func runSql(databaseFile string, sqlquery string) {
