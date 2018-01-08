@@ -27,6 +27,7 @@ func displayConfig() {
 
 func init() {
 	fmt.Println("Starting init function\n")
+	flag.String("addhost", "", "add a new host, use with --network, --ipaddress (optional: --short1, --short2, --short3, --short4 and --mac)")
 	flag.String("addnetwork", "", "add a new network, used with --cidr and --desc")
 	flag.String("cidr", "", "cidr of network, used with --adnetwork and --desc")
 	configFile := flag.String("configfile", "", "configuration file to use")
@@ -35,10 +36,16 @@ func init() {
 	flag.Bool("displayconfig", false, "display configuration")
 	flag.String("desc", "", "description of network, used with --addnetwork and --cidr")
 	flag.Bool("help", false, "display help information")
+	flag.String("ipaddress", "", "ip address of new host")
 	flag.Bool("listnetworks", false, "list all networks")
 	flag.Bool("showmac", false, "show mac addresses of hosts")
+	flag.String("mac", "", "mac address of host")
 	flag.String("network", "", "display hosts within a particular network")
 	flag.Bool("setupdb", false, "setup a new database")
+	flag.String("short1", "", "short1 hostname")
+	flag.String("short2", "", "short2 hostname")
+	flag.String("short3", "", "short3 hostname")
+	flag.String("short4", "", "short4 hostname")
 	flag.Bool("version", false, "display version information")
 	pflag.CommandLine.AddGoFlagSet(flag.CommandLine)
 	pflag.Parse()
@@ -86,6 +93,7 @@ func main() {
 		os.Exit(0)
 	} else {
 		fmt.Println("Error: you must provide a network to delete")
+		fmt.Println("delnetwork arg=" + viper.GetString("delnetwork"))
 	}
 
 	if viper.GetBool("version") {
@@ -113,7 +121,29 @@ func main() {
 		}
 	}
 
+	if viper.GetString("addhost") != "" {
+		if (viper.GetString("network") == "") || (viper.GetString("ipaddress") == "") {
+			fmt.Println("Error: When using --addhost you must also provide --network and --ipaddress")
+			os.Exit(1)
+		} else {
+			addHost(viper.GetString("Database"), viper.GetString("addhost"), viper.GetString("network"), viper.GetString("ipaddress"), viper.GetString("short1"), viper.GetString("short2"), viper.GetString("short3"), viper.GetString("short4"), viper.GetString("mac"))
+			os.Exit(0)
+		}
+	}
+
 	listHosts(viper.GetString("Database"), viper.GetString("network"), viper.GetBool("showmac"))
+}
+
+func addHost(databaseFile string, addhost string, network string, ipaddress string, short1 string, short2 string, short3 string, short4 string, mac string) {
+	fmt.Println("Adding new host:")
+	fmt.Println(addhost)
+	fmt.Println(network)
+	fmt.Println(ipaddress)
+	fmt.Println(short1)
+	fmt.Println(short2)
+	fmt.Println(short3)
+	fmt.Println(short4)
+	fmt.Println(mac)
 }
 
 func addNetwork(databaseFile string, network string, cidr string, desc string) {
