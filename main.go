@@ -7,6 +7,7 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
+	"github.com/xwb1989/sqlparser"
 	"log"
 	"os"
 	"strings"
@@ -163,6 +164,13 @@ func delNetwork(databasefile string, network string) {
 func runSql(databaseFile string, sqlquery string) {
 	fmt.Println("Running generic runSql function")
 	fmt.Println("runSql query: " + sqlquery)
+
+	_, err := sqlparser.Parse(sqlquery)
+	if err != nil {
+		fmt.Println("Error Detected in SQL: ", err)
+		os.Exit(1)
+	}
+
 	db, err := sql.Open("sqlite3", databaseFile)
 	if err != nil {
 		log.Fatal(err)
