@@ -9,6 +9,8 @@ import (
 	"github.com/spf13/viper"
 	"log"
 	"os"
+	"strings"
+	_ "unicode"
 )
 
 func displayConfig() {
@@ -141,8 +143,8 @@ func addHost(databaseFile string, addhost string, network string, ipaddress stri
 	fmt.Println(short3)
 	fmt.Println(short4)
 	fmt.Println(mac)
-	//hostid :=
-	sqlquery := "insert into hosts (hostid, network, ipsuffix, ipaddress, fqdn, short1, short2, short3, short4, mac) values "
+	sqlquery := "insert into hosts (hostid, network, ipsuffix, ipaddress, fqdn, short1, short2, short3, short4, mac) values ('" + breakIp(network, 2) + "-" + breakIp(ipaddress, 3) + "', '" + network + "', '" + breakIp(ipaddress, 3) + "', '" + ipaddress + "', '" + addhost + "', '" + short1 + "', '" + short2 + "', '" + short3 + "', '" + short4 + "', '" + mac + "')"
+	runSql(databaseFile, sqlquery)
 }
 
 func addNetwork(databaseFile string, network string, cidr string, desc string) {
@@ -281,6 +283,14 @@ func listHosts(databaseFile string, network string, showmac bool) {
 		log.Fatal(err)
 	}
 	os.Exit(0)
+}
+
+func breakIp(ipaddress string, position int) string {
+	deliminator := func(c rune) bool {
+		return (c == '.')
+	}
+	ipArray := strings.FieldsFunc(ipaddress, deliminator)
+	return ipArray[position]
 }
 
 func displayHelp() {
