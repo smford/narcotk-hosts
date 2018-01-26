@@ -35,6 +35,7 @@ func init() {
 	flag.String("cidr", "", "cidr of network, used with --adnetwork and --desc")
 	configFile := flag.String("configfile", "", "configuration file to use")
 	flag.String("database", "", "database file to use")
+	flag.String("delhost", "", "delete a host, used with --network")
 	flag.String("delnetwork", "", "delete a network")
 	flag.Bool("displayconfig", false, "display configuration")
 	flag.String("desc", "", "description of network, used with --addnetwork and --cidr")
@@ -96,6 +97,16 @@ func main() {
 		os.Exit(0)
 	}
 
+	if viper.GetString("delhost") != "" {
+		if viper.GetString("network") == "" {
+			fmt.Println("Error a network must be provided")
+			os.Exit(1)
+		} else {
+			delHost(viper.GetString("Database"), viper.GetString("delhost"), viper.GetString("network"))
+			os.Exit(0)
+		}
+	}
+
 	if viper.GetBool("version") {
 		displayVersion()
 		os.Exit(0)
@@ -145,6 +156,14 @@ func addHost(databaseFile string, addhost string, network string, ipaddress stri
 	fmt.Println(short4)
 	fmt.Println(mac)
 	sqlquery := "insert into hosts (hostid, network, ipsuffix, ipaddress, fqdn, short1, short2, short3, short4, mac) values ('" + breakIp(network, 2) + "-" + breakIp(ipaddress, 3) + "', '" + network + "', '" + breakIp(ipaddress, 3) + "', '" + ipaddress + "', '" + addhost + "', '" + short1 + "', '" + short2 + "', '" + short3 + "', '" + short4 + "', '" + mac + "')"
+	runSql(databaseFile, sqlquery)
+}
+
+func delHost(databaseFile string, host string, network string) {
+	fmt.Println("Deleting host:")
+	fmt.Println(host)
+	fmt.Println(network)
+	sqlquery := "delete from hosts where (fqdn like '" + host + "') and (network like '" + network + "')"
 	runSql(databaseFile, sqlquery)
 }
 
