@@ -4,11 +4,13 @@ import (
 	"database/sql"
 	"flag"
 	"fmt"
+	"github.com/gorilla/mux"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"github.com/xwb1989/sqlparser"
 	"log"
+	"net/http"
 	"os"
 	"strings"
 	_ "unicode"
@@ -50,6 +52,7 @@ func init() {
 	flag.String("short2", "", "short2 hostname")
 	flag.String("short3", "", "short3 hostname")
 	flag.String("short4", "", "short4 hostname")
+	flag.Bool("startweb", false, "start web service")
 	flag.Bool("version", false, "display version information")
 	pflag.CommandLine.AddGoFlagSet(flag.CommandLine)
 	pflag.Parse()
@@ -89,6 +92,11 @@ func main() {
 
 	if viper.GetBool("displayconfig") {
 		displayConfig()
+		os.Exit(0)
+	}
+
+	if viper.GetBool("startweb") {
+		startWeb(viper.GetString("Database"), viper.GetString("ListenIP"), viper.GetString("ListenPort"))
 		os.Exit(0)
 	}
 
@@ -200,6 +208,23 @@ func runSql(databaseFile string, sqlquery string) {
 		log.Printf("%q: %s\n", err, sqlquery)
 		return
 	}
+}
+
+func getSqlRows(databaseFile string, sqlquery string) sql.Result {
+	fmt.Println("Starting getSqlRows")
+	db, err := sql.Open("sqlite3", databaseFile)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
+	rows, err := db.Exec(sqlquery)
+
+	if err != nil {
+		log.Printf("%q: %s\n", err, sqlquery)
+	}
+
+	return rows
 }
 
 func displayVersion() {
@@ -318,6 +343,30 @@ func breakIp(ipaddress string, position int) string {
 	}
 	ipArray := strings.FieldsFunc(ipaddress, deliminator)
 	return ipArray[position]
+}
+
+func startWeb(databaseFile string, listenip string, listenport string) {
+	fmt.Println("Starting webserver: " + listenip + ":" + listenport)
+	r := mux.NewRouter()
+	r.HandleFunc("/networks/{whichnetwork}", func(w http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
+		whichnetwork := vars["whichnetwork"]
+		if strings.ToLower(whichnetwork) == "all" {
+			fmt.Fprintf(w, "showing all networks")
+			sqlquery := "select * from networks"
+			rows := getSqlRows(databaseFile, sqlquery)
+			for rows.Next() {
+				var network string
+				var cidr string
+				var description string
+				rows.Scan(&network, &cidr, &description)
+				fmt.Printf("%-15s  %-18s  %s\n", network, cidr, description)
+			}
+		} else {
+			fmt.Fprintf(w, "showing for network %s", whichnetwork)
+		}
+	})
+	http.ListenAndServe(":"+listenport, r)
 }
 
 func displayHelp() {
