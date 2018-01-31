@@ -131,7 +131,7 @@ func main() {
 	}
 
 	if viper.GetBool("listnetworks") {
-		listNetworks(viper.GetString("Database"))
+		listNetworks(viper.GetString("Database"), nil, "select * from networks")
 		os.Exit(0)
 	}
 
@@ -215,9 +215,11 @@ func runSql(databaseFile string, sqlquery string) {
 	}
 }
 
-func webListNetworks(databaseFile string, webprint http.ResponseWriter, sqlquery string) {
-	fmt.Println("Starting webListNetworks")
-	// fmt.Fprintf(webprint, "database=%s\nquery=%s\n", databaseFile, sqlquery)
+func listNetworks(databaseFile string, webprint http.ResponseWriter, sqlquery string) {
+	fmt.Println("Starting listNetworks")
+	if webprint == nil {
+		fmt.Println("webprint is null, printing to std out")
+	}
 	db, err := sql.Open("sqlite3", databaseFile)
 	if err != nil {
 		log.Fatal(err)
@@ -229,7 +231,11 @@ func webListNetworks(databaseFile string, webprint http.ResponseWriter, sqlquery
 		var cidr string
 		var description string
 		err = rows.Scan(&network, &cidr, &description)
-		fmt.Fprintf(webprint, "%-15s  %-18s  %s\n", network, cidr, description)
+		if webprint == nil {
+			fmt.Printf("%-15s  %-18s  %s\n", network, cidr, description)
+		} else {
+			fmt.Fprintf(webprint, "%-15s  %-18s  %s\n", network, cidr, description)
+		}
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -272,31 +278,6 @@ func setupdb(databasefile string) {
 	if err != nil {
 		log.Printf("%q: %s\n", err, sqlquery)
 		return
-	}
-}
-
-func listNetworks(databaseFile string) {
-	fmt.Println("Starting listNetworks function\n")
-	db, err := sql.Open("sqlite3", databaseFile)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer db.Close()
-	sqlquery := "select * from networks"
-	rows, err := db.Query(sqlquery)
-	for rows.Next() {
-		var network string
-		var cidr string
-		var description string
-		err = rows.Scan(&network, &cidr, &description)
-		fmt.Printf("%-15s  %-18s  %s\n", network, cidr, description)
-		if err != nil {
-			log.Fatal(err)
-		}
-	}
-	err = rows.Err()
-	if err != nil {
-		log.Fatal(err)
 	}
 }
 
@@ -368,7 +349,7 @@ func startWeb(databaseFile string, listenip string, listenport string) {
 			//fmt.Fprintf(w, "showing for network %s", whichnetwork)
 			sqlquery = "select * from networks where network like '" + whichnetwork + "'"
 		}
-		webListNetworks(databaseFile, w, sqlquery)
+		listNetworks(databaseFile, w, sqlquery)
 	})
 	http.ListenAndServe(":"+listenport, r)
 }
