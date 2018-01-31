@@ -43,6 +43,7 @@ func init() {
 	flag.String("desc", "", "description of network, used with --addnetwork and --cidr")
 	flag.Bool("help", false, "display help information")
 	flag.String("ipaddress", "", "ip address of new host")
+	listenPort := flag.String("listenport", "", "port for webservice to listen upon")
 	flag.Bool("listnetworks", false, "list all networks")
 	flag.Bool("showmac", false, "show mac addresses of hosts")
 	flag.String("mac", "", "mac address of host")
@@ -66,6 +67,10 @@ func init() {
 		viper.SetConfigName(*configFile)
 	}
 	err := viper.ReadInConfig()
+
+	if *listenPort != "" {
+		viper.Set("ListenPort", listenPort)
+	}
 
 	if err != nil {
 		fmt.Println("No configuration file loaded - using defaults")
