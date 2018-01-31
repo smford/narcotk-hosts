@@ -210,21 +210,25 @@ func runSql(databaseFile string, sqlquery string) {
 	}
 }
 
-func getSqlRows(databaseFile string, sqlquery string) sql.Result {
-	fmt.Println("Starting getSqlRows")
+func webListNetworks(databaseFile string, webprint http.ResponseWriter, sqlquery string) {
+	fmt.Println("Starting webListNetworks")
+	// fmt.Fprintf(webprint, "database=%s\nquery=%s\n", databaseFile, sqlquery)
 	db, err := sql.Open("sqlite3", databaseFile)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer db.Close()
-
-	rows, err := db.Exec(sqlquery)
-
-	if err != nil {
-		log.Printf("%q: %s\n", err, sqlquery)
+	rows, err := db.Query(sqlquery)
+	for rows.Next() {
+		var network string
+		var cidr string
+		var description string
+		err = rows.Scan(&network, &cidr, &description)
+		fmt.Fprintf(webprint, "%-15s  %-18s  %s\n", network, cidr, description)
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
-
-	return rows
 }
 
 func displayVersion() {
@@ -349,22 +353,17 @@ func startWeb(databaseFile string, listenip string, listenport string) {
 	fmt.Println("Starting webserver: " + listenip + ":" + listenport)
 	r := mux.NewRouter()
 	r.HandleFunc("/networks/{whichnetwork}", func(w http.ResponseWriter, r *http.Request) {
+		var sqlquery string
 		vars := mux.Vars(r)
 		whichnetwork := vars["whichnetwork"]
 		if strings.ToLower(whichnetwork) == "all" {
-			fmt.Fprintf(w, "showing all networks")
-			sqlquery := "select * from networks"
-			rows := getSqlRows(databaseFile, sqlquery)
-			for rows.Next() {
-				var network string
-				var cidr string
-				var description string
-				rows.Scan(&network, &cidr, &description)
-				fmt.Printf("%-15s  %-18s  %s\n", network, cidr, description)
-			}
+			//fmt.Fprintf(w, "showing all networks")
+			sqlquery = "select * from networks"
 		} else {
-			fmt.Fprintf(w, "showing for network %s", whichnetwork)
+			//fmt.Fprintf(w, "showing for network %s", whichnetwork)
+			sqlquery = "select * from networks where network like '" + whichnetwork + "'"
 		}
+		webListNetworks(databaseFile, w, sqlquery)
 	})
 	http.ListenAndServe(":"+listenport, r)
 }
