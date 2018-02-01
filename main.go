@@ -326,6 +326,8 @@ func startWeb(databaseFile string, listenip string, listenport string) {
 	hostsRouter.HandleFunc("", handlerHosts)
 	hostsRouter.HandleFunc("/", handlerHosts)
 	hostsRouter.HandleFunc("/json", handlerHostsJson)
+	hostsRouter.HandleFunc("/{network}", handlerHostsNetwork)
+	hostsRouter.HandleFunc("/{network}/json", handlerHostsNetworkJson)
 
 	hostRouter := r.PathPrefix("/host").Subrouter()
 	hostRouter.HandleFunc("/{host}", handlerHost)
@@ -355,6 +357,18 @@ func handlerHosts(w http.ResponseWriter, r *http.Request) {
 func handlerHostsJson(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Starting handlerHostsJson")
 	fmt.Fprintf(w, "json print hosts")
+}
+
+func handlerHostsNetwork(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	fmt.Println("Starting handlerHostNetwork: " + vars["network"])
+	listHost(viper.GetString("Database"), w, viper.GetString("network"), "select * from hosts where network like '"+vars["network"]+"'", false)
+}
+
+func handlerHostsNetworkJson(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	fmt.Println("Starting handlerHostNetworkJson: " + vars["network"])
+	fmt.Fprintf(w, "json print host network: %s", vars["network"])
 }
 
 func handlerHost(w http.ResponseWriter, r *http.Request) {
