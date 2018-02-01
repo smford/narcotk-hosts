@@ -155,7 +155,7 @@ func main() {
 		}
 	}
 
-	listHosts(viper.GetString("Database"), viper.GetString("network"), viper.GetBool("showmac"))
+	listHost(viper.GetString("Database"), nil, viper.GetString("network"), "select * from hosts", viper.GetBool("showmac"))
 }
 
 func addHost(databaseFile string, addhost string, network string, ipaddress string, short1 string, short2 string, short3 string, short4 string, mac string) {
@@ -269,23 +269,16 @@ func setupdb(databaseFile string) {
 	runSql(databaseFile, sqlquery)
 }
 
-func listHosts(databaseFile string, network string, showmac bool) {
-	fmt.Println("Starting listHosts function\n")
-	sqlquery := "select * from hosts"
-	if len(network) != 0 {
-		fmt.Println("Displaying hosts from network: " + network)
-		sqlquery = sqlquery + " where network like '" + network + "'"
-	} else {
-		fmt.Println("Displaying ALL hosts from ALL networks")
+func listHost(databaseFile string, webprint http.ResponseWriter, network string, sqlquery string, showmac bool) {
+	fmt.Println("Starting listHost")
+	if webprint == nil {
+		fmt.Println("webprint is null, printing to std out")
 	}
-	fmt.Println("sqlquery= " + sqlquery)
-
 	db, err := sql.Open("sqlite3", databaseFile)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer db.Close()
-
 	rows, err := db.Query(sqlquery)
 	for rows.Next() {
 		var hostid string
@@ -299,20 +292,23 @@ func listHosts(databaseFile string, network string, showmac bool) {
 		var short4 string
 		var mac string
 		err = rows.Scan(&hostid, &network, &ipsuffix, &ipaddress, &fqdn, &short1, &short2, &short3, &short4, &mac)
+		if showmac {
+			if webprint == nil {
+				fmt.Printf("%-17s  %-15s    %s  %s  %s  %s  %s\n", mac, ipaddress, fqdn, short1, short2, short3, short4)
+			} else {
+				fmt.Fprintf(webprint, "%-17s  %-15s    %s  %s  %s  %s  %s\n", mac, ipaddress, fqdn, short1, short2, short3, short4)
+			}
+		} else {
+			if webprint == nil {
+				fmt.Printf("%-15s    %s  %s  %s  %s  %s\n", ipaddress, fqdn, short1, short2, short3, short4)
+			} else {
+				fmt.Fprintf(webprint, "%-15s    %s  %s  %s  %s  %s\n", ipaddress, fqdn, short1, short2, short3, short4)
+			}
+		}
 		if err != nil {
 			log.Fatal(err)
 		}
-		if showmac {
-			fmt.Printf("%-17s  %-15s    %s  %s  %s  %s  %s\n", mac, ipaddress, fqdn, short1, short2, short3, short4)
-		} else {
-			fmt.Printf("%-15s    %s  %s  %s  %s  %s\n", ipaddress, fqdn, short1, short2, short3, short4)
-		}
 	}
-	err = rows.Err()
-	if err != nil {
-		log.Fatal(err)
-	}
-	os.Exit(0)
 }
 
 func breakIp(ipaddress string, position int) string {
@@ -327,6 +323,7 @@ func startWeb(databaseFile string, listenip string, listenport string) {
 	fmt.Println("Starting webserver: " + listenip + ":" + listenport)
 	r := mux.NewRouter()
 	r.HandleFunc("/networks/{whichnetwork}", handlerNetworks)
+	r.HandleFunc("/hosts", handlerHosts)
 	http.ListenAndServe(":"+listenport, r)
 }
 
@@ -342,6 +339,11 @@ func handlerNetworks(w http.ResponseWriter, r *http.Request) {
 		sqlquery = "select * from networks where network like '" + whichnetwork + "'"
 	}
 	listNetworks(viper.GetString("Database"), w, sqlquery)
+}
+
+func handlerHosts(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Starting handlerHosts")
+	listHost(viper.GetString("Database"), w, viper.GetString("network"), "select * from hosts", viper.GetBool("showmac"))
 }
 
 func displayHelp() {
