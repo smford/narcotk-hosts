@@ -385,7 +385,6 @@ func handlerHost(w http.ResponseWriter, r *http.Request) {
 func handlerHostJson(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	fmt.Println("Starting handlerHostJson: " + vars["host"])
-	fmt.Println("Starting handlerHostJson: " + vars["host"])
 	fmt.Fprintf(w, "json print host: %s", vars["host"])
 }
 
