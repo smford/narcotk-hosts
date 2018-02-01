@@ -322,28 +322,89 @@ func breakIp(ipaddress string, position int) string {
 func startWeb(databaseFile string, listenip string, listenport string) {
 	fmt.Println("Starting webserver: " + listenip + ":" + listenport)
 	r := mux.NewRouter()
-	r.HandleFunc("/networks/{whichnetwork}", handlerNetworks)
-	r.HandleFunc("/hosts", handlerHosts)
-	http.ListenAndServe(":"+listenport, r)
-}
+	hostsRouter := r.PathPrefix("/hosts").Subrouter()
+	hostsRouter.HandleFunc("", handlerHosts)
+	hostsRouter.HandleFunc("/", handlerHosts)
+	hostsRouter.HandleFunc("/json", handlerHostsJson)
 
-func handlerNetworks(w http.ResponseWriter, r *http.Request) {
-	var sqlquery string
-	vars := mux.Vars(r)
-	whichnetwork := vars["whichnetwork"]
-	if strings.ToLower(whichnetwork) == "all" {
-		//fmt.Fprintf(w, "showing all networks")
-		sqlquery = "select * from networks"
-	} else {
-		//fmt.Fprintf(w, "showing for network %s", whichnetwork)
-		sqlquery = "select * from networks where network like '" + whichnetwork + "'"
-	}
-	listNetworks(viper.GetString("Database"), w, sqlquery)
+	hostRouter := r.PathPrefix("/host").Subrouter()
+	hostRouter.HandleFunc("/{host}", handlerHost)
+	hostRouter.HandleFunc("/{host}/json", handlerHostJson)
+
+	networksRouter := r.PathPrefix("/networks").Subrouter()
+	networksRouter.HandleFunc("", handlerNetworks)
+	networksRouter.HandleFunc("/", handlerNetworks)
+	networksRouter.HandleFunc("/json", handlerNetworksJson)
+
+	networkRouter := r.PathPrefix("/network").Subrouter()
+	networkRouter.HandleFunc("/{network}", handlerNetwork)
+	networkRouter.HandleFunc("/{network}/json", handlerNetworkJson)
+
+	ipRouter := r.PathPrefix("/ip").Subrouter()
+	ipRouter.HandleFunc("/{ip}", handlerIp)
+	ipRouter.HandleFunc("/{ip}/json", handlerIpJson)
+
+	http.ListenAndServe(":"+listenport, r)
 }
 
 func handlerHosts(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Starting handlerHosts")
 	listHost(viper.GetString("Database"), w, viper.GetString("network"), "select * from hosts", viper.GetBool("showmac"))
+}
+
+func handlerHostsJson(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Starting handlerHostsJson")
+	fmt.Fprintf(w, "json print hosts")
+}
+
+func handlerHost(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	fmt.Println("Starting handlerHost: " + vars["host"])
+	listHost(viper.GetString("Database"), w, viper.GetString("network"), "select * from hosts where fqdn like '"+vars["host"]+"'", viper.GetBool("showmac"))
+}
+
+func handlerHostJson(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	fmt.Println("Starting handlerHostJson: " + vars["host"])
+	fmt.Println("Starting handlerHostJson: " + vars["host"])
+	fmt.Fprintf(w, "json print host: %s", vars["host"])
+}
+
+func handlerNetworks(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Starting handlerNetworks")
+	sqlquery := "select * from networks"
+	listNetworks(viper.GetString("Database"), w, sqlquery)
+}
+
+func handlerNetworksJson(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Starting handlerNetworksJson")
+	fmt.Fprintf(w, "json print Networks")
+}
+
+func handlerNetwork(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	fmt.Println("Starting handlerNetwork: " + vars["network"])
+	sqlquery := "select * from networks where network like '" + vars["network"] + "'"
+	listNetworks(viper.GetString("Database"), w, sqlquery)
+}
+
+func handlerNetworkJson(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	fmt.Println("Starting handlerNetworkJson: " + vars["network"])
+	fmt.Fprintf(w, "json print Network: %s", vars["network"])
+}
+
+func handlerIp(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	fmt.Println("Starting handlerIp: " + vars["ip"])
+	sqlquery := "select * from hosts where ipaddress like '" + vars["ip"] + "'"
+	listHost(viper.GetString("Database"), w, "", sqlquery, false)
+}
+
+func handlerIpJson(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	fmt.Println("Starting handlerIpJson: " + vars["ip"])
+	fmt.Fprintf(w, "json print ip: %s", vars["ip"])
 }
 
 func displayHelp() {
