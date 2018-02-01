@@ -326,20 +326,22 @@ func breakIp(ipaddress string, position int) string {
 func startWeb(databaseFile string, listenip string, listenport string) {
 	fmt.Println("Starting webserver: " + listenip + ":" + listenport)
 	r := mux.NewRouter()
-	r.HandleFunc("/networks/{whichnetwork}", func(w http.ResponseWriter, r *http.Request) {
-		var sqlquery string
-		vars := mux.Vars(r)
-		whichnetwork := vars["whichnetwork"]
-		if strings.ToLower(whichnetwork) == "all" {
-			//fmt.Fprintf(w, "showing all networks")
-			sqlquery = "select * from networks"
-		} else {
-			//fmt.Fprintf(w, "showing for network %s", whichnetwork)
-			sqlquery = "select * from networks where network like '" + whichnetwork + "'"
-		}
-		listNetworks(databaseFile, w, sqlquery)
-	})
+	r.HandleFunc("/networks/{whichnetwork}", handlerNetworks)
 	http.ListenAndServe(":"+listenport, r)
+}
+
+func handlerNetworks(w http.ResponseWriter, r *http.Request) {
+	var sqlquery string
+	vars := mux.Vars(r)
+	whichnetwork := vars["whichnetwork"]
+	if strings.ToLower(whichnetwork) == "all" {
+		//fmt.Fprintf(w, "showing all networks")
+		sqlquery = "select * from networks"
+	} else {
+		//fmt.Fprintf(w, "showing for network %s", whichnetwork)
+		sqlquery = "select * from networks where network like '" + whichnetwork + "'"
+	}
+	listNetworks(viper.GetString("Database"), w, sqlquery)
 }
 
 func displayHelp() {
