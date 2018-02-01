@@ -346,7 +346,7 @@ func startWeb(databaseFile string, listenip string, listenport string) {
 	ipRouter.HandleFunc("/{ip}", handlerIp)
 	ipRouter.HandleFunc("/{ip}/json", handlerIpJson)
 
-	http.ListenAndServe(":"+listenport, r)
+	http.ListenAndServe(listenip+":"+listenport, r)
 }
 
 func handlerHosts(w http.ResponseWriter, r *http.Request) {
