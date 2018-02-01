@@ -246,14 +246,8 @@ func displayVersion() {
 	fmt.Println("narcotk-hosts: 0.1")
 }
 
-func setupdb(databasefile string) {
-	fmt.Println("Setting up a new database file: " + databasefile)
-
-	db, err := sql.Open("sqlite3", databasefile)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer db.Close()
+func setupdb(databaseFile string) {
+	fmt.Println("Setting up a new database file: " + databaseFile)
 	sqlquery := `
 	CREATE TABLE hosts (
 	  hostid text PRIMARY KEY,
@@ -264,21 +258,15 @@ func setupdb(databasefile string) {
 	  short1 text NOT NULL DEFAULT '',
 	  short2 text NOT NULL DEFAULT '',
 	  short3 text NOT NULL DEFAULT '',
-	  short4 text NOT NULL DEFAULT ''
-	  , mac TEXT DEFAULT '');
-	  CREATE TABLE networks (
-	    network text PRIMARY KEY,
-	    cidr text NOT NULL,
-	    description text NOT NULL DEFAULT ''
-	  );
-	  `
-
-	_, err = db.Exec(sqlquery)
-
-	if err != nil {
-		log.Printf("%q: %s\n", err, sqlquery)
-		return
-	}
+	  short4 text NOT NULL DEFAULT '',
+	  mac TEXT DEFAULT '')`
+	runSql(databaseFile, sqlquery)
+	sqlquery = `
+	CREATE TABLE networks (
+     network text PRIMARY KEY,
+     cidr text NOT NULL,
+     description text NOT NULL DEFAULT '')`
+	runSql(databaseFile, sqlquery)
 }
 
 func listHosts(databaseFile string, network string, showmac bool) {
