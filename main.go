@@ -43,6 +43,7 @@ func init() {
 	flag.String("desc", "", "description of network, used with --addnetwork and --cidr")
 	flag.Bool("help", false, "display help information")
 	flag.String("ipaddress", "", "ip address of new host")
+	listenIp := flag.String("listenip", "", "ip address for webservice to bind to")
 	listenPort := flag.String("listenport", "", "port for webservice to listen upon")
 	flag.Bool("listnetworks", false, "list all networks")
 	flag.Bool("showmac", false, "show mac addresses of hosts")
@@ -70,6 +71,10 @@ func init() {
 
 	if *listenPort != "" {
 		viper.Set("ListenPort", listenPort)
+	}
+
+	if *listenIp != "" {
+		viper.Set("ListenIP", listenIp)
 	}
 
 	if err != nil {
