@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	_ "encoding/json"
 	"flag"
 	"fmt"
 	"github.com/gorilla/mux"
@@ -16,6 +17,21 @@ import (
 	_ "unicode"
 )
 
+type Host struct {
+	Hostname  string `json:"Hostname"`
+	IPAddress string `json:"IPAddress"`
+}
+
+type Network struct {
+	Network string `json:"Network"`
+	CIDR    string `json:"CIDR"`
+	Hosts   []Host `json:"Hosts"`
+}
+
+type Networks struct {
+	Networks []Network `json:"Networks"`
+}
+
 func displayConfig() {
 	fmt.Println("Starting displayConfig function")
 	fmt.Printf("Networks:      %s\n", viper.GetString("Networks"))
@@ -28,6 +44,7 @@ func displayConfig() {
 	fmt.Printf("Database:      %s\n", viper.GetString("Database"))
 	fmt.Printf("HeaderFile:    %s\n", viper.GetString("HeaderFile"))
 	fmt.Printf("PrintColumns:  %s\n", viper.GetString("PrintColumns"))
+	fmt.Printf("JSON:          %s\n", viper.GetString("JSON"))
 }
 
 func init() {
@@ -43,6 +60,7 @@ func init() {
 	flag.String("desc", "", "description of network, used with --addnetwork and --cidr")
 	flag.Bool("help", false, "display help information")
 	flag.String("ipaddress", "", "ip address of new host")
+	flag.Bool("json", false, "output in json")
 	listenIp := flag.String("listenip", "", "ip address for webservice to bind to")
 	listenPort := flag.String("listenport", "", "port for webservice to listen upon")
 	flag.Bool("listnetworks", false, "list all networks")
@@ -89,6 +107,7 @@ func init() {
 		viper.SetDefault("Database", "./narcotk_hosts_all.db")
 		viper.SetDefault("HeaderFile", "./header.txt")
 		viper.SetDefault("PrintColumns", "blank")
+		viper.SetDefault("JSON", false)
 	}
 }
 
@@ -160,7 +179,7 @@ func main() {
 		}
 	}
 
-	listHost(viper.GetString("Database"), nil, viper.GetString("network"), "select * from hosts", viper.GetBool("showmac"))
+	listHost(viper.GetString("Database"), nil, viper.GetString("network"), "select * from hosts", viper.GetBool("showmac"), viper.GetBool("json"))
 }
 
 func addHost(databaseFile string, addhost string, network string, ipaddress string, short1 string, short2 string, short3 string, short4 string, mac string) {
@@ -274,7 +293,7 @@ func setupdb(databaseFile string) {
 	runSql(databaseFile, sqlquery)
 }
 
-func listHost(databaseFile string, webprint http.ResponseWriter, network string, sqlquery string, showmac bool) {
+func listHost(databaseFile string, webprint http.ResponseWriter, network string, sqlquery string, showmac bool, json bool) {
 	fmt.Println("Starting listHost")
 	if webprint == nil {
 		fmt.Println("webprint is null, printing to std out")
@@ -356,7 +375,7 @@ func startWeb(databaseFile string, listenip string, listenport string) {
 
 func handlerHosts(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Starting handlerHosts")
-	listHost(viper.GetString("Database"), w, viper.GetString("network"), "select * from hosts", viper.GetBool("showmac"))
+	listHost(viper.GetString("Database"), w, viper.GetString("network"), "select * from hosts", viper.GetBool("showmac"), false)
 }
 
 func handlerHostsJson(w http.ResponseWriter, r *http.Request) {
@@ -367,7 +386,7 @@ func handlerHostsJson(w http.ResponseWriter, r *http.Request) {
 func handlerHostsNetwork(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	fmt.Println("Starting handlerHostNetwork: " + vars["network"])
-	listHost(viper.GetString("Database"), w, viper.GetString("network"), "select * from hosts where network like '"+vars["network"]+"'", false)
+	listHost(viper.GetString("Database"), w, viper.GetString("network"), "select * from hosts where network like '"+vars["network"]+"'", false, false)
 }
 
 func handlerHostsNetworkJson(w http.ResponseWriter, r *http.Request) {
@@ -379,7 +398,7 @@ func handlerHostsNetworkJson(w http.ResponseWriter, r *http.Request) {
 func handlerHost(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	fmt.Println("Starting handlerHost: " + vars["host"])
-	listHost(viper.GetString("Database"), w, viper.GetString("network"), "select * from hosts where fqdn like '"+vars["host"]+"'", viper.GetBool("showmac"))
+	listHost(viper.GetString("Database"), w, viper.GetString("network"), "select * from hosts where fqdn like '"+vars["host"]+"'", viper.GetBool("showmac"), false)
 }
 
 func handlerHostJson(w http.ResponseWriter, r *http.Request) {
@@ -416,7 +435,7 @@ func handlerIp(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	fmt.Println("Starting handlerIp: " + vars["ip"])
 	sqlquery := "select * from hosts where ipaddress like '" + vars["ip"] + "'"
-	listHost(viper.GetString("Database"), w, "", sqlquery, false)
+	listHost(viper.GetString("Database"), w, "", sqlquery, false, false)
 }
 
 func handlerIpJson(w http.ResponseWriter, r *http.Request) {
@@ -429,6 +448,7 @@ func displayHelp() {
 	helpmessage := `
 Options:
   --help           Display help information
+	--json           Print output in json
   --showheader     Prepend ./header.txt to the output [default=false]
   --displayconfig  Prints out the applied configuration
   --version
