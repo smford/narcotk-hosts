@@ -2,7 +2,7 @@ package main
 
 import (
 	"database/sql"
-	_ "encoding/json"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"github.com/gorilla/mux"
@@ -25,6 +25,10 @@ type Host struct {
 	Short3    string `json:"Short3"`
 	Short4    string `json:"Short4"`
 	MAC       string `json:"MAC"`
+}
+
+type Hosts struct {
+	Hosts []Host `json:"Hosts"`
 }
 
 type HostsSingleNetwork struct {
@@ -309,7 +313,7 @@ func setupdb(databaseFile string) {
 	runSql(databaseFile, sqlquery)
 }
 
-func listHost(databaseFile string, webprint http.ResponseWriter, network string, sqlquery string, showmac bool, json bool) {
+func listHost(databaseFile string, webprint http.ResponseWriter, network string, sqlquery string, showmac bool, printjson bool) {
 	fmt.Println("Starting listHost")
 	if webprint == nil {
 		fmt.Println("webprint is null, printing to std out")
@@ -332,17 +336,35 @@ func listHost(databaseFile string, webprint http.ResponseWriter, network string,
 		var short4 string
 		var mac string
 		err = rows.Scan(&hostid, &network, &ipsuffix, &ipaddress, &fqdn, &short1, &short2, &short3, &short4, &mac)
+		jsonhost := Host{ipaddress, fqdn, short1, short2, short3, short4, mac}
+		c, _ := json.Marshal(jsonhost)
 		if showmac {
 			if webprint == nil {
-				fmt.Printf("%-17s  %-15s    %s  %s  %s  %s  %s\n", mac, ipaddress, fqdn, short1, short2, short3, short4)
+				if printjson {
+					fmt.Printf("%s", c)
+				} else {
+					fmt.Printf("%-17s  %-15s    %s  %s  %s  %s  %s\n", mac, ipaddress, fqdn, short1, short2, short3, short4)
+				}
 			} else {
-				fmt.Fprintf(webprint, "%-17s  %-15s    %s  %s  %s  %s  %s\n", mac, ipaddress, fqdn, short1, short2, short3, short4)
+				if printjson {
+					fmt.Fprintf(webprint, "%s", c)
+				} else {
+					fmt.Fprintf(webprint, "%-17s  %-15s    %s  %s  %s  %s  %s\n", mac, ipaddress, fqdn, short1, short2, short3, short4)
+				}
 			}
 		} else {
 			if webprint == nil {
-				fmt.Printf("%-15s    %s  %s  %s  %s  %s\n", ipaddress, fqdn, short1, short2, short3, short4)
+				if printjson {
+					fmt.Printf("%s", c)
+				} else {
+					fmt.Printf("%-15s    %s  %s  %s  %s  %s\n", ipaddress, fqdn, short1, short2, short3, short4)
+				}
 			} else {
-				fmt.Fprintf(webprint, "%-15s    %s  %s  %s  %s  %s\n", ipaddress, fqdn, short1, short2, short3, short4)
+				if printjson {
+					fmt.Fprintf(webprint, "%s", c)
+				} else {
+					fmt.Fprintf(webprint, "%-15s    %s  %s  %s  %s  %s\n", ipaddress, fqdn, short1, short2, short3, short4)
+				}
 			}
 		}
 		if err != nil {
@@ -396,7 +418,8 @@ func handlerHosts(w http.ResponseWriter, r *http.Request) {
 
 func handlerHostsJson(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Starting handlerHostsJson")
-	fmt.Fprintf(w, "json print hosts")
+	//fmt.Fprintf(w, "json print hosts")
+	listHost(viper.GetString("Database"), w, viper.GetString("network"), "select * from hosts", viper.GetBool("showmac"), true)
 }
 
 func handlerHostsNetwork(w http.ResponseWriter, r *http.Request) {
@@ -420,7 +443,8 @@ func handlerHost(w http.ResponseWriter, r *http.Request) {
 func handlerHostJson(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	fmt.Println("Starting handlerHostJson: " + vars["host"])
-	fmt.Fprintf(w, "json print host: %s", vars["host"])
+	listHost(viper.GetString("Database"), w, viper.GetString("network"), "select * from hosts where fqdn like '"+vars["host"]+"'", viper.GetBool("showmac"), true)
+	//fmt.Fprintf(w, "json print host: %s", vars["host"])
 }
 
 func handlerNetworks(w http.ResponseWriter, r *http.Request) {
