@@ -18,18 +18,34 @@ import (
 )
 
 type Host struct {
-	Hostname  string `json:"Hostname"`
 	IPAddress string `json:"IPAddress"`
+	Hostname  string `json:"Hostname"`
+	Short1    string `json:"Short1"`
+	Short2    string `json:"Short2"`
+	Short3    string `json:"Short3"`
+	Short4    string `json:"Short4"`
+	MAC       string `json:"MAC"`
 }
 
-type Network struct {
-	Network string `json:"Network"`
-	CIDR    string `json:"CIDR"`
-	Hosts   []Host `json:"Hosts"`
+type HostsSingleNetwork struct {
+	Network     string `json:"Network"`
+	CIDR        string `json:"CIDR"`
+	Description string `json:"Description"`
+	Hosts       []Host `json:"Hosts"`
 }
 
-type Networks struct {
-	Networks []Network `json:"Networks"`
+type HostsAllNetworks struct {
+	Networks []HostsSingleNetwork `json:"Networks"`
+}
+
+type SingleNetwork struct {
+	Network     string `json:"Network"`
+	CIDR        string `json:"CIDR"`
+	Description string `json:"Description"`
+}
+
+type AllNetworks struct {
+	Networks []SingleNetwork `json:"Networks"`
 }
 
 func displayConfig() {
