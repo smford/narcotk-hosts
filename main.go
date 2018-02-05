@@ -434,7 +434,6 @@ func handlerHosts(w http.ResponseWriter, r *http.Request) {
 
 func handlerHostsJson(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Starting handlerHostsJson")
-	//fmt.Fprintf(w, "json print hosts")
 	listHost(viper.GetString("Database"), w, viper.GetString("network"), "select * from hosts", viper.GetBool("showmac"), true)
 }
 
@@ -460,7 +459,6 @@ func handlerHostJson(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	fmt.Println("Starting handlerHostJson: " + vars["host"])
 	listHost(viper.GetString("Database"), w, viper.GetString("network"), "select * from hosts where fqdn like '"+vars["host"]+"'", viper.GetBool("showmac"), true)
-	//fmt.Fprintf(w, "json print host: %s", vars["host"])
 }
 
 func handlerNetworks(w http.ResponseWriter, r *http.Request) {
