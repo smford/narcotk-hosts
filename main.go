@@ -323,6 +323,7 @@ func listHost(databaseFile string, webprint http.ResponseWriter, network string,
 		log.Fatal(err)
 	}
 	defer db.Close()
+	var myhosts []Host
 	rows, err := db.Query(sqlquery)
 	for rows.Next() {
 		var hostid string
@@ -336,39 +337,39 @@ func listHost(databaseFile string, webprint http.ResponseWriter, network string,
 		var short4 string
 		var mac string
 		err = rows.Scan(&hostid, &network, &ipsuffix, &ipaddress, &fqdn, &short1, &short2, &short3, &short4, &mac)
-		jsonhost := Host{ipaddress, fqdn, short1, short2, short3, short4, mac}
-		c, _ := json.Marshal(jsonhost)
-		if showmac {
-			if webprint == nil {
-				if printjson {
-					fmt.Printf("%s", c)
-				} else {
-					fmt.Printf("%-17s  %-15s    %s  %s  %s  %s  %s\n", mac, ipaddress, fqdn, short1, short2, short3, short4)
+		myhosts = append(myhosts, Host{ipaddress, fqdn, short1, short2, short3, short4, mac})
+	}
+	if printjson {
+		// print json
+		c, _ := json.Marshal(myhosts)
+		if webprint == nil {
+			fmt.Printf("%s", c)
+		} else {
+			fmt.Fprintf(webprint, "%s", c)
+		}
+	} else {
+		// print standard
+		if webprint == nil {
+			if showmac {
+				for _, host := range myhosts {
+					fmt.Printf("%-17s  %-15s    %s  %s  %s  %s  %s\n", host.MAC, host.IPAddress, host.Hostname, host.Short1, host.Short2, host.Short3, host.Short4)
 				}
 			} else {
-				if printjson {
-					fmt.Fprintf(webprint, "%s", c)
-				} else {
-					fmt.Fprintf(webprint, "%-17s  %-15s    %s  %s  %s  %s  %s\n", mac, ipaddress, fqdn, short1, short2, short3, short4)
+				for _, host := range myhosts {
+					fmt.Printf("%-15s    %s  %s  %s  %s  %s\n", host.IPAddress, host.Hostname, host.Short1, host.Short2, host.Short3, host.Short4)
 				}
 			}
 		} else {
-			if webprint == nil {
-				if printjson {
-					fmt.Printf("%s", c)
-				} else {
-					fmt.Printf("%-15s    %s  %s  %s  %s  %s\n", ipaddress, fqdn, short1, short2, short3, short4)
+			// webprint
+			if showmac {
+				for _, host := range myhosts {
+					fmt.Fprintf(webprint, "%-17s  %-15s    %s  %s  %s  %s  %s\n", host.MAC, host.IPAddress, host.Hostname, host.Short1, host.Short2, host.Short3, host.Short4)
 				}
 			} else {
-				if printjson {
-					fmt.Fprintf(webprint, "%s", c)
-				} else {
-					fmt.Fprintf(webprint, "%-15s    %s  %s  %s  %s  %s\n", ipaddress, fqdn, short1, short2, short3, short4)
+				for _, host := range myhosts {
+					fmt.Fprintf(webprint, "%-15s    %s  %s  %s  %s  %s\n", host.IPAddress, host.Hostname, host.Short1, host.Short2, host.Short3, host.Short4)
 				}
 			}
-		}
-		if err != nil {
-			log.Fatal(err)
 		}
 	}
 }
