@@ -175,7 +175,7 @@ func main() {
 	}
 
 	if viper.GetBool("listnetworks") {
-		listNetworks(viper.GetString("Database"), nil, "select * from networks")
+		listNetworks(viper.GetString("Database"), nil, "select * from networks", viper.GetBool("json"))
 		os.Exit(0)
 	}
 
@@ -259,7 +259,7 @@ func runSql(databaseFile string, sqlquery string) {
 	}
 }
 
-func listNetworks(databaseFile string, webprint http.ResponseWriter, sqlquery string) {
+func listNetworks(databaseFile string, webprint http.ResponseWriter, sqlquery string, printjson bool) {
 	fmt.Println("Starting listNetworks")
 	if webprint == nil {
 		fmt.Println("webprint is null, printing to std out")
@@ -269,19 +269,34 @@ func listNetworks(databaseFile string, webprint http.ResponseWriter, sqlquery st
 		log.Fatal(err)
 	}
 	defer db.Close()
+	var mynetworks []SingleNetwork
 	rows, err := db.Query(sqlquery)
 	for rows.Next() {
 		var network string
 		var cidr string
 		var description string
 		err = rows.Scan(&network, &cidr, &description)
-		if webprint == nil {
-			fmt.Printf("%-15s  %-18s  %s\n", network, cidr, description)
-		} else {
-			fmt.Fprintf(webprint, "%-15s  %-18s  %s\n", network, cidr, description)
-		}
+		mynetworks = append(mynetworks, SingleNetwork{network, cidr, description})
 		if err != nil {
 			log.Fatal(err)
+		}
+	}
+	if printjson {
+		c, _ := json.Marshal(mynetworks)
+		if webprint == nil {
+			fmt.Printf("%s", c)
+		} else {
+			fmt.Fprintf(webprint, "%s", c)
+		}
+	} else {
+		if webprint == nil {
+			for _, network := range mynetworks {
+				fmt.Printf("%-15s  %-18s  %s\n", network.Network, network.CIDR, network.Description)
+			}
+		} else {
+			for _, network := range mynetworks {
+				fmt.Fprintf(webprint, "%-15s  %-18s  %s\n", network.Network, network.CIDR, network.Description)
+			}
 		}
 	}
 }
@@ -451,25 +466,27 @@ func handlerHostJson(w http.ResponseWriter, r *http.Request) {
 func handlerNetworks(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Starting handlerNetworks")
 	sqlquery := "select * from networks"
-	listNetworks(viper.GetString("Database"), w, sqlquery)
+	listNetworks(viper.GetString("Database"), w, sqlquery, false)
 }
 
 func handlerNetworksJson(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Starting handlerNetworksJson")
-	fmt.Fprintf(w, "json print Networks")
+	sqlquery := "select * from networks"
+	listNetworks(viper.GetString("Database"), w, sqlquery, true)
 }
 
 func handlerNetwork(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	fmt.Println("Starting handlerNetwork: " + vars["network"])
 	sqlquery := "select * from networks where network like '" + vars["network"] + "'"
-	listNetworks(viper.GetString("Database"), w, sqlquery)
+	listNetworks(viper.GetString("Database"), w, sqlquery, false)
 }
 
 func handlerNetworkJson(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	fmt.Println("Starting handlerNetworkJson: " + vars["network"])
-	fmt.Fprintf(w, "json print Network: %s", vars["network"])
+	sqlquery := "select * from networks where network like '" + vars["network"] + "'"
+	listNetworks(viper.GetString("Database"), w, sqlquery, true)
 }
 
 func handlerIp(w http.ResponseWriter, r *http.Request) {
