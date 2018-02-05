@@ -471,7 +471,7 @@ func handlerHostsNetwork(w http.ResponseWriter, r *http.Request) {
 func handlerHostsNetworkJson(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	fmt.Println("Starting handlerHostNetworkJson: " + vars["network"])
-	fmt.Fprintf(w, "json print host network: %s", vars["network"])
+	listHost(viper.GetString("Database"), w, viper.GetString("network"), "select * from hosts where network like '"+vars["network"]+"'", false, true)
 }
 
 func handlerHost(w http.ResponseWriter, r *http.Request) {
