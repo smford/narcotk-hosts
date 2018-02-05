@@ -10,6 +10,7 @@ import (
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"github.com/xwb1989/sqlparser"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -92,6 +93,7 @@ func init() {
 	flag.String("short2", "", "short2 hostname")
 	flag.String("short3", "", "short3 hostname")
 	flag.String("short4", "", "short4 hostname")
+	flag.Bool("showheader", false, "print header file before printing non-json output")
 	flag.Bool("startweb", false, "start web service")
 	flag.Bool("version", false, "display version information")
 	pflag.CommandLine.AddGoFlagSet(flag.CommandLine)
@@ -118,7 +120,7 @@ func init() {
 	if err != nil {
 		fmt.Println("No configuration file loaded - using defaults")
 		viper.SetDefault("Networks", "my networks (default)")
-		viper.SetDefault("ShowHeader", true)
+		viper.SetDefault("ShowHeader", false)
 		viper.SetDefault("ListAll", false)
 		viper.SetDefault("ListenPort", "23000")
 		viper.SetDefault("ListenIP", "127.0.0.1")
@@ -199,7 +201,24 @@ func main() {
 		}
 	}
 
+	if viper.GetBool("showheader") && !viper.GetBool("json") {
+		printHeader(viper.GetString("headerfile"), nil)
+	}
+
 	listHost(viper.GetString("Database"), nil, viper.GetString("network"), "select * from hosts", viper.GetBool("showmac"), viper.GetBool("json"))
+}
+
+func printHeader(headerfile string, webprint http.ResponseWriter) {
+	fmt.Println("Starting printHeader")
+	headertext, err := ioutil.ReadFile(headerfile)
+	if err != nil {
+		fmt.Println("Error: cannot open file " + headerfile)
+	}
+	if webprint != nil {
+		fmt.Fprintf(webprint, "%s", string(headertext))
+	} else {
+		fmt.Print(string(headertext))
+	}
 }
 
 func addHost(databaseFile string, addhost string, network string, ipaddress string, short1 string, short2 string, short3 string, short4 string, mac string) {
@@ -429,6 +448,9 @@ func startWeb(databaseFile string, listenip string, listenport string) {
 
 func handlerHosts(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Starting handlerHosts")
+	if viper.GetBool("showheader") {
+		printHeader(viper.GetString("headerfile"), w)
+	}
 	listHost(viper.GetString("Database"), w, viper.GetString("network"), "select * from hosts", viper.GetBool("showmac"), false)
 }
 
@@ -440,6 +462,9 @@ func handlerHostsJson(w http.ResponseWriter, r *http.Request) {
 func handlerHostsNetwork(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	fmt.Println("Starting handlerHostNetwork: " + vars["network"])
+	if viper.GetBool("showheader") {
+		printHeader(viper.GetString("headerfile"), w)
+	}
 	listHost(viper.GetString("Database"), w, viper.GetString("network"), "select * from hosts where network like '"+vars["network"]+"'", false, false)
 }
 
@@ -452,12 +477,18 @@ func handlerHostsNetworkJson(w http.ResponseWriter, r *http.Request) {
 func handlerHost(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	fmt.Println("Starting handlerHost: " + vars["host"])
+	if viper.GetBool("showheader") {
+		printHeader(viper.GetString("headerfile"), w)
+	}
 	listHost(viper.GetString("Database"), w, viper.GetString("network"), "select * from hosts where fqdn like '"+vars["host"]+"'", viper.GetBool("showmac"), false)
 }
 
 func handlerHostJson(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	fmt.Println("Starting handlerHostJson: " + vars["host"])
+	if viper.GetBool("showheader") {
+		printHeader(viper.GetString("headerfile"), w)
+	}
 	listHost(viper.GetString("Database"), w, viper.GetString("network"), "select * from hosts where fqdn like '"+vars["host"]+"'", viper.GetBool("showmac"), true)
 }
 

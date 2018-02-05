@@ -1,6 +1,6 @@
 {
     "Networks": ["192.168.1","192.168.2"],
-    "ShowHeader": true,
+    "ShowHeader": false,
     "ListAll": false,
     "ListenPort": "23001",
     "ListenIP": "127.0.0.1",
