@@ -497,7 +497,8 @@ func handlerIp(w http.ResponseWriter, r *http.Request) {
 func handlerIpJson(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	fmt.Println("Starting handlerIpJson: " + vars["ip"])
-	fmt.Fprintf(w, "json print ip: %s", vars["ip"])
+	sqlquery := "select * from hosts where ipaddress like '" + vars["ip"] + "'"
+	listHost(viper.GetString("Database"), w, "", sqlquery, false, true)
 }
 
 func displayHelp() {
