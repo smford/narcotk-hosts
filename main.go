@@ -420,28 +420,31 @@ func startWeb(databaseFile string, listenip string, listenport string) {
 	fmt.Println("Starting webserver: " + listenip + ":" + listenport)
 	r := mux.NewRouter()
 	hostsRouter := r.PathPrefix("/hosts").Subrouter()
+	hostsRouter.HandleFunc("", handlerHostsHeader).Queries("header", "")
+	hostsRouter.HandleFunc("", handlerHostsJson).Queries("json", "")
 	hostsRouter.HandleFunc("", handlerHosts)
 	hostsRouter.HandleFunc("/", handlerHosts)
-	hostsRouter.HandleFunc("/json", handlerHostsJson)
+	hostsRouter.HandleFunc("/{network}", handlerHostsNetworkHeader).Queries("header", "")
+	hostsRouter.HandleFunc("/{network}", handlerHostsNetworkJson).Queries("json", "")
 	hostsRouter.HandleFunc("/{network}", handlerHostsNetwork)
-	hostsRouter.HandleFunc("/{network}/json", handlerHostsNetworkJson)
 
 	hostRouter := r.PathPrefix("/host").Subrouter()
+	hostRouter.HandleFunc("/{host}", handlerHostHeader).Queries("header", "")
+	hostRouter.HandleFunc("/{host}", handlerHostJson).Queries("json", "")
 	hostRouter.HandleFunc("/{host}", handlerHost)
-	hostRouter.HandleFunc("/{host}/json", handlerHostJson)
 
 	networksRouter := r.PathPrefix("/networks").Subrouter()
+	networksRouter.HandleFunc("", handlerNetworksJson).Queries("json", "")
 	networksRouter.HandleFunc("", handlerNetworks)
 	networksRouter.HandleFunc("/", handlerNetworks)
-	networksRouter.HandleFunc("/json", handlerNetworksJson)
 
 	networkRouter := r.PathPrefix("/network").Subrouter()
+	networkRouter.HandleFunc("/{network}", handlerNetworkJson).Queries("json", "")
 	networkRouter.HandleFunc("/{network}", handlerNetwork)
-	networkRouter.HandleFunc("/{network}/json", handlerNetworkJson)
 
 	ipRouter := r.PathPrefix("/ip").Subrouter()
+	ipRouter.HandleFunc("/{ip}", handlerIpJson).Queries("json", "")
 	ipRouter.HandleFunc("/{ip}", handlerIp)
-	ipRouter.HandleFunc("/{ip}/json", handlerIpJson)
 
 	http.ListenAndServe(listenip+":"+listenport, r)
 }
@@ -449,9 +452,13 @@ func startWeb(databaseFile string, listenip string, listenport string) {
 func handlerHosts(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Starting handlerHosts")
 	log.Printf("%s requested %s", r.RemoteAddr, r.URL)
-	if viper.GetBool("showheader") {
-		printHeader(viper.GetString("headerfile"), w)
-	}
+	listHost(viper.GetString("Database"), w, viper.GetString("network"), "select * from hosts", viper.GetBool("showmac"), false)
+}
+
+func handlerHostsHeader(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Starting handlerHostsHeader")
+	log.Printf("%s requested %s", r.RemoteAddr, r.URL)
+	printHeader(viper.GetString("headerfile"), w)
 	listHost(viper.GetString("Database"), w, viper.GetString("network"), "select * from hosts", viper.GetBool("showmac"), false)
 }
 
@@ -465,9 +472,14 @@ func handlerHostsNetwork(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	fmt.Println("Starting handlerHostNetwork: " + vars["network"])
 	log.Printf("%s requested %s", r.RemoteAddr, r.URL)
-	if viper.GetBool("showheader") {
-		printHeader(viper.GetString("headerfile"), w)
-	}
+	listHost(viper.GetString("Database"), w, viper.GetString("network"), "select * from hosts where network like '"+vars["network"]+"'", false, false)
+}
+
+func handlerHostsNetworkHeader(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	fmt.Println("Starting handlerHostNetwork: " + vars["network"])
+	log.Printf("%s requested %s", r.RemoteAddr, r.URL)
+	printHeader(viper.GetString("headerfile"), w)
 	listHost(viper.GetString("Database"), w, viper.GetString("network"), "select * from hosts where network like '"+vars["network"]+"'", false, false)
 }
 
@@ -482,9 +494,14 @@ func handlerHost(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	fmt.Println("Starting handlerHost: " + vars["host"])
 	log.Printf("%s requested %s", r.RemoteAddr, r.URL)
-	if viper.GetBool("showheader") {
-		printHeader(viper.GetString("headerfile"), w)
-	}
+	listHost(viper.GetString("Database"), w, viper.GetString("network"), "select * from hosts where fqdn like '"+vars["host"]+"'", viper.GetBool("showmac"), false)
+}
+
+func handlerHostHeader(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	fmt.Println("Starting handlerHost: " + vars["host"])
+	log.Printf("%s requested %s", r.RemoteAddr, r.URL)
+	printHeader(viper.GetString("headerfile"), w)
 	listHost(viper.GetString("Database"), w, viper.GetString("network"), "select * from hosts where fqdn like '"+vars["host"]+"'", viper.GetBool("showmac"), false)
 }
 
