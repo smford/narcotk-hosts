@@ -1,13 +1,9 @@
 {
-    "Networks": ["192.168.1","192.168.2"],
     "ShowHeader": false,
-    "ListAll": false,
     "ListenPort": "23001",
     "ListenIP": "127.0.0.1",
-    "LogFile": "./logs.txt",
     "Verbose": true,
     "Database": "./narcotk_hosts_all.db",
     "HeaderFile": "./header.txt",
-    "PrintColumns": "blank",
     "JSON": false
 }

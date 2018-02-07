@@ -55,16 +55,12 @@ type AllNetworks struct {
 
 func displayConfig() {
 	fmt.Println("Starting displayConfig function")
-	fmt.Printf("Networks:      %s\n", viper.GetString("Networks"))
 	fmt.Printf("ShowHeader:    %s\n", viper.GetString("ShowHeader"))
-	fmt.Printf("ListAll:       %s\n", viper.GetString("ListAll"))
 	fmt.Printf("ListenPort:    %s\n", viper.GetString("ListenPort"))
 	fmt.Printf("ListenIP:      %s\n", viper.GetString("ListenIP"))
-	fmt.Printf("LogFile:       %s\n", viper.GetString("LogFile"))
 	fmt.Printf("Verbose:       %s\n", viper.GetString("Verbose"))
 	fmt.Printf("Database:      %s\n", viper.GetString("Database"))
 	fmt.Printf("HeaderFile:    %s\n", viper.GetString("HeaderFile"))
-	fmt.Printf("PrintColumns:  %s\n", viper.GetString("PrintColumns"))
 	fmt.Printf("JSON:          %s\n", viper.GetString("JSON"))
 }
 
@@ -119,16 +115,12 @@ func init() {
 
 	if err != nil {
 		fmt.Println("No configuration file loaded - using defaults")
-		viper.SetDefault("Networks", "my networks (default)")
 		viper.SetDefault("ShowHeader", false)
-		viper.SetDefault("ListAll", false)
 		viper.SetDefault("ListenPort", "23000")
 		viper.SetDefault("ListenIP", "127.0.0.1")
-		viper.SetDefault("LogFile", "./logs.txt")
 		viper.SetDefault("Verbose", true)
 		viper.SetDefault("Database", "./narcotk_hosts_all.db")
 		viper.SetDefault("HeaderFile", "./header.txt")
-		viper.SetDefault("PrintColumns", "blank")
 		viper.SetDefault("JSON", false)
 	}
 }
