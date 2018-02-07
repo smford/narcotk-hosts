@@ -219,6 +219,11 @@ func main() {
 		printHeader(viper.GetString("headerfile"), nil)
 	}
 
+  if viper.GetString("network") != "" {
+    listHost(viper.GetString("Database"), nil, viper.GetString("network"), "select * from hosts where network like '" + viper.GetString("network")  + "'", viper.GetBool("showmac"), viper.GetBool("json"))
+    os.Exit(0)
+  }
+
 	listHost(viper.GetString("Database"), nil, viper.GetString("network"), "select * from hosts", viper.GetBool("showmac"), viper.GetBool("json"))
 }
 
