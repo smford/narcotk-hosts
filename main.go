@@ -414,6 +414,7 @@ func startWeb(databaseFile string, listenip string, listenport string) {
 	hostsRouter := r.PathPrefix("/hosts").Subrouter()
 	hostsRouter.HandleFunc("", handlerHostsHeader).Queries("header", "")
 	hostsRouter.HandleFunc("", handlerHostsJson).Queries("json", "")
+	hostsRouter.HandleFunc("", handlerHostsMac).Queries("mac", "")
 	hostsRouter.HandleFunc("", handlerHosts)
 	hostsRouter.HandleFunc("/", handlerHosts)
 	hostsRouter.HandleFunc("/{network}", handlerHostsNetworkHeader).Queries("header", "")
@@ -438,9 +439,9 @@ func startWeb(databaseFile string, listenip string, listenport string) {
 	ipRouter.HandleFunc("/{ip}", handlerIpJson).Queries("json", "")
 	ipRouter.HandleFunc("/{ip}", handlerIp)
 
-  macRouter := r.PathPrefix("/mac").Subrouter()
-  macRouter.HandleFunc("/{mac}", handlerMacJson).Queries("json", "")
-  macRouter.HandleFunc("/{mac}", handlerMac)
+	macRouter := r.PathPrefix("/mac").Subrouter()
+	macRouter.HandleFunc("/{mac}", handlerMacJson).Queries("json", "")
+	macRouter.HandleFunc("/{mac}", handlerMac)
 
 	http.ListenAndServe(listenip+":"+listenport, r)
 }
@@ -448,20 +449,26 @@ func startWeb(databaseFile string, listenip string, listenport string) {
 func handlerHosts(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Starting handlerHosts")
 	log.Printf("%s requested %s", r.RemoteAddr, r.URL)
-	listHost(viper.GetString("Database"), w, viper.GetString("network"), "select * from hosts", viper.GetBool("showmac"), false)
+	listHost(viper.GetString("Database"), w, viper.GetString("network"), "select * from hosts", false, false)
 }
 
 func handlerHostsHeader(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Starting handlerHostsHeader")
 	log.Printf("%s requested %s", r.RemoteAddr, r.URL)
 	printHeader(viper.GetString("headerfile"), w)
-	listHost(viper.GetString("Database"), w, viper.GetString("network"), "select * from hosts", viper.GetBool("showmac"), false)
+	listHost(viper.GetString("Database"), w, viper.GetString("network"), "select * from hosts", false, false)
 }
 
 func handlerHostsJson(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Starting handlerHostsJson")
 	log.Printf("%s requested %s", r.RemoteAddr, r.URL)
-	listHost(viper.GetString("Database"), w, viper.GetString("network"), "select * from hosts", viper.GetBool("showmac"), true)
+	listHost(viper.GetString("Database"), w, viper.GetString("network"), "select * from hosts", false, true)
+}
+
+func handlerHostsMac(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("Starting handlerHostsMac")
+	log.Printf("%s requested %s", r.RemoteAddr, r.URL)
+	listHost(viper.GetString("Database"), w, viper.GetString("network"), "select * from hosts", true, false)
 }
 
 func handlerHostsNetwork(w http.ResponseWriter, r *http.Request) {
@@ -559,19 +566,19 @@ func handlerIpJson(w http.ResponseWriter, r *http.Request) {
 
 //================
 func handlerMac(w http.ResponseWriter, r *http.Request) {
-  vars := mux.Vars(r)
-  fmt.Println("Starting handlerMac: " + vars["mac"])
-  log.Printf("%s requested %s", r.RemoteAddr, r.URL)
-  sqlquery := "select * from hosts where mac like '" + vars["mac"] + "'"
-  listHost(viper.GetString("Database"), w, "", sqlquery, false, false)
+	vars := mux.Vars(r)
+	fmt.Println("Starting handlerMac: " + vars["mac"])
+	log.Printf("%s requested %s", r.RemoteAddr, r.URL)
+	sqlquery := "select * from hosts where mac like '" + vars["mac"] + "'"
+	listHost(viper.GetString("Database"), w, "", sqlquery, false, false)
 }
 
 func handlerMacJson(w http.ResponseWriter, r *http.Request) {
-  vars := mux.Vars(r)
-  fmt.Println("Starting handlerMacJson: " + vars["mac"])
-  log.Printf("%s requested %s", r.RemoteAddr, r.URL)
-  sqlquery := "select * from hosts where mac like '" + vars["mac"] + "'"
-  listHost(viper.GetString("Database"), w, "", sqlquery, false, true)
+	vars := mux.Vars(r)
+	fmt.Println("Starting handlerMacJson: " + vars["mac"])
+	log.Printf("%s requested %s", r.RemoteAddr, r.URL)
+	sqlquery := "select * from hosts where mac like '" + vars["mac"] + "'"
+	listHost(viper.GetString("Database"), w, "", sqlquery, false, true)
 }
 
 //===============
