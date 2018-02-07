@@ -542,9 +542,6 @@ func handlerHostJson(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	fmt.Println("Starting handlerHostJson: " + vars["host"])
 	log.Printf("%s requested %s", r.RemoteAddr, r.URL)
-	if viper.GetBool("showheader") {
-		printHeader(viper.GetString("headerfile"), w)
-	}
   w.Header().Set("Content-Type", "application/json")
 	listHost(viper.GetString("Database"), w, viper.GetString("network"), "select * from hosts where fqdn like '"+vars["host"]+"'", viper.GetBool("showmac"), true)
 }
