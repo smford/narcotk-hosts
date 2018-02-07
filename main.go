@@ -595,7 +595,6 @@ func handlerIpJson(w http.ResponseWriter, r *http.Request) {
 	listHost(viper.GetString("Database"), w, "", sqlquery, false, true)
 }
 
-//================
 func handlerMac(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	fmt.Println("Starting handlerMac: " + vars["mac"])
@@ -612,8 +611,6 @@ func handlerMacJson(w http.ResponseWriter, r *http.Request) {
   w.Header().Set("Content-Type", "application/json")
 	listHost(viper.GetString("Database"), w, "", sqlquery, false, true)
 }
-
-//===============
 
 func displayHelp() {
 	helpmessage := `
