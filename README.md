@@ -17,4 +17,5 @@
 | http://localhost:23000/network/**NETWORK_ID**?json | print details for **NETWORK_ID** in json |
 | http://localhost:23000/ip/**IP** | print host details for **IP** |
 | http://localhost:23000/ip/**IP**?json | print host details for **IP** in json |
-
+| http://localhost:23000/mac/**MAC** | print host details for **MAC** |
+| http://localhost:23000/mac/**MAC**?json | print host details for **MAC** in json |

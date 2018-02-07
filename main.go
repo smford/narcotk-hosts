@@ -446,6 +446,10 @@ func startWeb(databaseFile string, listenip string, listenport string) {
 	ipRouter.HandleFunc("/{ip}", handlerIpJson).Queries("json", "")
 	ipRouter.HandleFunc("/{ip}", handlerIp)
 
+  macRouter := r.PathPrefix("/mac").Subrouter()
+  macRouter.HandleFunc("/{mac}", handlerMacJson).Queries("json", "")
+  macRouter.HandleFunc("/{mac}", handlerMac)
+
 	http.ListenAndServe(listenip+":"+listenport, r)
 }
 
@@ -560,6 +564,25 @@ func handlerIpJson(w http.ResponseWriter, r *http.Request) {
 	sqlquery := "select * from hosts where ipaddress like '" + vars["ip"] + "'"
 	listHost(viper.GetString("Database"), w, "", sqlquery, false, true)
 }
+
+//================
+func handlerMac(w http.ResponseWriter, r *http.Request) {
+  vars := mux.Vars(r)
+  fmt.Println("Starting handlerMac: " + vars["mac"])
+  log.Printf("%s requested %s", r.RemoteAddr, r.URL)
+  sqlquery := "select * from hosts where mac like '" + vars["mac"] + "'"
+  listHost(viper.GetString("Database"), w, "", sqlquery, false, false)
+}
+
+func handlerMacJson(w http.ResponseWriter, r *http.Request) {
+  vars := mux.Vars(r)
+  fmt.Println("Starting handlerMacJson: " + vars["mac"])
+  log.Printf("%s requested %s", r.RemoteAddr, r.URL)
+  sqlquery := "select * from hosts where mac like '" + vars["mac"] + "'"
+  listHost(viper.GetString("Database"), w, "", sqlquery, false, true)
+}
+
+//===============
 
 func displayHelp() {
 	helpmessage := `
