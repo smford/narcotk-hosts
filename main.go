@@ -592,7 +592,7 @@ func handlerMac(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	fmt.Println("Starting handlerMac: " + vars["mac"])
 	log.Printf("%s requested %s", r.RemoteAddr, r.URL)
-	sqlquery := "select * from hosts where mac like '" + vars["mac"] + "'"
+	sqlquery := "select * from hosts where mac like '" + prepareMac(vars["mac"]) + "'"
 	listHost(viper.GetString("Database"), w, "", sqlquery, false, false)
 }
 
@@ -600,7 +600,7 @@ func handlerMacJson(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	fmt.Println("Starting handlerMacJson: " + vars["mac"])
 	log.Printf("%s requested %s", r.RemoteAddr, r.URL)
-	sqlquery := "select * from hosts where mac like '" + vars["mac"] + "'"
+	sqlquery := "select * from hosts where mac like '" + prepareMac(vars["mac"]) + "'"
 	listHost(viper.GetString("Database"), w, "", sqlquery, false, true)
 }
 
