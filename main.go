@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"database/sql"
 	"encoding/json"
 	"flag"
@@ -62,6 +63,27 @@ func displayConfig() {
 	fmt.Printf("Database:      %s\n", viper.GetString("Database"))
 	fmt.Printf("HeaderFile:    %s\n", viper.GetString("HeaderFile"))
 	fmt.Printf("JSON:          %s\n", viper.GetString("JSON"))
+}
+
+func prepareMac(macaddress string) string {
+	fmt.Println("Starting prepareMac")
+	macaddress = strings.ToLower(macaddress)
+	// strip colons
+	macaddress = strings.Replace(macaddress, ":", "", -1)
+	// strip hyphens
+	macaddress = strings.Replace(macaddress, "-", "", -1)
+	// add colons
+	var n = 2
+	var buffer bytes.Buffer
+	var n_1 = n - 1
+	var l_1 = len(macaddress) - 1
+	for i, rune := range macaddress {
+		buffer.WriteRune(rune)
+		if i%n == n_1 && i != l_1 {
+			buffer.WriteRune(':')
+		}
+	}
+	return buffer.String()
 }
 
 func init() {
@@ -223,6 +245,7 @@ func addHost(databaseFile string, addhost string, network string, ipaddress stri
 	fmt.Println(short3)
 	fmt.Println(short4)
 	fmt.Println(mac)
+	mac = prepareMac(mac)
 	sqlquery := "insert into hosts (hostid, network, ipsuffix, ipaddress, fqdn, short1, short2, short3, short4, mac) values ('" + breakIp(network, 2) + "-" + breakIp(ipaddress, 3) + "', '" + network + "', '" + breakIp(ipaddress, 3) + "', '" + ipaddress + "', '" + addhost + "', '" + short1 + "', '" + short2 + "', '" + short3 + "', '" + short4 + "', '" + mac + "')"
 	runSql(databaseFile, sqlquery)
 }
