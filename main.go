@@ -219,10 +219,10 @@ func main() {
 		printHeader(viper.GetString("headerfile"), nil)
 	}
 
-  if viper.GetString("network") != "" {
-    listHost(viper.GetString("Database"), nil, viper.GetString("network"), "select * from hosts where network like '" + viper.GetString("network")  + "'", viper.GetBool("showmac"), viper.GetBool("json"))
-    os.Exit(0)
-  }
+	if viper.GetString("network") != "" {
+		listHost(viper.GetString("Database"), nil, viper.GetString("network"), "select * from hosts where network like '"+viper.GetString("network")+"'", viper.GetBool("showmac"), viper.GetBool("json"))
+		os.Exit(0)
+	}
 
 	listHost(viper.GetString("Database"), nil, viper.GetString("network"), "select * from hosts", viper.GetBool("showmac"), viper.GetBool("json"))
 }
@@ -490,7 +490,7 @@ func handlerHostsHeader(w http.ResponseWriter, r *http.Request) {
 func handlerHostsJson(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Starting handlerHostsJson")
 	log.Printf("%s requested %s", r.RemoteAddr, r.URL)
-  w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Content-Type", "application/json")
 	listHost(viper.GetString("Database"), w, viper.GetString("network"), "select * from hosts", false, true)
 }
 
@@ -519,7 +519,7 @@ func handlerHostsNetworkJson(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	fmt.Println("Starting handlerHostNetworkJson: " + vars["network"])
 	log.Printf("%s requested %s", r.RemoteAddr, r.URL)
-  w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Content-Type", "application/json")
 	listHost(viper.GetString("Database"), w, viper.GetString("network"), "select * from hosts where network like '"+vars["network"]+"'", false, true)
 }
 
@@ -542,7 +542,7 @@ func handlerHostJson(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	fmt.Println("Starting handlerHostJson: " + vars["host"])
 	log.Printf("%s requested %s", r.RemoteAddr, r.URL)
-  w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Content-Type", "application/json")
 	listHost(viper.GetString("Database"), w, viper.GetString("network"), "select * from hosts where fqdn like '"+vars["host"]+"'", viper.GetBool("showmac"), true)
 }
 
@@ -557,7 +557,7 @@ func handlerNetworksJson(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Starting handlerNetworksJson")
 	log.Printf("%s requested %s", r.RemoteAddr, r.URL)
 	sqlquery := "select * from networks"
-  w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Content-Type", "application/json")
 	listNetworks(viper.GetString("Database"), w, sqlquery, true)
 }
 
@@ -574,7 +574,7 @@ func handlerNetworkJson(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Starting handlerNetworkJson: " + vars["network"])
 	log.Printf("%s requested %s", r.RemoteAddr, r.URL)
 	sqlquery := "select * from networks where network like '" + vars["network"] + "'"
-  w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Content-Type", "application/json")
 	listNetworks(viper.GetString("Database"), w, sqlquery, true)
 }
 
@@ -591,7 +591,7 @@ func handlerIpJson(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Starting handlerIpJson: " + vars["ip"])
 	log.Printf("%s requested %s", r.RemoteAddr, r.URL)
 	sqlquery := "select * from hosts where ipaddress like '" + vars["ip"] + "'"
-  w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Content-Type", "application/json")
 	listHost(viper.GetString("Database"), w, "", sqlquery, false, true)
 }
 
@@ -608,7 +608,7 @@ func handlerMacJson(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Starting handlerMacJson: " + vars["mac"])
 	log.Printf("%s requested %s", r.RemoteAddr, r.URL)
 	sqlquery := "select * from hosts where mac like '" + prepareMac(vars["mac"]) + "'"
-  w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Content-Type", "application/json")
 	listHost(viper.GetString("Database"), w, "", sqlquery, false, true)
 }
 
