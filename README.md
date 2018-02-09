@@ -11,6 +11,7 @@
 | http://localhost:23000/host/**HOSTNAME** | print details for **HOSTNAME** |
 | http://localhost:23000/host/**HOSTNAME**?json | print details for **HOSTNAME** in json |
 | http://localhost:23000/host/**HOSTNAME**?header | print details for **HOSTNAME** with header |
+| http://localhost:23000/host/**HOSTNAME**?script | print script for **HOSTNAME** |
 | http://localhost:23000/networks | lists all networks |
 | http://localhost:23000/networks?json | lists all networks in json |
 | http://localhost:23000/network/**NETWORK_ID** | print details for **NETWORK_ID** |
