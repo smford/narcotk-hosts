@@ -452,6 +452,7 @@ func startWeb(databaseFile string, listenip string, listenport string) {
 	hostRouter := r.PathPrefix("/host").Subrouter()
 	hostRouter.HandleFunc("/{host}", handlerHostHeader).Queries("header", "")
 	hostRouter.HandleFunc("/{host}", handlerHostJson).Queries("json", "")
+	hostRouter.HandleFunc("/{host}", handlerHostScript).Queries("script", "")
 	hostRouter.HandleFunc("/{host}", handlerHost)
 
 	networksRouter := r.PathPrefix("/networks").Subrouter()
@@ -546,6 +547,25 @@ func handlerHostJson(w http.ResponseWriter, r *http.Request) {
 	listHost(viper.GetString("Database"), w, viper.GetString("network"), "select * from hosts where fqdn like '"+vars["host"]+"'", viper.GetBool("showmac"), true)
 }
 
+func handlerHostScript(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	fmt.Println("Starting handlerHostScript")
+	log.Printf("%s requested %s", r.RemoteAddr, r.URL)
+	if fileExists("./scripts/" + vars["host"]) {
+		script, err := ioutil.ReadFile("./scripts/" + vars["host"])
+		if err != nil {
+			fmt.Println("Error: cannot open file " + string(script))
+		}
+		w.Header().Set("Content-Type", "application/octet-stream")
+		fmt.Fprintf(w, "%s", string(script))
+		log.Printf("%s requested %s sent script", r.RemoteAddr, r.URL)
+	} else {
+		w.WriteHeader(http.StatusNotFound)
+		log.Printf("%s requested %s script not found", r.RemoteAddr, r.URL)
+		fmt.Fprintf(w, "file doesnt exist")
+	}
+}
+
 func handlerNetworks(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Starting handlerNetworks")
 	log.Printf("%s requested %s", r.RemoteAddr, r.URL)
@@ -610,6 +630,17 @@ func handlerMacJson(w http.ResponseWriter, r *http.Request) {
 	sqlquery := "select * from hosts where mac like '" + prepareMac(vars["mac"]) + "'"
 	w.Header().Set("Content-Type", "application/json")
 	listHost(viper.GetString("Database"), w, "", sqlquery, false, true)
+}
+
+func fileExists(path string) bool {
+	_, err := os.Stat(path)
+	if err == nil {
+		return true
+	}
+	if os.IsNotExist(err) {
+		return false
+	}
+	return true
 }
 
 func displayHelp() {
