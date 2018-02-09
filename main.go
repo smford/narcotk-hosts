@@ -62,6 +62,7 @@ func displayConfig() {
 	fmt.Printf("Verbose:       %s\n", viper.GetString("Verbose"))
 	fmt.Printf("Database:      %s\n", viper.GetString("Database"))
 	fmt.Printf("HeaderFile:    %s\n", viper.GetString("HeaderFile"))
+	fmt.Printf("Scripts:       %s\n", viper.GetString("Scripts"))
 	fmt.Printf("JSON:          %s\n", viper.GetString("JSON"))
 }
 
@@ -143,6 +144,7 @@ func init() {
 		viper.SetDefault("Verbose", true)
 		viper.SetDefault("Database", "./narcotk_hosts_all.db")
 		viper.SetDefault("HeaderFile", "./header.txt")
+		viper.SetDefault("Scripts", "./scripts")
 		viper.SetDefault("JSON", false)
 	}
 }
@@ -552,7 +554,7 @@ func handlerHostScript(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Starting handlerHostScript")
 	log.Printf("%s requested %s", r.RemoteAddr, r.URL)
 	if fileExists("./scripts/" + vars["host"]) {
-		script, err := ioutil.ReadFile("./scripts/" + vars["host"])
+		script, err := ioutil.ReadFile(viper.GetString("scripts") + "/" + vars["host"])
 		if err != nil {
 			fmt.Println("Error: cannot open file " + string(script))
 		}
