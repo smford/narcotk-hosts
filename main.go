@@ -64,6 +64,9 @@ func displayConfig() {
 	fmt.Printf("HeaderFile:    %s\n", viper.GetString("HeaderFile"))
 	fmt.Printf("Scripts:       %s\n", viper.GetString("Scripts"))
 	fmt.Printf("JSON:          %s\n", viper.GetString("JSON"))
+	fmt.Printf("EnableTLS:     %s\n", viper.GetString("EnableTLS"))
+	fmt.Printf("TLSCert:       %s\n", viper.GetString("TLSCert"))
+	fmt.Printf("TLSKey:        %s\n", viper.GetString("TLSKey"))
 }
 
 func prepareMac(macaddress string) string {
@@ -146,6 +149,9 @@ func init() {
 		viper.SetDefault("HeaderFile", "./header.txt")
 		viper.SetDefault("Scripts", "./scripts")
 		viper.SetDefault("JSON", false)
+		viper.SetDefault("EnableTLS", false)
+		viper.SetDefault("TLSCert", "./tls/server.crt")
+		viper.SetDefault("TLSKey", "./tls/server.key")
 	}
 }
 
@@ -163,7 +169,7 @@ func main() {
 	}
 
 	if viper.GetBool("startweb") {
-		startWeb(viper.GetString("Database"), viper.GetString("ListenIP"), viper.GetString("ListenPort"))
+		startWeb(viper.GetString("Database"), viper.GetString("ListenIP"), viper.GetString("ListenPort"), viper.GetBool("EnableTLS"))
 		os.Exit(0)
 	}
 
@@ -438,8 +444,7 @@ func breakIp(ipaddress string, position int) string {
 	return ipArray[position]
 }
 
-func startWeb(databaseFile string, listenip string, listenport string) {
-	fmt.Println("Starting webserver: " + listenip + ":" + listenport)
+func startWeb(databaseFile string, listenip string, listenport string, usetls bool) {
 	r := mux.NewRouter()
 	hostsRouter := r.PathPrefix("/hosts").Subrouter()
 	hostsRouter.HandleFunc("", handlerHostsHeader).Queries("header", "")
@@ -474,7 +479,19 @@ func startWeb(databaseFile string, listenip string, listenport string) {
 	macRouter.HandleFunc("/{mac}", handlerMacJson).Queries("json", "")
 	macRouter.HandleFunc("/{mac}", handlerMac)
 
-	http.ListenAndServe(listenip+":"+listenport, r)
+	if usetls {
+		fmt.Println("Starting HTTPS Webserver: " + listenip + ":" + listenport)
+		err := http.ListenAndServeTLS(listenip+":"+listenport, viper.GetString("tlscert"), viper.GetString("tlskey"), r)
+		if err != nil {
+			log.Printf("Error starting HTTPS webserver: %s", err)
+		}
+	} else {
+		fmt.Println("Starting HTTP Webserver: " + listenip + ":" + listenport)
+		err := http.ListenAndServe(listenip+":"+listenport, r)
+		if err != nil {
+			log.Printf("Error starting HTTP webserver: %s", err)
+		}
+	}
 }
 
 func handlerHosts(w http.ResponseWriter, r *http.Request) {

@@ -6,5 +6,8 @@
     "Database": "./narcotk_hosts_all.db",
     "HeaderFile": "./header.txt",
     "Scripts": "./scripts",
-    "JSON": false
+    "JSON": false,
+    "EnableTLS": true,
+    "TLSCert": "./tls/server.crt",
+    "TLSKey": "./tls/server.key"
 }
