@@ -7,7 +7,7 @@
     "HeaderFile": "./header.txt",
     "Scripts": "./scripts",
     "JSON": false,
-    "EnableTLS": true,
+    "EnableTLS": false,
     "TLSCert": "./tls/server.crt",
     "TLSKey": "./tls/server.key"
 }
