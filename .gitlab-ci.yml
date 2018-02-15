@@ -6,4 +6,14 @@ before_script:
 build1:
   stage: build
   script:
-    - echo "doing some stuff here"
+    - go build main.go
+
+test1:
+  stage: test
+  script:
+    - ./main.go --help
+
+deploy1:
+  stage: deploy
+  script:
+    - echo "deploy stage"
