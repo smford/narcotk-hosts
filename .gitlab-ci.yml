@@ -2,6 +2,7 @@ before_script:
   - echo "before script"
   - pwd
   - ls -la
+  - hostname
   
 build1:
   stage: build
