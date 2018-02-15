@@ -1,0 +1,9 @@
+before_script:
+  - echo "before script"
+  - pwd
+  - ls -la
+  
+build1:
+  stage: build
+  script:
+    - echo "doing some stuff here"
