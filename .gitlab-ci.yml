@@ -12,7 +12,7 @@ build1:
 test1:
   stage: test
   script:
-    - ./main.go --help
+    - ./main --help
 
 deploy1:
   stage: deploy
