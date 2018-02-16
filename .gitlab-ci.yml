@@ -1,6 +1,10 @@
 # https://docs.gitlab.com/ce/ci/yaml/README.html
 # https://docs.gitlab.com/ce/ci/variables/README.html
 
+cache:
+  paths:
+  - binaries/*
+
 stages:
   - build
   - test
