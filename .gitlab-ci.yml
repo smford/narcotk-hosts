@@ -24,7 +24,7 @@ build-centos-6-x86_64-1:
   script:
     - pwd
     - ls -la
-    - go get ./
+    - "GOPATH=/home/gitlab-runner/go go get ./"
     - "GOPATH=/home/gitlab-runner/go go build -o binaries/centos-6-x86_64-narcotk-hosts-${CI_COMMIT_SHA} main.go"
     - ls -la binaries/*
   artifacts:
