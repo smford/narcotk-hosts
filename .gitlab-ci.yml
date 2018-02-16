@@ -7,11 +7,17 @@ before_script:
 build1:
   stage: build
   script:
+    - pwd
+    - ls -la
     - go build main.go
+    - ls -la
 
 test1:
   stage: test
   script:
+    - pwd
+    - ls -la
+    - go fmt main.go
     - ./main --help
 
 deploy1:
