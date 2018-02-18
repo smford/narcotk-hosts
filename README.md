@@ -58,6 +58,61 @@ go build main.go
 
 
 
+## Configuration
+
+Configuration is possible three ways: using defaults, using a configuration file, or via command line arguments.  Configuration via environment variables will be added at a later date.
+
+
+### Default Configuration
+
+| Setting | Default | Details |
+|:--|:--|:--|
+| Database | ./narcotk_hosts_all.db | database file to use |
+| EnableTLS | false | enable or disable TLS |
+| HeaderFile | ./header.txt | display header file |
+| JSON | false | print output as json |
+| ListenPort | 23001 | port for narcotk-hosts to listen on |
+| ListenIP | 127.0.0.1 | IP for narcotk-hosts to bind to |
+| Scripts | ./scripts | directory of scripts |
+| ShowHeader | false | show header, false by default |
+| TLSCert | ./tls/server.crt | if EnableTLS true, use this TLS cert |
+| TLSKey | ./tls/server.crt | if EnableTLS true, use this TLS key |
+| Verbose | false | be verbose |
+
+
+### Configuration File
+
+The default configuration file (narco-hosts-config.json) is read from the same directory as the narcotk-hosts executable.
+
+```
+{
+    "Database": "./narcotk_hosts_all.db",
+    "EnableTLS": false,
+    "HeaderFile": "./header.txt",
+    "JSON": false,
+    "ListenIP": "127.0.0.1",
+    "ListenPort": "23001",
+    "Scripts": "./scripts",
+    "ShowHeader": false,
+    "TLSCert": "./tls/server.crt",
+    "TLSKey": "./tls/server.key",
+    "Verbose": true
+}
+```
+
+
+### Command Line Configuration Options
+
+| Argument | Details | Example |
+|:--|:--|:--|
+| --configfile | Configuration File | --configfile=/path/to/file.yaml |
+| --database | Database File | --database=/path/to/somefile.db |
+| --json | Print output as JSON | --json |
+| --listenip | IP for narcotk-hosts to bind to | --listenip=127.0.0.1 |
+| --listenport | Port for narcotk-hosts to listen on | --listenport=23001 |
+| --showheader | Show header | --showheader |
+
+
 ## Generating HTTPS Certificates and Keys
 
 ```bash
