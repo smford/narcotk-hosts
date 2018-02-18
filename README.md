@@ -42,7 +42,8 @@ Requirements: go v1.9.1
 git clone git@gitlab.com:narcotk/narcotk-hosts-2.git
 cd narcotk-hosts-2
 go get ./
-go build main.go
+go build -o narcotk-hosts main.go
+./narcotk-hosts --setupdb --database=./new-database-file.db
 ```
 
 ### Install on Centos/Redhat/Fedora
@@ -61,6 +62,16 @@ go build main.go
 ## Configuration
 
 Configuration is possible three ways: using defaults, using a configuration file, or via command line arguments.  Configuration via environment variables will be added at a later date.
+
+### First Run
+
+When running narcotk-hosts for the first time, you need to run the below command to create a database file:
+
+#### Create a default database file ./narcotk_hosts_all.db
+```./narcotk-hosts --setupdb```
+
+##### Create another database file /path/to/somefile.db
+```./narcotk-hosts --setupdb --database=/path/to/somefile.db```
 
 
 ### Default Configuration
