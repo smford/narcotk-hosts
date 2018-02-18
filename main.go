@@ -666,7 +666,7 @@ func displayHelp() {
 	helpmessage := `
 Options:
   --help           Display help information
-	--json           Print output in json
+  --json           Print output in json
   --showheader     Prepend ./header.txt to the output [default=false]
   --displayconfig  Prints out the applied configuration
   --version
