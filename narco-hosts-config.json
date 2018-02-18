@@ -1,13 +1,13 @@
 {
-    "ShowHeader": false,
+    "Database": "./narcotk_hosts_all.db",
+    "EnableTLS": false,
+    "HeaderFile": "./header.txt",
+    "JSON": false,
     "ListenPort": "23001",
     "ListenIP": "127.0.0.1",
-    "Verbose": true,
-    "Database": "./narcotk_hosts_all.db",
-    "HeaderFile": "./header.txt",
     "Scripts": "./scripts",
-    "JSON": false,
-    "EnableTLS": false,
+    "ShowHeader": false,
     "TLSCert": "./tls/server.crt",
-    "TLSKey": "./tls/server.key"
+    "TLSKey": "./tls/server.key",
+    "Verbose": true
 }
