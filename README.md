@@ -131,6 +131,18 @@ openssl genrsa -out server.key 2048
 openssl req -new -x509 -sha256 -key server.key -out server.crt -days 3650
 ```
 
+
+## Web Service
+
+narcotk-hosts can can as a command line tool or as a web service.
+
+| Argument | Description |
+|:--|:--|
+| ```--startweb``` | starts the webservice using the configuration files setting for EnableTLS |
+| ```--starthttp``` | force webservice to start using HTTP |
+| ```--starthttps``` | force webservice to start using HTTPS |
+
+
 ## Webapi URLS
 
 | URL | Output |
