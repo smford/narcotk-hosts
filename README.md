@@ -116,12 +116,12 @@ The default configuration file (narco-hosts-config.json) is read from the same d
 
 | Argument | Details | Example |
 |:--|:--|:--|
-| --configfile | Configuration File | --configfile=/path/to/file.yaml |
-| --database | Database File | --database=/path/to/somefile.db |
-| --json | Print output as JSON | --json |
-| --listenip | IP for narcotk-hosts to bind to | --listenip=127.0.0.1 |
-| --listenport | Port for narcotk-hosts to listen on | --listenport=23001 |
-| --showheader | Show header | --showheader |
+| ```--configfile``` | Configuration File | --configfile=/path/to/file.yaml |
+| ```--database``` | Database File | --database=/path/to/somefile.db |
+| ```--json``` | Print output as JSON | --json |
+| ```--listenip``` | IP for narcotk-hosts to bind to | --listenip=127.0.0.1 |
+| ```--listenport``` | Port for narcotk-hosts to listen on | --listenport=23001 |
+| ```--showheader``` | Show header | --showheader |
 
 
 ## Generating HTTPS Certificates and Keys
