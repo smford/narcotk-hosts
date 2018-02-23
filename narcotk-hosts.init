@@ -1,0 +1,88 @@
+#!/bin/sh
+#
+# chkconfig: 345 90 60
+# Description:
+#   narcotk-hosts web service
+#
+
+if [ -z $RETVAL ]; then RETVAL=0; fi
+if [ -z $PROG ]; then PROG="narcotk-hosts"; fi
+if [ -z $EXEC ]; then EXEC=/usr/bin/narcotk-hosts; fi
+if [ -z $FLAGS_PATH ]; then FLAGS_PATH=/etc/narcotk-hosts/narcotk-hosts.flags; fi
+if [ -z $REAL_CONFIG_PATH ]; then REAL_CONFIG_PATH=/etc/narcotk-hosts/narco-hosts-config.json; fi
+if [ -z $LOCKFILE ]; then LOCKFILE=/var/lock/narcotk-hosts; fi
+if [ -z $PIDFILE ]; then PIDFILE=/var/run/narcotk-hosts.pid; fi
+if [ -z $LOGFILE ]; then LOGFILE=/var/log/narcotk-hosts; fi
+if [ -z $UID ]; then UID=$(id -u); fi
+
+if [ $UID -eq 0 ] && [ -e /etc/sysconfig/$PROG ]; then
+  . /etc/sysconfig/$PROG
+fi
+
+if [ -e /etc/init.d/functions ]; then
+  . /etc/init.d/functions
+fi
+
+if [ ! -e $FLAGS_PATH ] && [ ! -e $REAL_CONFIG_PATH ]; then
+  echo "No config file found at $REAL_CONFIG_PATH"
+  echo "Additionally, no flags file or config override found at $FLAGS_PATH"
+  RETVAL=1
+fi
+
+start() {
+  echo -n "Starting $PROG"
+  PID=`$EXEC --config=$REAL_CONFIG_PATH --startweb > /var/log/$PROG 2>&1 & echo $!`
+  touch /var/lock/subsys/$PROG
+  if [ -z $PID ]; then
+    echo -n "Error starting $PROG"
+  else
+    echo $PID > $PIDFILE
+    echo -n "Started"
+  fi
+}
+
+stop() {
+  echo -n "Stopping $PROG"
+  PID=`cat $PIDFILE`
+  if [ -f $PIDFILE ]; then
+    kill -HUP $PID
+    echo -n "Ok"
+    rm -f $PIDFILE
+  else
+    echo -n "pidfile not found"
+  fi
+}
+
+restart() {
+  stop
+  start
+}
+
+status() {
+  echo -n "Checking $PROG"
+  if [ -f $PIDFILE ]; then
+    PID=`cat $PIDFILE`
+    if [ -z "`ps axf | grep ${PID} | grep -v grep`" ]; then
+      echo -n "$PROG is dead but pidfile exists"
+    else
+      echo -n "$PROG is running"
+    fi
+  else
+    echo -n "$PROG is not running"
+  fi
+}
+
+usage() {
+  echo "Usage: $0 {start|stop|status|restart}"
+  RETVAL=2
+}
+
+case "$1" in
+    start) start ;;
+    stop) stop ;;
+    restart) restart ;;
+    status) status ;;
+    *) usage ;;
+esac
+
+exit ${RETVAL}
