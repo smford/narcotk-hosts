@@ -116,7 +116,9 @@ func init() {
 	flag.String("short3", "", "short3 hostname")
 	flag.String("short4", "", "short4 hostname")
 	flag.Bool("showheader", false, "print header file before printing non-json output")
-	flag.Bool("startweb", false, "start web service")
+	flag.Bool("startweb", false, "start web service using config file setting for EnableTLS")
+	flag.Bool("starthttp", false, "start http web service")
+	flag.Bool("starthttps", false, "start https web service")
 	flag.Bool("version", false, "display version information")
 	pflag.CommandLine.AddGoFlagSet(flag.CommandLine)
 	pflag.Parse()
@@ -170,6 +172,16 @@ func main() {
 
 	if viper.GetBool("startweb") {
 		startWeb(viper.GetString("Database"), viper.GetString("ListenIP"), viper.GetString("ListenPort"), viper.GetBool("EnableTLS"))
+		os.Exit(0)
+	}
+
+	if viper.GetBool("starthttp") {
+		startWeb(viper.GetString("Database"), viper.GetString("ListenIP"), viper.GetString("ListenPort"), false)
+		os.Exit(0)
+	}
+
+	if viper.GetBool("starthttps") {
+		startWeb(viper.GetString("Database"), viper.GetString("ListenIP"), viper.GetString("ListenPort"), true)
 		os.Exit(0)
 	}
 
@@ -709,8 +721,14 @@ Commands:
   Setup a new blank database file:
       --setupdb  --database=./newfile.db
 
-  Start Web Service:
+  Start Web Service using config file EnableTLS setting:
       --startweb
+
+  Start Web Service using:
+      --starthttp
+
+	Start Web HTTPS Service:
+      --starthttps
 
   Port to listen upon:
       --listenport=23000
