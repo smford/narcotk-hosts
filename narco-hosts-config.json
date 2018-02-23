@@ -4,7 +4,7 @@
     "HeaderFile": "./header.txt",
     "JSON": false,
     "ListenIP": "127.0.0.1",
-    "ListenPort": "23001",
+    "ListenPort": "23000",
     "Scripts": "./scripts",
     "ShowHeader": false,
     "TLSCert": "./tls/server.crt",
