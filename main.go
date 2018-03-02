@@ -491,6 +491,9 @@ func startWeb(databaseFile string, listenip string, listenport string, usetls bo
 	macRouter.HandleFunc("/{mac}", handlerMacJson).Queries("json", "")
 	macRouter.HandleFunc("/{mac}", handlerMac)
 
+	// https://stackoverflow.com/questions/43379942/how-to-have-an-optional-query-in-get-request-using-gorilla-mux
+	r.HandleFunc("/register", handlerRegister).Methods("GET")
+
 	if usetls {
 		fmt.Println("Starting HTTPS Webserver: " + listenip + ":" + listenport)
 		err := http.ListenAndServeTLS(listenip+":"+listenport, viper.GetString("tlscert"), viper.GetString("tlskey"), r)
@@ -661,6 +664,23 @@ func handlerMacJson(w http.ResponseWriter, r *http.Request) {
 	sqlquery := "select * from hosts where mac like '" + prepareMac(vars["mac"]) + "'"
 	w.Header().Set("Content-Type", "application/json")
 	listHost(viper.GetString("Database"), w, "", sqlquery, false, true)
+}
+
+func handlerRegister(w http.ResponseWriter, r *http.Request) {
+	vars := r.URL.Query()
+	fqdn := vars.Get("fqdn")
+	ip := vars.Get("ip")
+	gw := vars.Get("gw")
+	mac := prepateMac(vars.Get("mac"))
+	short1 := vars.Get("s1")
+	short2 := vars.Get("s2")
+	short3 := vars.Get("s3")
+	short4 := vars.Get("s4")
+	fmt.Println(vars)
+	fmt.Printf("Starting handlerRegister: fqdn=%s / ip=%s / gw=%s / mac=%s / s1=%s / s2=%s / s3=%s / s4=%s\n", fqdn, ip, gw, mac, short1, short2, short3, short4)
+	log.Printf("%s requested %s", r.RemoteAddr, r.URL)
+	addHost(viper.GetString("Database"), fqdn, gw, ip, short1, short2, short3, short4, mac)
+	fmt.Fprintf(w, "Added: %s", vars)
 }
 
 func fileExists(path string) bool {
