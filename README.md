@@ -163,4 +163,4 @@ narcotk-hosts can can as a command line tool or as a web service.
 | http://localhost:23000/mac/**MAC** | print host details for **MAC** |
 | http://localhost:23000/mac/**MAC**?json | print host details for **MAC** in json |
 | http://localhost:23000/register?fqdn=**HOSTNAME**&ip=**IP**&gw=**GATEWAY** | register a new host with **HOSTNAME**, **IP** & **GW** (minimum required for the register api) |
-| http://localhost:23000/register?fqdn=**HOSTNAME**&ip=**IP**&gw=**GATEWAY**&mac=**MAC**&s1=**SHORT1**&s2=**SHORT2**&s3=**SHORT3&s4=**SHORT4** | register a new host with **HOSTNAME**, **IP**, **GW**, **MAC**, **SHORT1**, **SHORT2**, **SHORT3** and **SHORT4**  (mac, short1, short2, short3 and short4 are optional) |
+| http://localhost:23000/register?fqdn=**HOSTNAME**&ip=**IP**&gw=**GATEWAY**&mac=**MAC**&s1=**SHORT1**&s2=**SHORT2**&s3=**SHORT3**&s4=**SHORT4** | register a new host with **HOSTNAME**, **IP**, **GW**, **MAC**, **SHORT1**, **SHORT2**, **SHORT3** and **SHORT4**  (mac, short1, short2, short3 and short4 are optional) |
