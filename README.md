@@ -107,6 +107,7 @@ The default configuration file (narco-hosts-config.json) is read from the same d
     "ShowHeader": false,
     "TLSCert": "./tls/server.crt",
     "TLSKey": "./tls/server.key",
+    "RegistrationKey": "somepassword",
     "Verbose": true
 }
 ```
@@ -162,5 +163,24 @@ narcotk-hosts can can as a command line tool or as a web service.
 | http://localhost:23000/ip/**IP**?json | print host details for **IP** in json |
 | http://localhost:23000/mac/**MAC** | print host details for **MAC** |
 | http://localhost:23000/mac/**MAC**?json | print host details for **MAC** in json |
-| http://localhost:23000/register?fqdn=**HOSTNAME**&ip=**IP**&gw=**GATEWAY** | register a new host with **HOSTNAME**, **IP** & **GW** (minimum required for the register api) |
-| http://localhost:23000/register?fqdn=**HOSTNAME**&ip=**IP**&gw=**GATEWAY**&mac=**MAC**&s1=**SHORT1**&s2=**SHORT2**&s3=**SHORT3**&s4=**SHORT4** | register a new host with **HOSTNAME**, **IP**, **GW**, **MAC**, **SHORT1**, **SHORT2**, **SHORT3** and **SHORT4**  (mac, short1, short2, short3 and short4 are optional) |
+
+
+## Registration API
+
+New hosts can be registered in to the database using the registration api call.  The registration api is only enabled when a RegistrationKey is set in the configuration file.
+
+| Query | | Details | Example |
+|:--|:--|:--|:--|
+| key | **MANDATORY** | RegistrationKey (from configfile) | key=somepassword |
+| fqdn | **MANDATORY** | hostname | fqdn=server1.domain.com |
+| ip | **MANDATORY** | ip address | ip=10.10.1.67 |
+| nw | **MANDATORY** | network | nw=10.10.1 |
+| s1 | optional | shortname 1 | s1=server1 |
+| s2 | optional | shortname 2 | s2=s1 |
+| s3 | optional | shortname 3 | s3=something1 |
+| s4 | optional | shortname 4 | s4=somethingelse1 |
+| mac | optional | mac address | mac=DE:AD:BE:EF:CA:FE |
+
+### Examples
+- ```curl https://server.com/register?key=password&fqdn=server1.domain.com&ip=10.10.1.67&nw=10.10.1```
+- ```curl https://server.com/register?key=password&fqdn=server1.domain.com&ip=10.10.1.67&nw=10.10.1&mac=DE:AD:BE:EF:CA:FE&s1=server1```

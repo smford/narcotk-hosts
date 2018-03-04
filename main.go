@@ -56,17 +56,18 @@ type AllNetworks struct {
 
 func displayConfig() {
 	fmt.Println("Starting displayConfig function")
-	fmt.Printf("ShowHeader:    %s\n", viper.GetString("ShowHeader"))
-	fmt.Printf("ListenPort:    %s\n", viper.GetString("ListenPort"))
-	fmt.Printf("ListenIP:      %s\n", viper.GetString("ListenIP"))
-	fmt.Printf("Verbose:       %s\n", viper.GetString("Verbose"))
-	fmt.Printf("Database:      %s\n", viper.GetString("Database"))
-	fmt.Printf("HeaderFile:    %s\n", viper.GetString("HeaderFile"))
-	fmt.Printf("Scripts:       %s\n", viper.GetString("Scripts"))
-	fmt.Printf("JSON:          %s\n", viper.GetString("JSON"))
-	fmt.Printf("EnableTLS:     %s\n", viper.GetString("EnableTLS"))
-	fmt.Printf("TLSCert:       %s\n", viper.GetString("TLSCert"))
-	fmt.Printf("TLSKey:        %s\n", viper.GetString("TLSKey"))
+	fmt.Printf("ShowHeader:      %s\n", viper.GetString("ShowHeader"))
+	fmt.Printf("ListenPort:      %s\n", viper.GetString("ListenPort"))
+	fmt.Printf("ListenIP:        %s\n", viper.GetString("ListenIP"))
+	fmt.Printf("Verbose:         %s\n", viper.GetString("Verbose"))
+	fmt.Printf("Database:        %s\n", viper.GetString("Database"))
+	fmt.Printf("HeaderFile:      %s\n", viper.GetString("HeaderFile"))
+	fmt.Printf("Scripts:         %s\n", viper.GetString("Scripts"))
+	fmt.Printf("JSON:            %s\n", viper.GetString("JSON"))
+	fmt.Printf("EnableTLS:       %s\n", viper.GetString("EnableTLS"))
+	fmt.Printf("TLSCert:         %s\n", viper.GetString("TLSCert"))
+	fmt.Printf("TLSKey:          %s\n", viper.GetString("TLSKey"))
+	fmt.Printf("RegistrationKey: %s\n", viper.GetString("RegistationKey"))
 }
 
 func prepareMac(macaddress string) string {
@@ -154,6 +155,7 @@ func init() {
 		viper.SetDefault("EnableTLS", false)
 		viper.SetDefault("TLSCert", "./tls/server.crt")
 		viper.SetDefault("TLSKey", "./tls/server.key")
+		viper.SetDefault("RegistrationKey", "")
 	}
 }
 
@@ -491,8 +493,10 @@ func startWeb(databaseFile string, listenip string, listenport string, usetls bo
 	macRouter.HandleFunc("/{mac}", handlerMacJson).Queries("json", "")
 	macRouter.HandleFunc("/{mac}", handlerMac)
 
-	// https://stackoverflow.com/questions/43379942/how-to-have-an-optional-query-in-get-request-using-gorilla-mux
-	r.HandleFunc("/register", handlerRegister).Methods("GET")
+	if viper.GetString("RegistrationKey") != "" {
+		// https://stackoverflow.com/questions/43379942/how-to-have-an-optional-query-in-get-request-using-gorilla-mux
+		r.HandleFunc("/register", handlerRegister).Methods("GET")
+	}
 
 	if usetls {
 		fmt.Println("Starting HTTPS Webserver: " + listenip + ":" + listenport)
@@ -668,19 +672,24 @@ func handlerMacJson(w http.ResponseWriter, r *http.Request) {
 
 func handlerRegister(w http.ResponseWriter, r *http.Request) {
 	vars := r.URL.Query()
-	fqdn := vars.Get("fqdn")
-	ip := vars.Get("ip")
-	gw := vars.Get("gw")
-	mac := prepateMac(vars.Get("mac"))
-	short1 := vars.Get("s1")
-	short2 := vars.Get("s2")
-	short3 := vars.Get("s3")
-	short4 := vars.Get("s4")
-	fmt.Println(vars)
-	fmt.Printf("Starting handlerRegister: fqdn=%s / ip=%s / gw=%s / mac=%s / s1=%s / s2=%s / s3=%s / s4=%s\n", fqdn, ip, gw, mac, short1, short2, short3, short4)
-	log.Printf("%s requested %s", r.RemoteAddr, r.URL)
-	addHost(viper.GetString("Database"), fqdn, gw, ip, short1, short2, short3, short4, mac)
-	fmt.Fprintf(w, "Added: %s", vars)
+	regkey := vars.Get("key")
+	if regkey == viper.GetString("RegistrationKey") {
+		fqdn := vars.Get("fqdn")
+		ip := vars.Get("ip")
+		nw := vars.Get("nw")
+		mac := prepareMac(vars.Get("mac"))
+		short1 := vars.Get("s1")
+		short2 := vars.Get("s2")
+		short3 := vars.Get("s3")
+		short4 := vars.Get("s4")
+		fmt.Println(vars)
+		fmt.Printf("Starting handlerRegister: fqdn=%s / ip=%s / nw=%s / mac=%s / s1=%s / s2=%s / s3=%s / s4=%s\n", fqdn, ip, nw, mac, short1, short2, short3, short4)
+		log.Printf("%s requested %s", r.RemoteAddr, r.URL)
+		addHost(viper.GetString("Database"), fqdn, nw, ip, short1, short2, short3, short4, mac)
+		fmt.Fprintf(w, "Added: %s", vars)
+	} else {
+		log.Printf("RegistrationKey invalid (%s), ignoring", regkey)
+	}
 }
 
 func fileExists(path string) bool {
