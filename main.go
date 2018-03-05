@@ -774,7 +774,7 @@ Commands:
   Start Web Service using:
       --starthttp
 
-	Start Web HTTPS Service:
+  Start Web HTTPS Service:
       --starthttps
 
   Port to listen upon:
