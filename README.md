@@ -194,3 +194,18 @@ In the configuration file set the path to the scripts (default scripts) and plac
 
 The caller can then do (assuming the script is written in bash):
 ```\curl -sSL https://server.com/host/server1.domain.com?script | bash```
+
+
+## Bootstrapping a System
+
+Assuming a vanilla machine boots and gets on the network via DHCP, this example will allow the system to configure itself by:
+
+1. system finds its mac address
+2. the system then queries the narcotk-hosts server for its hostname
+3. the system then downloads and runs its script which then configures the rest of the system
+
+```
+MACADDRESS=$(ifconfig en1|grep ether|cut -f2 -d\ )
+MYHOSTNAME=$(curl -s http://server.com:23000/mac/$MACADDRESS\?json | jq '.[].Hostname')
+\curl -sSL https://server.com/host/$MYHOSTNAME?script | bash
+```
