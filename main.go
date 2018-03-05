@@ -685,8 +685,12 @@ func handlerRegister(w http.ResponseWriter, r *http.Request) {
 		fmt.Println(vars)
 		fmt.Printf("Starting handlerRegister: fqdn=%s / ip=%s / nw=%s / mac=%s / s1=%s / s2=%s / s3=%s / s4=%s\n", fqdn, ip, nw, mac, short1, short2, short3, short4)
 		log.Printf("%s requested %s", r.RemoteAddr, r.URL)
-		addHost(viper.GetString("Database"), fqdn, nw, ip, short1, short2, short3, short4, mac)
-		fmt.Fprintf(w, "Added: %s", vars)
+		if (fqdn == "") || (ip == "") || (nw == "") {
+			log.Printf("Error: fqdn, ip or nw cannot be blank")
+		} else {
+			addHost(viper.GetString("Database"), fqdn, nw, ip, short1, short2, short3, short4, mac)
+			fmt.Fprintf(w, "Added: %s", vars)
+		}
 	} else {
 		log.Printf("RegistrationKey invalid (%s), ignoring", regkey)
 	}
