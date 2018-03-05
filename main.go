@@ -13,6 +13,7 @@ import (
 	"github.com/xwb1989/sqlparser"
 	"io/ioutil"
 	"log"
+	"net"
 	"net/http"
 	"os"
 	"strings"
@@ -273,8 +274,10 @@ func addHost(databaseFile string, addhost string, network string, ipaddress stri
 	fmt.Println(short4)
 	fmt.Println(mac)
 	mac = prepareMac(mac)
-	sqlquery := "insert into hosts (hostid, network, ipsuffix, ipaddress, fqdn, short1, short2, short3, short4, mac) values ('" + breakIp(network, 2) + "-" + breakIp(ipaddress, 3) + "', '" + network + "', '" + breakIp(ipaddress, 3) + "', '" + ipaddress + "', '" + addhost + "', '" + short1 + "', '" + short2 + "', '" + short3 + "', '" + short4 + "', '" + mac + "')"
-	runSql(databaseFile, sqlquery)
+	if validIP(ipaddress) {
+		sqlquery := "insert into hosts (hostid, network, ipsuffix, ipaddress, fqdn, short1, short2, short3, short4, mac) values ('" + breakIp(network, 2) + "-" + breakIp(ipaddress, 3) + "', '" + network + "', '" + breakIp(ipaddress, 3) + "', '" + ipaddress + "', '" + addhost + "', '" + short1 + "', '" + short2 + "', '" + short3 + "', '" + short4 + "', '" + mac + "')"
+		runSql(databaseFile, sqlquery)
+	}
 }
 
 func delHost(databaseFile string, host string, network string) {
@@ -688,8 +691,10 @@ func handlerRegister(w http.ResponseWriter, r *http.Request) {
 		if (fqdn == "") || (ip == "") || (nw == "") {
 			log.Printf("Error: fqdn, ip or nw cannot be blank")
 		} else {
-			addHost(viper.GetString("Database"), fqdn, nw, ip, short1, short2, short3, short4, mac)
-			fmt.Fprintf(w, "Added: %s", vars)
+			if validIP(ip) {
+				addHost(viper.GetString("Database"), fqdn, nw, ip, short1, short2, short3, short4, mac)
+				fmt.Fprintf(w, "Added: %s", vars)
+			}
 		}
 	} else {
 		log.Printf("RegistrationKey invalid (%s), ignoring", regkey)
@@ -705,6 +710,15 @@ func fileExists(path string) bool {
 		return false
 	}
 	return true
+}
+
+func validIP(ip string) bool {
+	if net.ParseIP(ip) != nil {
+		return true
+	} else {
+		log.Printf("Error: ip %s is not valid", ip)
+		return false
+	}
 }
 
 func displayHelp() {
