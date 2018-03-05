@@ -305,22 +305,31 @@ func runSql(databaseFile string, sqlquery string) {
 	fmt.Println("Running generic runSql function")
 	fmt.Println("runSql query: " + sqlquery)
 
-	_, err := sqlparser.Parse(sqlquery)
-	if err != nil {
-		fmt.Println("Error Detected in SQL: ", err)
-		os.Exit(1)
+	if parseSql(sqlquery) {
+		db, err := sql.Open("sqlite3", databaseFile)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer db.Close()
+		_, err = db.Exec(sqlquery)
+		if err != nil {
+			log.Printf("%q: %s\n", err, sqlquery)
+			return
+		}
+	} else {
+		log.Printf("ERROR: sql statement is invalid %s", sqlquery)
 	}
 
-	db, err := sql.Open("sqlite3", databaseFile)
+}
+
+func parseSql(sqlquery string) bool {
+	fmt.Println("Starting parseSql")
+	_, err := sqlparser.Parse(sqlquery)
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("Error Detected in SQL: \"%s\" :%s\n", sqlquery, err)
+		return false
 	}
-	defer db.Close()
-	_, err = db.Exec(sqlquery)
-	if err != nil {
-		log.Printf("%q: %s\n", err, sqlquery)
-		return
-	}
+	return true
 }
 
 func listNetworks(databaseFile string, webprint http.ResponseWriter, sqlquery string, printjson bool) {
@@ -328,38 +337,40 @@ func listNetworks(databaseFile string, webprint http.ResponseWriter, sqlquery st
 	if webprint == nil {
 		fmt.Println("webprint is null, printing to std out")
 	}
-	db, err := sql.Open("sqlite3", databaseFile)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer db.Close()
-	var mynetworks []SingleNetwork
-	rows, err := db.Query(sqlquery)
-	for rows.Next() {
-		var network string
-		var cidr string
-		var description string
-		err = rows.Scan(&network, &cidr, &description)
-		mynetworks = append(mynetworks, SingleNetwork{network, cidr, description})
+	if parseSql(sqlquery) {
+		db, err := sql.Open("sqlite3", databaseFile)
 		if err != nil {
 			log.Fatal(err)
 		}
-	}
-	if printjson {
-		c, _ := json.Marshal(mynetworks)
-		if webprint == nil {
-			fmt.Printf("%s", c)
-		} else {
-			fmt.Fprintf(webprint, "%s", c)
+		defer db.Close()
+		var mynetworks []SingleNetwork
+		rows, err := db.Query(sqlquery)
+		for rows.Next() {
+			var network string
+			var cidr string
+			var description string
+			err = rows.Scan(&network, &cidr, &description)
+			mynetworks = append(mynetworks, SingleNetwork{network, cidr, description})
+			if err != nil {
+				log.Fatal(err)
+			}
 		}
-	} else {
-		if webprint == nil {
-			for _, network := range mynetworks {
-				fmt.Printf("%-15s  %-18s  %s\n", network.Network, network.CIDR, network.Description)
+		if printjson {
+			c, _ := json.Marshal(mynetworks)
+			if webprint == nil {
+				fmt.Printf("%s", c)
+			} else {
+				fmt.Fprintf(webprint, "%s", c)
 			}
 		} else {
-			for _, network := range mynetworks {
-				fmt.Fprintf(webprint, "%-15s  %-18s  %s\n", network.Network, network.CIDR, network.Description)
+			if webprint == nil {
+				for _, network := range mynetworks {
+					fmt.Printf("%-15s  %-18s  %s\n", network.Network, network.CIDR, network.Description)
+				}
+			} else {
+				for _, network := range mynetworks {
+					fmt.Fprintf(webprint, "%-15s  %-18s  %s\n", network.Network, network.CIDR, network.Description)
+				}
 			}
 		}
 	}
@@ -397,56 +408,59 @@ func listHost(databaseFile string, webprint http.ResponseWriter, network string,
 	if webprint == nil {
 		fmt.Println("webprint is null, printing to std out")
 	}
-	db, err := sql.Open("sqlite3", databaseFile)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer db.Close()
-	var myhosts []Host
-	rows, err := db.Query(sqlquery)
-	for rows.Next() {
-		var hostid string
-		var network string
-		var ipsuffix int
-		var ipaddress string
-		var fqdn string
-		var short1 string
-		var short2 string
-		var short3 string
-		var short4 string
-		var mac string
-		err = rows.Scan(&hostid, &network, &ipsuffix, &ipaddress, &fqdn, &short1, &short2, &short3, &short4, &mac)
-		myhosts = append(myhosts, Host{ipaddress, fqdn, short1, short2, short3, short4, mac})
-	}
-	if printjson {
-		// print json
-		c, _ := json.Marshal(myhosts)
-		if webprint == nil {
-			fmt.Printf("%s", c)
-		} else {
-			fmt.Fprintf(webprint, "%s", c)
+
+	if parseSql(sqlquery) {
+		db, err := sql.Open("sqlite3", databaseFile)
+		if err != nil {
+			log.Fatal(err)
 		}
-	} else {
-		// print standard
-		if webprint == nil {
-			if showmac {
-				for _, host := range myhosts {
-					fmt.Printf("%-17s  %-15s    %s  %s  %s  %s  %s\n", host.MAC, host.IPAddress, host.Hostname, host.Short1, host.Short2, host.Short3, host.Short4)
-				}
+		defer db.Close()
+		var myhosts []Host
+		rows, err := db.Query(sqlquery)
+		for rows.Next() {
+			var hostid string
+			var network string
+			var ipsuffix int
+			var ipaddress string
+			var fqdn string
+			var short1 string
+			var short2 string
+			var short3 string
+			var short4 string
+			var mac string
+			err = rows.Scan(&hostid, &network, &ipsuffix, &ipaddress, &fqdn, &short1, &short2, &short3, &short4, &mac)
+			myhosts = append(myhosts, Host{ipaddress, fqdn, short1, short2, short3, short4, mac})
+		}
+		if printjson {
+			// print json
+			c, _ := json.Marshal(myhosts)
+			if webprint == nil {
+				fmt.Printf("%s", c)
 			} else {
-				for _, host := range myhosts {
-					fmt.Printf("%-15s    %s  %s  %s  %s  %s\n", host.IPAddress, host.Hostname, host.Short1, host.Short2, host.Short3, host.Short4)
-				}
+				fmt.Fprintf(webprint, "%s", c)
 			}
 		} else {
-			// webprint
-			if showmac {
-				for _, host := range myhosts {
-					fmt.Fprintf(webprint, "%-17s  %-15s    %s  %s  %s  %s  %s\n", host.MAC, host.IPAddress, host.Hostname, host.Short1, host.Short2, host.Short3, host.Short4)
+			// print standard
+			if webprint == nil {
+				if showmac {
+					for _, host := range myhosts {
+						fmt.Printf("%-17s  %-15s    %s  %s  %s  %s  %s\n", host.MAC, host.IPAddress, host.Hostname, host.Short1, host.Short2, host.Short3, host.Short4)
+					}
+				} else {
+					for _, host := range myhosts {
+						fmt.Printf("%-15s    %s  %s  %s  %s  %s\n", host.IPAddress, host.Hostname, host.Short1, host.Short2, host.Short3, host.Short4)
+					}
 				}
 			} else {
-				for _, host := range myhosts {
-					fmt.Fprintf(webprint, "%-15s    %s  %s  %s  %s  %s\n", host.IPAddress, host.Hostname, host.Short1, host.Short2, host.Short3, host.Short4)
+				// webprint
+				if showmac {
+					for _, host := range myhosts {
+						fmt.Fprintf(webprint, "%-17s  %-15s    %s  %s  %s  %s  %s\n", host.MAC, host.IPAddress, host.Hostname, host.Short1, host.Short2, host.Short3, host.Short4)
+					}
+				} else {
+					for _, host := range myhosts {
+						fmt.Fprintf(webprint, "%-15s    %s  %s  %s  %s  %s\n", host.IPAddress, host.Hostname, host.Short1, host.Short2, host.Short3, host.Short4)
+					}
 				}
 			}
 		}
