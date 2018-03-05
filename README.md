@@ -184,3 +184,13 @@ New hosts can be registered in to the database using the registration api call. 
 ### Examples
 - ```curl https://server.com/register?key=password&fqdn=server1.domain.com&ip=10.10.1.67&nw=10.10.1```
 - ```curl https://server.com/register?key=password&fqdn=server1.domain.com&ip=10.10.1.67&nw=10.10.1&mac=DE:AD:BE:EF:CA:FE&s1=server1```
+
+
+## Scripts
+
+The web api can be used to present a script back to the caller.  This script can be used to do things on the caller such as configure the system.
+
+In the configuration file set the path to the scripts (default scripts) and place the script in to that directory with the filename matching the fqdn of the host.
+
+The caller can then do (assuming the script is written in bash):
+```\curl -sSL https://server.com/host/server1.domain.com?script | bash```
