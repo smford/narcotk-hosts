@@ -41,6 +41,8 @@ build-osx-1:
   script:
     - pwd
     - ls -la
+    - export | grep GO
+    - go env
     - go get ./
     - "go build -o binaries/osx-narcotk-hosts-${CI_COMMIT_SHA} main.go"
     - ls -la binaries/*
