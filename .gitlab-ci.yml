@@ -43,6 +43,7 @@ build-osx-1:
     - pwd
     - ls -la
     - export GOPATH=~/go
+    - export GOBIN=~/go/bin
     - export | grep GO
     - go env
     - go get ./
