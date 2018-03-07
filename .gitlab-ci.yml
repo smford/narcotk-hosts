@@ -57,6 +57,7 @@ test-osx-1:
   script:
     - pwd
     - ls -la
+    - export | grep GO
     - go fmt main.go
     - "./binaries/osx-narotk-hosts-${CI_COMMIT_SHA} --help"
 
