@@ -39,8 +39,10 @@ build-osx-1:
   tags:
     - osx
   script:
+    - echo "Building OSX"
     - pwd
     - ls -la
+    - export GOPATH=~/go
     - export | grep GO
     - go env
     - go get ./
