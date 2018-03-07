@@ -16,11 +16,13 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"sort"
 	"strings"
 	_ "unicode"
 )
 
 type Host struct {
+	PaddedIP  string `json:"PaddedIP"`
 	IPAddress string `json:"IPAddress"`
 	Hostname  string `json:"Hostname"`
 	Short1    string `json:"Short1"`
@@ -429,8 +431,11 @@ func listHost(databaseFile string, webprint http.ResponseWriter, network string,
 			var short4 string
 			var mac string
 			err = rows.Scan(&hostid, &network, &ipsuffix, &ipaddress, &fqdn, &short1, &short2, &short3, &short4, &mac)
-			myhosts = append(myhosts, Host{ipaddress, fqdn, short1, short2, short3, short4, mac})
+			myhosts = append(myhosts, Host{makePaddedIp(ipaddress), ipaddress, fqdn, short1, short2, short3, short4, mac})
 		}
+		sort.Slice(myhosts, func(i, j int) bool {
+			return bytes.Compare([]byte(myhosts[i].PaddedIP), []byte(myhosts[j].PaddedIP)) < 0
+		})
 		if printjson {
 			// print json
 			c, _ := json.Marshal(myhosts)
@@ -733,6 +738,27 @@ func validIP(ip string) bool {
 		log.Printf("Error: ip %s is not valid", ip)
 		return false
 	}
+}
+
+func PadLeft(str string) string {
+	for {
+		padding := "00"
+		str = padding + str
+		startpoint := len(str) - 3
+		endpoint := len(str)
+		return str[startpoint:endpoint]
+	}
+}
+
+func makePaddedIp(ipaddress string) string {
+	//fmt.Println("starting makePaddedIp")
+	f := func(c rune) bool {
+		return (c == rune('.'))
+	}
+	s := strings.FieldsFunc(ipaddress, f)
+	paddedIp := PadLeft(s[0]) + PadLeft(s[1]) + PadLeft(s[2]) + PadLeft(s[3])
+	//fmt.Printf("P=%s\n", paddedIp)
+	return paddedIp
 }
 
 func displayHelp() {
