@@ -153,7 +153,7 @@ func init() {
 		viper.SetDefault("Verbose", true)
 		viper.SetDefault("Database", "./narcotk_hosts_all.db")
 		viper.SetDefault("HeaderFile", "./header.txt")
-		viper.SetDefault("Scripts", "./scripts")
+		viper.SetDefault("Files", "./files")
 		viper.SetDefault("JSON", false)
 		viper.SetDefault("EnableTLS", false)
 		viper.SetDefault("TLSCert", "./tls/server.crt")
@@ -505,7 +505,8 @@ func startWeb(databaseFile string, listenip string, listenport string, usetls bo
 	hostRouter := r.PathPrefix("/host").Subrouter()
 	hostRouter.HandleFunc("/{host}", handlerHostHeader).Queries("header", "")
 	hostRouter.HandleFunc("/{host}", handlerHostJson).Queries("json", "")
-	hostRouter.HandleFunc("/{host}", handlerHostScript).Queries("script", "")
+	hostRouter.HandleFunc("/{host}", handlerHostFile).Queries("file", "")
+	//hostRouter.HandleFunc("/{host}", handlerHostScript).Queries("script1", ""
 	hostRouter.HandleFunc("/{host}", handlerHost)
 	hostRouter.Use(loggingMiddleware)
 
@@ -612,20 +613,33 @@ func handlerHostJson(w http.ResponseWriter, r *http.Request) {
 	listHost(viper.GetString("Database"), w, viper.GetString("network"), "select * from hosts where fqdn like '"+vars["host"]+"'", viper.GetBool("showmac"), true)
 }
 
-func handlerHostScript(w http.ResponseWriter, r *http.Request) {
+func handlerHostFile(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	fmt.Println("Starting handlerHostScript")
-	if fileExists("./scripts/" + vars["host"]) {
-		script, err := ioutil.ReadFile(viper.GetString("scripts") + "/" + vars["host"])
+	queries := r.URL.Query()
+	var passedfilename string
+
+	log.Printf("queries = %q\n", queries)
+
+	if queries.Get("file") == "" {
+		passedfilename = viper.GetString("files") + "/" + vars["host"]
+	} else {
+		passedfilename = viper.GetString("files") + "/" + vars["host"] + "." + queries.Get("file")
+	}
+
+	log.Println("Passedfilename = ", passedfilename)
+
+	fmt.Println("Starting handlerHostFile")
+	if fileExists(passedfilename) {
+		file, err := ioutil.ReadFile(passedfilename)
 		if err != nil {
-			fmt.Println("Error: cannot open file " + string(script))
+			fmt.Println("Error: cannot open file " + string(file))
 		}
 		w.Header().Set("Content-Type", "application/octet-stream")
-		fmt.Fprintf(w, "%s", string(script))
-		log.Printf("%s requested %s sent script", r.RemoteAddr, r.URL)
+		fmt.Fprintf(w, "%s", string(file))
+		log.Printf("%s requested %s sent file", r.RemoteAddr, r.URL)
 	} else {
 		w.WriteHeader(http.StatusNotFound)
-		log.Printf("%s requested %s script not found", r.RemoteAddr, r.URL)
+		log.Printf("%s requested %s file not found", r.RemoteAddr, r.URL)
 		fmt.Fprintf(w, "file doesnt exist")
 	}
 }

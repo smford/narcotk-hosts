@@ -30,7 +30,7 @@ narcotk-hosts is an simple hosts management application, the allows you to easil
 ## Example Uses
 
 1. As a simple hosts file maintenance tool: you can run narcotk-hosts as a simple hosts file maintainer, adding and deleting hosts, and to generate a hosts file.
-2. As a boot strapping tool: a VM or IOT device boots then runs ```\curl http://server.com/mac/de:ad:be:ef:ca:fe?script | bash ``` where narcotk-hosts provides a boot script that can configure your VM or IOT device.
+2. As a boot strapping tool: a VM or IOT device boots then runs ```\curl http://server.com/mac/de:ad:be:ef:ca:fe?file | bash ``` where narcotk-hosts provides a boot script that can configure your VM or IOT device.
 
 ## Installation
 
@@ -84,7 +84,7 @@ When running narcotk-hosts for the first time, you need to run the below command
 | JSON | false | print output as json |
 | ListenPort | 23001 | port for narcotk-hosts to listen on |
 | ListenIP | 127.0.0.1 | IP for narcotk-hosts to bind to |
-| Scripts | ./scripts | directory of scripts |
+| Files | ./files | directory of scripts |
 | ShowHeader | false | show header, false by default |
 | TLSCert | ./tls/server.crt | if EnableTLS true, use this TLS cert |
 | TLSKey | ./tls/server.crt | if EnableTLS true, use this TLS key |
@@ -103,7 +103,7 @@ The default configuration file (narco-hosts-config.json) is read from the same d
     "JSON": false,
     "ListenIP": "127.0.0.1",
     "ListenPort": "23001",
-    "Scripts": "./scripts",
+    "Files": "./files",
     "ShowHeader": false,
     "TLSCert": "./tls/server.crt",
     "TLSKey": "./tls/server.key",
@@ -154,7 +154,8 @@ narcotk-hosts can can as a command line tool or as a web service.
 | http://localhost:23000/host/**HOSTNAME** | print details for **HOSTNAME** |
 | http://localhost:23000/host/**HOSTNAME**?json | print details for **HOSTNAME** in json |
 | http://localhost:23000/host/**HOSTNAME**?header | print details for **HOSTNAME** with header |
-| http://localhost:23000/host/**HOSTNAME**?script | print script for **HOSTNAME** |
+| http://localhost:23000/host/**HOSTNAME**?file | download default file for **HOSTNAME** |
+| http://localhost:23000/host/**HOSTNAME**?file=motd | download motd file  for **HOSTNAME** |
 | http://localhost:23000/networks | lists all networks |
 | http://localhost:23000/networks?json | lists all networks in json |
 | http://localhost:23000/network/**NETWORK_ID** | print details for **NETWORK_ID** |
@@ -186,14 +187,33 @@ New hosts can be registered in to the database using the registration api call. 
 - ```curl https://server.com/register?key=password&fqdn=server1.domain.com&ip=10.10.1.67&nw=10.10.1&mac=DE:AD:BE:EF:CA:FE&s1=server1```
 
 
-## Scripts
+## Files and Scripts
+The web api can be used to present files and scripts back to a host.  These files and scripts can be used to do things such as configure the host.
 
-The web api can be used to present a script back to the caller.  This script can be used to do things on the caller such as configure the system.
+In the configuration file, set the path to "Files" and place your files and scripts in to that directory.
 
-In the configuration file set the path to the scripts (default scripts) and place the script in to that directory with the filename matching the fqdn of the host.
+Multiple files are possible, just pass the filename as a query.  Store the files in the files directory with hostname.<filename>
 
-The caller can then do (assuming the script is written in bash):
-```\curl -sSL https://server.com/host/server1.domain.com?script | bash```
+| Filepath | Details | API Call Example |
+| :-- | :-- | :-- |
+| path/files/**hostname** | default | http://server.com:23000/host/server1.domain.com?file |
+| path/files/**hostname**.config | config | http://server.com:23000/host/server1.domain.com?file=config |
+| path/files/**hostname**.motd | motd | http://server.com:23000/host/server1.domain.com?file=motd |
+
+
+### Example Path Structure for Files and Scripts
+![Example path structure for files and scripts](https://gitlab.com/narcotk/narcotk-hosts-2/raw/ae034c09e4764da99b578a5031de2fb5deb8a96b/images/files.png "Example path structure for files and scripts")
+
+
+### Usage Examples
+1. Download and run default file:
+
+       \curl -sSL https://server.com:23000/host/server1.domain.com?file | bash
+
+
+2. Download and install a machines MOTD:
+
+       wget http://server.com:23000/host/server1.domain.com?file=motd -O /etc/motd
 
 
 ## Bootstrapping a System
@@ -207,5 +227,5 @@ Assuming a vanilla machine boots and gets on the network via DHCP, this example 
 ```
 MACADDRESS=$(ifconfig en1|grep ether|cut -f2 -d\ )
 MYHOSTNAME=$(curl -s http://server.com:23000/mac/$MACADDRESS\?json | jq '.[].Hostname')
-\curl -sSL https://server.com/host/$MYHOSTNAME?script | bash
+\curl -sSL https://server.com/host/$MYHOSTNAME?file | bash
 ```
