@@ -65,7 +65,7 @@ func displayConfig() {
 	fmt.Printf("Verbose:         %s\n", viper.GetString("Verbose"))
 	fmt.Printf("Database:        %s\n", viper.GetString("Database"))
 	fmt.Printf("HeaderFile:      %s\n", viper.GetString("HeaderFile"))
-	fmt.Printf("Scripts:         %s\n", viper.GetString("Scripts"))
+	fmt.Printf("Files:           %s\n", viper.GetString("Files"))
 	fmt.Printf("JSON:            %s\n", viper.GetString("JSON"))
 	fmt.Printf("EnableTLS:       %s\n", viper.GetString("EnableTLS"))
 	fmt.Printf("TLSCert:         %s\n", viper.GetString("TLSCert"))
