@@ -206,6 +206,7 @@ Multiple files are possible, just pass the filename as a query.  Store the files
 
 
 ### Example Path Structure for Files and Scripts
+![Example path structure for files and scripts](https://github.com/smford/narcotk-hosts/raw/master/images/files.png "Example path structure for files and scripts")
 ![Example path structure for files and scripts](https://gitlab.com/narcotk/narcotk-hosts-2/raw/ae034c09e4764da99b578a5031de2fb5deb8a96b/images/files.png "Example path structure for files and scripts")
 
 
