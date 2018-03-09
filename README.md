@@ -8,7 +8,7 @@ narcotk-hosts is an simple hosts management application, the allows you to easil
 
 - record VM or IOT device networking information
 - add/delete/update information
-- allow for devices to register them selves in narcotk-hosts
+- allow for devices to self register in narcotk-hosts
 - provide a web api that allows devices to query their configuration
 - provides a means to bootstrap VMs and IOT devices
 
@@ -16,11 +16,12 @@ narcotk-hosts is an simple hosts management application, the allows you to easil
 ## Features
 
 - lightweight and simple to use
+- web api
 - tls/ssl encryption
 - output in plain text or json
 - can run stand alone or as a web service
 - easy to run on osx, linux and windows.
-- VMs and IOT devices can access the web api to get their boot strap script
+- VMs and IOT devices can get host specific files, useful for bootstrapping and configuring themselves 
 - easy to run in a docker container
 - can generate an old school hosts file
 - IPv4 compatible
@@ -30,7 +31,7 @@ narcotk-hosts is an simple hosts management application, the allows you to easil
 ## Example Uses
 
 1. As a simple hosts file maintenance tool: you can run narcotk-hosts as a simple hosts file maintainer, adding and deleting hosts, and to generate a hosts file.
-2. As a boot strapping tool: a VM or IOT device boots then runs ```\curl http://server.com/mac/de:ad:be:ef:ca:fe?file | bash ``` where narcotk-hosts provides a boot script that can configure your VM or IOT device.
+2. As a boot strapping tool: a VM or IOT device boots then runs ```\curl http://server.com:23000/mac/de:ad:be:ef:ca:fe?file | bash ``` where narcotk-hosts provides a boot script that can configure your VM or IOT device.
 
 ## Installation
 
@@ -39,7 +40,7 @@ narcotk-hosts is an simple hosts management application, the allows you to easil
 Requirements: go v1.9.1
 
 ```
-git clone git@gitlab.com:narcotk/narcotk-hosts-2.git
+git clone git@gitlab.com:narcotk/narcotk-hosts.git
 cd narcotk-hosts-2
 go get ./
 go build -o narcotk-hosts main.go
@@ -82,7 +83,7 @@ When running narcotk-hosts for the first time, you need to run the below command
 | EnableTLS | false | enable or disable TLS |
 | HeaderFile | ./header.txt | display header file |
 | JSON | false | print output as json |
-| ListenPort | 23001 | port for narcotk-hosts to listen on |
+| ListenPort | 23000 | port for narcotk-hosts to listen on |
 | ListenIP | 127.0.0.1 | IP for narcotk-hosts to bind to |
 | Files | ./files | directory of scripts |
 | ShowHeader | false | show header, false by default |
@@ -102,7 +103,7 @@ The default configuration file (narco-hosts-config.json) is read from the same d
     "HeaderFile": "./header.txt",
     "JSON": false,
     "ListenIP": "127.0.0.1",
-    "ListenPort": "23001",
+    "ListenPort": "23000",
     "Files": "./files",
     "ShowHeader": false,
     "TLSCert": "./tls/server.crt",
@@ -121,7 +122,7 @@ The default configuration file (narco-hosts-config.json) is read from the same d
 | ```--database``` | Database File | --database=/path/to/somefile.db |
 | ```--json``` | Print output as JSON | --json |
 | ```--listenip``` | IP for narcotk-hosts to bind to | --listenip=127.0.0.1 |
-| ```--listenport``` | Port for narcotk-hosts to listen on | --listenport=23001 |
+| ```--listenport``` | Port for narcotk-hosts to listen on | --listenport=23000 |
 | ```--showheader``` | Show header | --showheader |
 
 
@@ -151,24 +152,24 @@ narcotk-hosts can can as a command line tool or as a web service.
 | http://localhost:23000/hosts | lists all hosts |
 | http://localhost:23000/hosts?json | list all hosts in json |
 | http://localhost:23000/hosts?header | list all hosts with header |
-| http://localhost:23000/host/**HOSTNAME** | print details for **HOSTNAME** |
-| http://localhost:23000/host/**HOSTNAME**?json | print details for **HOSTNAME** in json |
-| http://localhost:23000/host/**HOSTNAME**?header | print details for **HOSTNAME** with header |
-| http://localhost:23000/host/**HOSTNAME**?file | download default file for **HOSTNAME** |
-| http://localhost:23000/host/**HOSTNAME**?file=motd | download motd file  for **HOSTNAME** |
+| http://localhost:23000/host/HOSTNAME | print details for **HOSTNAME** |
+| http://localhost:23000/host/HOSTNAME?json | print details for **HOSTNAME** in json |
+| http://localhost:23000/host/HOSTNAME?header | print details for **HOSTNAME** with header |
+| http://localhost:23000/host/HOSTNAME?file | download default file for **HOSTNAME** |
+| http://localhost:23000/host/HOSTNAME?file=motd | download motd file  for **HOSTNAME** |
 | http://localhost:23000/networks | lists all networks |
 | http://localhost:23000/networks?json | lists all networks in json |
-| http://localhost:23000/network/**NETWORK_ID** | print details for **NETWORK_ID** |
-| http://localhost:23000/network/**NETWORK_ID**?json | print details for **NETWORK_ID** in json |
-| http://localhost:23000/ip/**IP** | print host details for **IP** |
-| http://localhost:23000/ip/**IP**?json | print host details for **IP** in json |
-| http://localhost:23000/mac/**MAC** | print host details for **MAC** |
-| http://localhost:23000/mac/**MAC**?json | print host details for **MAC** in json |
+| http://localhost:23000/network/NETWORK_ID | print details for **NETWORK_ID** |
+| http://localhost:23000/network/NETWORK_ID?json | print details for **NETWORK_ID** in json |
+| http://localhost:23000/ip/IP | print host details for **IP** |
+| http://localhost:23000/ip/IP?json | print host details for **IP** in json |
+| http://localhost:23000/mac/MAC | print host details for **MAC** |
+| http://localhost:23000/mac/MAC?json | print host details for **MAC** in json |
 
 
 ## Registration API
 
-New hosts can be registered in to the database using the registration api call.  The registration api is only enabled when a RegistrationKey is set in the configuration file.
+New hosts can be registered in to the database using the registration api call.  The registration api is only enabled when a RegistrationKey is set in the configuration file, to disable set RegistrationKey to "" (blank).
 
 | Query | | Details | Example |
 |:--|:--|:--|:--|
@@ -207,7 +208,6 @@ Multiple files are possible, just pass the filename as a query.  Store the files
 
 ### Example Path Structure for Files and Scripts
 ![Example path structure for files and scripts](https://github.com/smford/narcotk-hosts/raw/master/images/files.png "Example path structure for files and scripts")
-![Example path structure for files and scripts](https://gitlab.com/narcotk/narcotk-hosts-2/raw/ae034c09e4764da99b578a5031de2fb5deb8a96b/images/files.png "Example path structure for files and scripts")
 
 
 ### Usage Examples
@@ -232,5 +232,5 @@ Assuming a vanilla machine boots and gets on the network via DHCP, this example 
 ```
 MACADDRESS=$(ifconfig en1|grep ether|cut -f2 -d\ )
 MYHOSTNAME=$(curl -s http://server.com:23000/mac/$MACADDRESS\?json | jq '.[].Hostname')
-\curl -sSL https://server.com/host/$MYHOSTNAME?file | bash
+\curl -sSL https://server.com:23000/host/$MYHOSTNAME?file | bash
 ```
