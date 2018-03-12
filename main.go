@@ -520,8 +520,7 @@ func startWeb(databaseFile string, listenip string, listenport string, usetls bo
 	networksRouter.Use(loggingMiddleware)
 
 	networkRouter := r.PathPrefix("/network").Subrouter()
-	networkRouter.HandleFunc("/{network}", handlerNetworkJson).Queries("json", "")
-	networkRouter.HandleFunc("/{network}", handlerNetwork)
+	networkRouter.HandleFunc("/{network}", handlerNetworkNew)
 	networkRouter.Use(loggingMiddleware)
 
 	ipRouter := r.PathPrefix("/ip").Subrouter()
@@ -725,6 +724,25 @@ func handlerNetworkJson(w http.ResponseWriter, r *http.Request) {
 	sqlquery := "select * from networks where network like '" + vars["network"] + "'"
 	w.Header().Set("Content-Type", "application/json")
 	listNetworks(viper.GetString("Database"), w, sqlquery, true)
+}
+
+func handlerNetworkNew(w http.ResponseWriter, r *http.Request) {
+	log.Println("Starting handlerNetworkNew")
+	vars := mux.Vars(r)
+	queries := r.URL.Query()
+	givejson := false
+
+	log.Printf("queries = %q\n")
+
+	if strings.ToLower(queries.Get("json")) == "y" {
+		givejson = true
+		w.Header().Set("Content-Type", "application/json")
+	}
+
+	sqlquery := "select * from networks where network like '" + vars["network"] + "'"
+
+	listNetworks(viper.GetString("Database"), w, sqlquery, givejson)
+
 }
 
 func handlerIp(w http.ResponseWriter, r *http.Request) {
