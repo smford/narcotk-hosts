@@ -492,14 +492,17 @@ func loggingMiddleware(next http.Handler) http.Handler {
 func startWeb(databaseFile string, listenip string, listenport string, usetls bool) {
 	r := mux.NewRouter()
 	hostsRouter := r.PathPrefix("/hosts").Subrouter()
-	hostsRouter.HandleFunc("", handlerHostsHeader).Queries("header", "")
-	hostsRouter.HandleFunc("", handlerHostsJson).Queries("json", "")
-	hostsRouter.HandleFunc("", handlerHostsMac).Queries("mac", "")
-	hostsRouter.HandleFunc("", handlerHosts)
-	hostsRouter.HandleFunc("/", handlerHosts)
-	hostsRouter.HandleFunc("/{network}", handlerHostsNetworkHeader).Queries("header", "")
-	hostsRouter.HandleFunc("/{network}", handlerHostsNetworkJson).Queries("json", "")
-	hostsRouter.HandleFunc("/{network}", handlerHostsNetwork)
+	//hostsRouter.HandleFunc("", handlerHostsHeader).Queries("header", "")
+	//hostsRouter.HandleFunc("", handlerHostsJson).Queries("json", "")
+	//hostsRouter.HandleFunc("", handlerHostsMac).Queries("mac", "")
+	//hostsRouter.HandleFunc("", handlerHosts)
+	//hostsRouter.HandleFunc("/", handlerHosts)
+	//hostsRouter.HandleFunc("/{network}", handlerHostsNetwork)
+	//hostsRouter.HandleFunc("/{network}", handlerHostsNetworkHeader).Queries("header", "")
+	//hostsRouter.HandleFunc("/{network}", handlerHostsNetworkJson).Queries("json", "")
+
+	hostsRouter.HandleFunc("", handlerHostsNew)
+	hostsRouter.HandleFunc("/{network}", handlerHostsNew)
 	hostsRouter.Use(loggingMiddleware)
 
 	hostRouter := r.PathPrefix("/host").Subrouter()
@@ -511,9 +514,9 @@ func startWeb(databaseFile string, listenip string, listenport string, usetls bo
 	hostRouter.Use(loggingMiddleware)
 
 	networksRouter := r.PathPrefix("/networks").Subrouter()
-	networksRouter.HandleFunc("", handlerNetworksJson).Queries("json", "")
-	networksRouter.HandleFunc("", handlerNetworks)
-	networksRouter.HandleFunc("/", handlerNetworks)
+	//networksRouter.HandleFunc("", handlerNetworksNew).Queries("json", "")
+	networksRouter.HandleFunc("", handlerNetworksNew)
+	networksRouter.HandleFunc("/", handlerNetworksNew)
 	networksRouter.Use(loggingMiddleware)
 
 	networkRouter := r.PathPrefix("/network").Subrouter()
@@ -566,6 +569,41 @@ func handlerHostsJson(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Starting handlerHostsJson")
 	w.Header().Set("Content-Type", "application/json")
 	listHost(viper.GetString("Database"), w, viper.GetString("network"), "select * from hosts", false, true)
+}
+
+func handlerHostsNew(w http.ResponseWriter, r *http.Request) {
+	log.Println("Starting handlerHostNew")
+	vars := mux.Vars(r)
+	queries := r.URL.Query()
+	log.Printf("vars = %q\n", vars)
+	log.Printf("queries = %q\n", queries)
+
+	sqlquery := ""
+
+	if vars["network"] == "" {
+		sqlquery = "select * from hosts"
+	} else {
+		sqlquery = "select * from hosts where network like '" + vars["network"] + "'"
+	}
+
+	givejson := false
+	showmac := false
+
+	if strings.ToLower(queries.Get("json")) == "y" {
+		w.Header().Set("Content-Type", "application/json")
+		givejson = true
+	}
+
+	if (strings.ToLower(queries.Get("header")) == "y") && (!givejson) {
+		printHeader(viper.GetString("headerfile"), w)
+	}
+
+	if strings.ToLower(queries.Get("mac")) == "y" {
+		showmac = true
+	}
+
+	listHost(viper.GetString("Database"), w, viper.GetString("network"), sqlquery, showmac, givejson)
+
 }
 
 func handlerHostsMac(w http.ResponseWriter, r *http.Request) {
@@ -655,6 +693,23 @@ func handlerNetworksJson(w http.ResponseWriter, r *http.Request) {
 	sqlquery := "select * from networks"
 	w.Header().Set("Content-Type", "application/json")
 	listNetworks(viper.GetString("Database"), w, sqlquery, true)
+}
+
+func handlerNetworksNew(w http.ResponseWriter, r *http.Request) {
+	log.Println("Starting handlerNetworksNew")
+	queries := r.URL.Query()
+	sqlquery := "select * from networks"
+	givejson := false
+
+	log.Printf("queries = %q\n", queries)
+
+	if strings.ToLower(queries.Get("json")) == "y" {
+		givejson = true
+		w.Header().Set("Content-Type", "application/json")
+	}
+
+	listNetworks(viper.GetString("Database"), w, sqlquery, givejson)
+
 }
 
 func handlerNetwork(w http.ResponseWriter, r *http.Request) {
