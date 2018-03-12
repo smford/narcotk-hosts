@@ -169,7 +169,8 @@ narcotk-hosts can can as a command line tool or as a web service.
 | http://localhost:23000/network/NETWORK_ID | print details for **NETWORK_ID** |
 | http://localhost:23000/network/NETWORK_ID?json | print details for **NETWORK_ID** in json |
 | http://localhost:23000/ip/IP | print host details for **IP** |
-| http://localhost:23000/ip/IP?json | print host details for **IP** in json |
+| http://localhost:23000/ip/IP?json=y | print host details for **IP** in json |
+| http://localhost:23000/ip/IP?mac=y | print host details with mac for **IP** |
 | http://localhost:23000/mac/MAC | print host details for **MAC** |
 | http://localhost:23000/mac/MAC?json | print host details for **MAC** in json |
 
