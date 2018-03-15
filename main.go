@@ -106,6 +106,7 @@ func init() {
 	flag.Bool("displayconfig", false, "display configuration")
 	flag.String("desc", "", "description of network, used with --addnetwork and --cidr")
 	flag.Bool("help", false, "display help information")
+	flag.String("host", "", "display details for a specific host")
 	flag.String("ipaddress", "", "ip address of new host")
 	flag.Bool("json", false, "output in json")
 	listenIp := flag.String("listenip", "", "ip address for webservice to bind to")
@@ -249,7 +250,12 @@ func main() {
 		os.Exit(0)
 	}
 
-	listHost(viper.GetString("Database"), nil, viper.GetString("network"), "select * from hosts", viper.GetBool("showmac"), viper.GetBool("json"))
+	if viper.GetString("host") != "" {
+		sqlquery := "select * from hosts where fqdn like '" + viper.GetString("host") + "'"
+		listHost(viper.GetString("Database"), nil, "", sqlquery, viper.GetBool("showmac"), viper.GetBool("json"))
+	} else {
+		listHost(viper.GetString("Database"), nil, viper.GetString("network"), "select * from hosts", viper.GetBool("showmac"), viper.GetBool("json"))
+	}
 }
 
 func printHeader(headerfile string, webprint http.ResponseWriter) {
@@ -916,6 +922,9 @@ Commands:
 
   Update a network:
       --updatenetwork=192.168.2 --network=192.168.3 --cidr=192.168.3/24 --desc="3rd Management Network"
+
+  Display a host:
+      --host=server1.domain.com
 
   Adding a host:
       --addhost=server-1-199.domain.com --network=192.168.1 --ipaddress=192.168.1.13 --short1=server-1-199 --short2=server --short3=serv --short4=ser --mac=de:ad:be:ef:ca:fe
