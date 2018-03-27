@@ -412,12 +412,13 @@ func setupdb(databaseFile string) {
 }
 
 func listHost(databaseFile string, webprint http.ResponseWriter, network string, sqlquery string, showmac bool, printjson bool) {
-	fmt.Println("Starting listHost")
+	log.Println("Starting listHost")
 	if webprint == nil {
 		fmt.Println("webprint is null, printing to std out")
 	}
 
 	if parseSql(sqlquery) {
+		log.Println("succeed parseSql on ", sqlquery)
 		db, err := sql.Open("sqlite3", databaseFile)
 		if err != nil {
 			log.Fatal(err)
@@ -425,6 +426,8 @@ func listHost(databaseFile string, webprint http.ResponseWriter, network string,
 		defer db.Close()
 		var myhosts []Host
 		rows, err := db.Query(sqlquery)
+		log.Println("err = ", err)
+		log.Println("rows = ", rows)
 		for rows.Next() {
 			var hostid string
 			var network string
@@ -439,40 +442,56 @@ func listHost(databaseFile string, webprint http.ResponseWriter, network string,
 			err = rows.Scan(&hostid, &network, &ipsuffix, &ipaddress, &fqdn, &short1, &short2, &short3, &short4, &mac)
 			myhosts = append(myhosts, Host{makePaddedIp(ipaddress), ipaddress, fqdn, short1, short2, short3, short4, mac})
 		}
-		sort.Slice(myhosts, func(i, j int) bool {
-			return bytes.Compare([]byte(myhosts[i].PaddedIP), []byte(myhosts[j].PaddedIP)) < 0
-		})
-		if printjson {
-			// print json
-			c, _ := json.Marshal(myhosts)
-			if webprint == nil {
-				fmt.Printf("%s", c)
+
+		if len(myhosts) > 0 {
+			log.Printf("%d hosts found\n", len(myhosts))
+
+			sort.Slice(myhosts, func(i, j int) bool {
+				return bytes.Compare([]byte(myhosts[i].PaddedIP), []byte(myhosts[j].PaddedIP)) < 0
+			})
+			if printjson {
+				// print json
+				c, _ := json.Marshal(myhosts)
+				if webprint == nil {
+					fmt.Printf("%s", c)
+				} else {
+					fmt.Fprintf(webprint, "%s", c)
+				}
 			} else {
-				fmt.Fprintf(webprint, "%s", c)
+				// print standard
+				if webprint == nil {
+					if showmac {
+						for _, host := range myhosts {
+							fmt.Printf("%-17s  %-15s    %s  %s  %s  %s  %s\n", host.MAC, host.IPAddress, host.Hostname, host.Short1, host.Short2, host.Short3, host.Short4)
+						}
+					} else {
+						for _, host := range myhosts {
+							fmt.Printf("%-15s    %s  %s  %s  %s  %s\n", host.IPAddress, host.Hostname, host.Short1, host.Short2, host.Short3, host.Short4)
+						}
+					}
+				} else {
+					// webprint
+					if showmac {
+						log.Println("webprint=y showmac=y")
+						for _, host := range myhosts {
+							log.Println("webprint=y showmac=y")
+							fmt.Fprintf(webprint, "%-17s  %-15s    %s  %s  %s  %s  %s\n", host.MAC, host.IPAddress, host.Hostname, host.Short1, host.Short2, host.Short3, host.Short4)
+						}
+					} else {
+						log.Println("webprint=y showmac=n")
+						fmt.Printf("before for loop\n")
+						for _, host := range myhosts {
+							fmt.Printf("%-15s    %s  %s  %s  %s  %s\n", host.IPAddress, host.Hostname, host.Short1, host.Short2, host.Short3, host.Short4)
+							fmt.Printf("line after\n")
+							fmt.Fprintf(webprint, "%-15s    %s  %s  %s  %s  %s\n", host.IPAddress, host.Hostname, host.Short1, host.Short2, host.Short3, host.Short4)
+						}
+					}
+				}
 			}
 		} else {
-			// print standard
-			if webprint == nil {
-				if showmac {
-					for _, host := range myhosts {
-						fmt.Printf("%-17s  %-15s    %s  %s  %s  %s  %s\n", host.MAC, host.IPAddress, host.Hostname, host.Short1, host.Short2, host.Short3, host.Short4)
-					}
-				} else {
-					for _, host := range myhosts {
-						fmt.Printf("%-15s    %s  %s  %s  %s  %s\n", host.IPAddress, host.Hostname, host.Short1, host.Short2, host.Short3, host.Short4)
-					}
-				}
-			} else {
-				// webprint
-				if showmac {
-					for _, host := range myhosts {
-						fmt.Fprintf(webprint, "%-17s  %-15s    %s  %s  %s  %s  %s\n", host.MAC, host.IPAddress, host.Hostname, host.Short1, host.Short2, host.Short3, host.Short4)
-					}
-				} else {
-					for _, host := range myhosts {
-						fmt.Fprintf(webprint, "%-15s    %s  %s  %s  %s  %s\n", host.IPAddress, host.Hostname, host.Short1, host.Short2, host.Short3, host.Short4)
-					}
-				}
+			log.Println("host not found")
+			if webprint != nil {
+				http.Error(webprint, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 			}
 		}
 	}
