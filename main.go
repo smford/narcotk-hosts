@@ -652,7 +652,7 @@ func handlerHostsNetworkJson(w http.ResponseWriter, r *http.Request) {
 
 func handlerHostHeader(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	fmt.Println("Starting handlerHost: " + vars["host"])
+	fmt.Println("Starting handlerHostHeader: " + vars["host"])
 	printHeader(viper.GetString("headerfile"), w)
 	listHost(viper.GetString("Database"), w, viper.GetString("network"), "select * from hosts where fqdn like '"+vars["host"]+"'", viper.GetBool("showmac"), false)
 }
