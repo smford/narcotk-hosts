@@ -517,14 +517,6 @@ func loggingMiddleware(next http.Handler) http.Handler {
 func startWeb(databaseFile string, listenip string, listenport string, usetls bool) {
 	r := mux.NewRouter()
 	hostsRouter := r.PathPrefix("/hosts").Subrouter()
-	//hostsRouter.HandleFunc("", handlerHostsHeader).Queries("header", "")
-	//hostsRouter.HandleFunc("", handlerHostsJson).Queries("json", "")
-	//hostsRouter.HandleFunc("", handlerHostsMac).Queries("mac", "")
-	//hostsRouter.HandleFunc("", handlerHosts)
-	//hostsRouter.HandleFunc("/", handlerHosts)
-	//hostsRouter.HandleFunc("/{network}", handlerHostsNetwork)
-	//hostsRouter.HandleFunc("/{network}", handlerHostsNetworkHeader).Queries("header", "")
-	//hostsRouter.HandleFunc("/{network}", handlerHostsNetworkJson).Queries("json", "")
 
 	hostsRouter.HandleFunc("", handlerHostsNew)
 	hostsRouter.HandleFunc("/{network}", handlerHostsNew)
