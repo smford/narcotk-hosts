@@ -531,11 +531,7 @@ func startWeb(databaseFile string, listenip string, listenport string, usetls bo
 	hostsRouter.Use(loggingMiddleware)
 
 	hostRouter := r.PathPrefix("/host").Subrouter()
-	//hostRouter.HandleFunc("/{host}", handlerHostHeader).Queries("header", "")
-	//hostRouter.HandleFunc("/{host}", handlerHostJson).Queries("json", "")
 	hostRouter.HandleFunc("/{host}", handlerHostFile).Queries("file", "")
-	//hostRouter.HandleFunc("/{host}", handlerHostScript).Queries("script1", ""
-	//hostRouter.HandleFunc("/{host}", handlerHost)
 	hostRouter.HandleFunc("/{host}", handlerHostNew)
 	hostRouter.Use(loggingMiddleware)
 
