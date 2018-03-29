@@ -353,6 +353,7 @@ func listNetworks(databaseFile string, webprint http.ResponseWriter, sqlquery st
 		defer db.Close()
 		var mynetworks []SingleNetwork
 		rows, err := db.Query(sqlquery)
+
 		for rows.Next() {
 			var network string
 			var cidr string
@@ -363,22 +364,32 @@ func listNetworks(databaseFile string, webprint http.ResponseWriter, sqlquery st
 				log.Fatal(err)
 			}
 		}
-		if printjson {
-			c, _ := json.Marshal(mynetworks)
-			if webprint == nil {
-				fmt.Printf("%s", c)
+
+		if len(mynetworks) > 0 {
+			fmt.Printf("%d networks found\n", len(mynetworks))
+
+			if printjson {
+				c, _ := json.Marshal(mynetworks)
+				if webprint == nil {
+					fmt.Printf("%s", c)
+				} else {
+					fmt.Fprintf(webprint, "%s", c)
+				}
 			} else {
-				fmt.Fprintf(webprint, "%s", c)
+				if webprint == nil {
+					for _, network := range mynetworks {
+						fmt.Printf("%-15s  %-18s  %s\n", network.Network, network.CIDR, network.Description)
+					}
+				} else {
+					for _, network := range mynetworks {
+						fmt.Fprintf(webprint, "%-15s  %-18s  %s\n", network.Network, network.CIDR, network.Description)
+					}
+				}
 			}
 		} else {
-			if webprint == nil {
-				for _, network := range mynetworks {
-					fmt.Printf("%-15s  %-18s  %s\n", network.Network, network.CIDR, network.Description)
-				}
-			} else {
-				for _, network := range mynetworks {
-					fmt.Fprintf(webprint, "%-15s  %-18s  %s\n", network.Network, network.CIDR, network.Description)
-				}
+			log.Println("no networks found")
+			if webprint != nil {
+				http.Error(webprint, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 			}
 		}
 	}
