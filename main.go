@@ -531,11 +531,12 @@ func startWeb(databaseFile string, listenip string, listenport string, usetls bo
 	hostsRouter.Use(loggingMiddleware)
 
 	hostRouter := r.PathPrefix("/host").Subrouter()
-	hostRouter.HandleFunc("/{host}", handlerHostHeader).Queries("header", "")
-	hostRouter.HandleFunc("/{host}", handlerHostJson).Queries("json", "")
+	//hostRouter.HandleFunc("/{host}", handlerHostHeader).Queries("header", "")
+	//hostRouter.HandleFunc("/{host}", handlerHostJson).Queries("json", "")
 	hostRouter.HandleFunc("/{host}", handlerHostFile).Queries("file", "")
 	//hostRouter.HandleFunc("/{host}", handlerHostScript).Queries("script1", ""
-	hostRouter.HandleFunc("/{host}", handlerHost)
+	//hostRouter.HandleFunc("/{host}", handlerHost)
+	hostRouter.HandleFunc("/{host}", handlerHostNew)
 	hostRouter.Use(loggingMiddleware)
 
 	networksRouter := r.PathPrefix("/networks").Subrouter()
@@ -594,7 +595,7 @@ func handlerHostsJson(w http.ResponseWriter, r *http.Request) {
 }
 
 func handlerHostsNew(w http.ResponseWriter, r *http.Request) {
-	log.Println("Starting handlerHostNew")
+	log.Println("Starting handlerHostsNew")
 	vars := mux.Vars(r)
 	queries := r.URL.Query()
 	log.Printf("vars = %q\n", vars)
@@ -671,6 +672,33 @@ func handlerHostJson(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Starting handlerHostJson: " + vars["host"])
 	w.Header().Set("Content-Type", "application/json")
 	listHost(viper.GetString("Database"), w, viper.GetString("network"), "select * from hosts where fqdn like '"+vars["host"]+"'", viper.GetBool("showmac"), true)
+}
+
+func handlerHostNew(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	queries := r.URL.Query()
+	log.Printf("Starting handlerHostNew")
+
+	givejson := false
+	showmac := false
+
+	if strings.ToLower(queries.Get("json")) == "y" {
+		w.Header().Set("Content-Type", "application/json")
+		givejson = true
+	}
+
+	if (strings.ToLower(queries.Get("header")) == "y") && (!givejson) {
+		printHeader(viper.GetString("headerfile"), w)
+	}
+
+	if strings.ToLower(queries.Get("mac")) == "y" {
+		showmac = true
+	}
+
+	// problem that when passing mac=y it does not print the mac
+	sqlquery := "select * from hosts where fqdn like '" + vars["host"] + "'"
+	log.Println("sqlquery = ", sqlquery)
+	listHost(viper.GetString("Database"), w, viper.GetString("network"), sqlquery, showmac, givejson)
 }
 
 func handlerHostFile(w http.ResponseWriter, r *http.Request) {
