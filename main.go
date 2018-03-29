@@ -479,10 +479,7 @@ func listHost(databaseFile string, webprint http.ResponseWriter, network string,
 						}
 					} else {
 						log.Println("webprint=y showmac=n")
-						fmt.Printf("before for loop\n")
 						for _, host := range myhosts {
-							fmt.Printf("%-15s    %s  %s  %s  %s  %s\n", host.IPAddress, host.Hostname, host.Short1, host.Short2, host.Short3, host.Short4)
-							fmt.Printf("line after\n")
 							fmt.Fprintf(webprint, "%-15s    %s  %s  %s  %s  %s\n", host.IPAddress, host.Hostname, host.Short1, host.Short2, host.Short3, host.Short4)
 						}
 					}
