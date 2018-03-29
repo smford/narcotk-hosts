@@ -702,6 +702,7 @@ func handlerHostNew(w http.ResponseWriter, r *http.Request) {
 }
 
 func handlerHostFile(w http.ResponseWriter, r *http.Request) {
+	log.Println("Starting handlerHostFile")
 	vars := mux.Vars(r)
 	queries := r.URL.Query()
 	var passedfilename string
