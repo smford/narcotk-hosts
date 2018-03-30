@@ -812,21 +812,6 @@ func handlerIpNew(w http.ResponseWriter, r *http.Request) {
 	listHost(viper.GetString("Database"), w, "", sqlquery, showmac, givejson)
 }
 
-func handlerMac(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	fmt.Println("Starting handlerMac: " + vars["mac"])
-	sqlquery := "select * from hosts where mac like '" + prepareMac(vars["mac"]) + "'"
-	listHost(viper.GetString("Database"), w, "", sqlquery, false, false)
-}
-
-func handlerMacJson(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	fmt.Println("Starting handlerMacJson: " + vars["mac"])
-	sqlquery := "select * from hosts where mac like '" + prepareMac(vars["mac"]) + "'"
-	w.Header().Set("Content-Type", "application/json")
-	listHost(viper.GetString("Database"), w, "", sqlquery, false, true)
-}
-
 func handlerMacNew(w http.ResponseWriter, r *http.Request) {
 	log.Println("Starting handlerMacNew")
 	vars := mux.Vars(r)
