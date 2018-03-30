@@ -571,23 +571,6 @@ func startWeb(databaseFile string, listenip string, listenport string, usetls bo
 	}
 }
 
-func handlerHosts(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Starting handlerHosts")
-	listHost(viper.GetString("Database"), w, viper.GetString("network"), "select * from hosts", false, false)
-}
-
-func handlerHostsHeader(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Starting handlerHostsHeader")
-	printHeader(viper.GetString("headerfile"), w)
-	listHost(viper.GetString("Database"), w, viper.GetString("network"), "select * from hosts", false, false)
-}
-
-func handlerHostsJson(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Starting handlerHostsJson")
-	w.Header().Set("Content-Type", "application/json")
-	listHost(viper.GetString("Database"), w, viper.GetString("network"), "select * from hosts", false, true)
-}
-
 func handlerHostsNew(w http.ResponseWriter, r *http.Request) {
 	log.Println("Starting handlerHostsNew")
 	vars := mux.Vars(r)
@@ -621,11 +604,6 @@ func handlerHostsNew(w http.ResponseWriter, r *http.Request) {
 
 	listHost(viper.GetString("Database"), w, viper.GetString("network"), sqlquery, showmac, givejson)
 
-}
-
-func handlerHostsMac(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Starting handlerHostsMac")
-	listHost(viper.GetString("Database"), w, viper.GetString("network"), "select * from hosts", true, false)
 }
 
 func handlerHostsNetwork(w http.ResponseWriter, r *http.Request) {
