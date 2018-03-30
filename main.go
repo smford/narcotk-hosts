@@ -331,7 +331,7 @@ func runSql(databaseFile string, sqlquery string) {
 }
 
 func parseSql(sqlquery string) bool {
-	fmt.Println("Starting parseSql")
+	log.Println("Starting parseSql")
 	_, err := sqlparser.Parse(sqlquery)
 	if err != nil {
 		log.Printf("Error Detected in SQL: \"%s\" :%s\n", sqlquery, err)
@@ -707,19 +707,6 @@ func handlerHostFile(w http.ResponseWriter, r *http.Request) {
 		log.Printf("%s requested %s file not found", r.RemoteAddr, r.URL)
 		fmt.Fprintf(w, "file doesnt exist")
 	}
-}
-
-func handlerNetworks(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Starting handlerNetworks")
-	sqlquery := "select * from networks"
-	listNetworks(viper.GetString("Database"), w, sqlquery, false)
-}
-
-func handlerNetworksJson(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Starting handlerNetworksJson")
-	sqlquery := "select * from networks"
-	w.Header().Set("Content-Type", "application/json")
-	listNetworks(viper.GetString("Database"), w, sqlquery, true)
 }
 
 func handlerNetworksNew(w http.ResponseWriter, r *http.Request) {
