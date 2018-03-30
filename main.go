@@ -536,9 +536,7 @@ func startWeb(databaseFile string, listenip string, listenport string, usetls bo
 	hostRouter.Use(loggingMiddleware)
 
 	networksRouter := r.PathPrefix("/networks").Subrouter()
-	//networksRouter.HandleFunc("", handlerNetworksNew).Queries("json", "")
 	networksRouter.HandleFunc("", handlerNetworksNew)
-	networksRouter.HandleFunc("/", handlerNetworksNew)
 	networksRouter.Use(loggingMiddleware)
 
 	networkRouter := r.PathPrefix("/network").Subrouter()
