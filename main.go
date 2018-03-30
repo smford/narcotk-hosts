@@ -739,21 +739,6 @@ func handlerNetworksNew(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func handlerNetwork(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	fmt.Println("Starting handlerNetwork: " + vars["network"])
-	sqlquery := "select * from networks where network like '" + vars["network"] + "'"
-	listNetworks(viper.GetString("Database"), w, sqlquery, false)
-}
-
-func handlerNetworkJson(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	fmt.Println("Starting handlerNetworkJson: " + vars["network"])
-	sqlquery := "select * from networks where network like '" + vars["network"] + "'"
-	w.Header().Set("Content-Type", "application/json")
-	listNetworks(viper.GetString("Database"), w, sqlquery, true)
-}
-
 func handlerNetworkNew(w http.ResponseWriter, r *http.Request) {
 	log.Println("Starting handlerNetworkNew")
 	vars := mux.Vars(r)
