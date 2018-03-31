@@ -526,29 +526,29 @@ func startWeb(databaseFile string, listenip string, listenport string, usetls bo
 	r := mux.NewRouter()
 	hostsRouter := r.PathPrefix("/hosts").Subrouter()
 
-	hostsRouter.HandleFunc("", handlerHostsNew)
-	hostsRouter.HandleFunc("/{network}", handlerHostsNew)
+	hostsRouter.HandleFunc("", handlerHosts)
+	hostsRouter.HandleFunc("/{network}", handlerHosts)
 	hostsRouter.Use(loggingMiddleware)
 
 	hostRouter := r.PathPrefix("/host").Subrouter()
 	hostRouter.HandleFunc("/{host}", handlerHostFile).Queries("file", "")
-	hostRouter.HandleFunc("/{host}", handlerHostNew)
+	hostRouter.HandleFunc("/{host}", handlerHost)
 	hostRouter.Use(loggingMiddleware)
 
 	networksRouter := r.PathPrefix("/networks").Subrouter()
-	networksRouter.HandleFunc("", handlerNetworksNew)
+	networksRouter.HandleFunc("", handlerNetworks)
 	networksRouter.Use(loggingMiddleware)
 
 	networkRouter := r.PathPrefix("/network").Subrouter()
-	networkRouter.HandleFunc("/{network}", handlerNetworkNew)
+	networkRouter.HandleFunc("/{network}", handlerNetwork)
 	networkRouter.Use(loggingMiddleware)
 
 	ipRouter := r.PathPrefix("/ip").Subrouter()
-	ipRouter.HandleFunc("/{ip}", handlerIpNew)
+	ipRouter.HandleFunc("/{ip}", handlerIp)
 	ipRouter.Use(loggingMiddleware)
 
 	macRouter := r.PathPrefix("/mac").Subrouter()
-	macRouter.HandleFunc("/{mac}", handlerMacNew)
+	macRouter.HandleFunc("/{mac}", handlerMac)
 	macRouter.Use(loggingMiddleware)
 
 	if viper.GetString("RegistrationKey") != "" {
@@ -571,8 +571,8 @@ func startWeb(databaseFile string, listenip string, listenport string, usetls bo
 	}
 }
 
-func handlerHostsNew(w http.ResponseWriter, r *http.Request) {
-	log.Println("Starting handlerHostsNew")
+func handlerHosts(w http.ResponseWriter, r *http.Request) {
+	log.Println("Starting handlerHosts")
 	vars := mux.Vars(r)
 	queries := r.URL.Query()
 	log.Printf("vars = %q\n", vars)
@@ -606,10 +606,10 @@ func handlerHostsNew(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func handlerHostNew(w http.ResponseWriter, r *http.Request) {
+func handlerHost(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	queries := r.URL.Query()
-	log.Printf("Starting handlerHostNew")
+	log.Printf("Starting handlerHost")
 
 	givejson := false
 	showmac := false
@@ -665,8 +665,8 @@ func handlerHostFile(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func handlerNetworksNew(w http.ResponseWriter, r *http.Request) {
-	log.Println("Starting handlerNetworksNew")
+func handlerNetworks(w http.ResponseWriter, r *http.Request) {
+	log.Println("Starting handlerNetworks")
 	queries := r.URL.Query()
 	sqlquery := "select * from networks"
 	givejson := false
@@ -682,8 +682,8 @@ func handlerNetworksNew(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func handlerNetworkNew(w http.ResponseWriter, r *http.Request) {
-	log.Println("Starting handlerNetworkNew")
+func handlerNetwork(w http.ResponseWriter, r *http.Request) {
+	log.Println("Starting handlerNetwork")
 	vars := mux.Vars(r)
 	queries := r.URL.Query()
 	givejson := false
@@ -725,8 +725,8 @@ func handlerIp(w http.ResponseWriter, r *http.Request) {
 	listHost(viper.GetString("Database"), w, "", sqlquery, showmac, givejson)
 }
 
-func handlerMacNew(w http.ResponseWriter, r *http.Request) {
-	log.Println("Starting handlerMacNew")
+func handlerMac(w http.ResponseWriter, r *http.Request) {
+	log.Println("Starting handlerMac")
 	vars := mux.Vars(r)
 	queries := r.URL.Query()
 
