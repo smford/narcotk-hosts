@@ -366,7 +366,7 @@ func listNetworks(databaseFile string, webprint http.ResponseWriter, sqlquery st
 		}
 
 		if len(mynetworks) > 0 {
-			fmt.Printf("%d networks found\n", len(mynetworks))
+			log.Printf("%d networks found\n", len(mynetworks))
 
 			if printjson {
 				c, _ := json.Marshal(mynetworks)
