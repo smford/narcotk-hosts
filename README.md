@@ -149,30 +149,29 @@ narcotk-hosts can can as a command line tool or as a web service.
 
 | URL | Output |
 |:--|:--|
-| http://localhost:23000/hosts | lists all hosts |
-| http://localhost:23000/hosts?json=y | list all hosts in json |
-| http://localhost:23000/hosts?header=y | list all hosts with header |
-| http://localhost:23000/hosts?mac=y | list all hosts with mac address |
-| http://localhost:23000/hosts?header=y&mac=y | list all hosts with header and mac address |
-| http://localhost:23000/hosts/NETWORK_ID | lists all hosts for a specific **NETWORK_ID** |
-| http://localhost:23000/hosts/NETWORK_ID?json=y | list all hosts in json for a specific **NETWORK_ID** |
-| http://localhost:23000/hosts/NETWORK_ID?header=y | list all hosts with header for a specific **NETWORK_ID** |
-| http://localhost:23000/hosts/NETWORK_ID?mac=y | list all hosts with mac address for a specific **NETWORK_ID** |
-| http://localhost:23000/hosts/NETWORK_ID?header=y&mac=y | list all hosts with header and mac address for a specific **NETWORK_ID**|
 | http://localhost:23000/host/HOSTNAME | print details for **HOSTNAME** |
-| http://localhost:23000/host/HOSTNAME?json | print details for **HOSTNAME** in json |
-| http://localhost:23000/host/HOSTNAME?header | print details for **HOSTNAME** with header |
 | http://localhost:23000/host/HOSTNAME?file | download default file for **HOSTNAME** |
 | http://localhost:23000/host/HOSTNAME?file=motd | download motd file for **HOSTNAME** |
-| http://localhost:23000/networks | lists all networks |
-| http://localhost:23000/networks?json=y | lists all networks in json |
-| http://localhost:23000/network/NETWORK_ID | print details for **NETWORK_ID** |
-| http://localhost:23000/network/NETWORK_ID?json | print details for **NETWORK_ID** in json |
-| http://localhost:23000/ip/IP | print host details for **IP** |
+| http://localhost:23000/host/HOSTNAME?header | print details for **HOSTNAME** with header |
+| http://localhost:23000/host/HOSTNAME?json | print details for **HOSTNAME** in json |
+| http://localhost:23000/hosts | lists all hosts |
+| http://localhost:23000/hosts?header=y | list all hosts with header |
+| http://localhost:23000/hosts?json=y | list all hosts in json |
+| http://localhost:23000/hosts?mac=y | list all hosts with mac address |
+| http://localhost:23000/hosts?mac=y&header=y | list all hosts with mac address and header|
+| http://localhost:23000/hosts/NETWORK_ID | lists all hosts for a specific **NETWORK_ID** |
+| http://localhost:23000/hosts/NETWORK_ID?header=y | list all hosts with header for a specific **NETWORK_ID** |
+| http://localhost:23000/hosts/NETWORK_ID?json=y | list all hosts in json for a specific **NETWORK_ID** |
+| http://localhost:23000/hosts/NETWORK_ID?mac=y | list all hosts with mac address for a specific **NETWORK_ID** |
+| http://localhost:23000/hosts/NETWORK_ID?mac=y&header=y | list all hosts with header and mac address for a specific **NETWORK_ID**|
 | http://localhost:23000/ip/IP?json=y | print host details for **IP** in json |
 | http://localhost:23000/ip/IP?mac=y | print host details with mac for **IP** |
 | http://localhost:23000/mac/MAC | print host details for **MAC** |
 | http://localhost:23000/mac/MAC?json | print host details for **MAC** in json |
+| http://localhost:23000/networks | lists all networks |
+| http://localhost:23000/networks?json=y | lists all networks in json |
+| http://localhost:23000/network/NETWORK_ID | print details for **NETWORK_ID** |
+| http://localhost:23000/network/NETWORK_ID?json | print details for **NETWORK_ID** in json |
 
 
 ## Registration API
