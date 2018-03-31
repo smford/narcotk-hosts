@@ -606,26 +606,6 @@ func handlerHostsNew(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func handlerHostsNetwork(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	fmt.Println("Starting handlerHostNetwork: " + vars["network"])
-	listHost(viper.GetString("Database"), w, viper.GetString("network"), "select * from hosts where network like '"+vars["network"]+"'", false, false)
-}
-
-func handlerHostsNetworkHeader(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	fmt.Println("Starting handlerHostNetwork: " + vars["network"])
-	printHeader(viper.GetString("headerfile"), w)
-	listHost(viper.GetString("Database"), w, viper.GetString("network"), "select * from hosts where network like '"+vars["network"]+"'", false, false)
-}
-
-func handlerHostsNetworkJson(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	fmt.Println("Starting handlerHostNetworkJson: " + vars["network"])
-	w.Header().Set("Content-Type", "application/json")
-	listHost(viper.GetString("Database"), w, viper.GetString("network"), "select * from hosts where network like '"+vars["network"]+"'", false, true)
-}
-
 func handlerHostNew(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	queries := r.URL.Query()
