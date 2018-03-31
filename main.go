@@ -702,22 +702,7 @@ func handlerNetworkNew(w http.ResponseWriter, r *http.Request) {
 }
 
 func handlerIp(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	fmt.Println("Starting handlerIp: " + vars["ip"])
-	sqlquery := "select * from hosts where ipaddress like '" + vars["ip"] + "'"
-	listHost(viper.GetString("Database"), w, "", sqlquery, false, false)
-}
-
-func handlerIpJson(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	fmt.Println("Starting handlerIpJson: " + vars["ip"])
-	sqlquery := "select * from hosts where ipaddress like '" + vars["ip"] + "'"
-	w.Header().Set("Content-Type", "application/json")
-	listHost(viper.GetString("Database"), w, "", sqlquery, false, true)
-}
-
-func handlerIpNew(w http.ResponseWriter, r *http.Request) {
-	log.Println("Starting handlerIpNew")
+	log.Println("Starting handlerIp")
 	vars := mux.Vars(r)
 	queries := r.URL.Query()
 
