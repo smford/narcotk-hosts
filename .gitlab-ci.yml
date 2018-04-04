@@ -22,18 +22,44 @@ build-osx-1:
     - echo "Building OSX"
     - pwd
     - ls -la
+    - export GOOS=darwin
+    - export GOARCH=amd64
     - export GOPATH=~/go
     - export GOBIN=~/go/bin
     - export | grep GO
     - go env
     - go get ./
     - ls -la binaries/*
-    - "go build -ldflags \"-s -w\" -o binaries/osx-narcotk-hosts-${CI_JOB_ID} main.go"
+    - "go build -ldflags \"-s -w\" -o binaries/narcotk-hosts-${GOOS}-${GOARCH}-${CI_JOB_ID} main.go"
   artifacts:
     name: "${CI_JOB_NAME}_${CI_JOB_ID}"
     untracked: true
     paths:
-      - binaries/osx-narcotk-hosts-${CI_JOB_ID}
+      - binaries/narcotk-hosts-${GOOS}-${GOARCH}-${CI_JOB_ID}
+
+
+build-linux-1:
+  stage: build
+  tags:
+    - linux
+  script:
+    - echo "Building Linux"
+    - pwd
+    - ls -la
+    - export GOOS=linux
+    - export GOARCH=amd64
+    - export GOPATH=~/go
+    - export GOBIN=~/go/bin
+    - export | grep GO
+    - go env
+    - go get ./
+    - ls -la binaries/*
+    - "go build -ldflags \"-s -w\" -o binaries/narcotk-hosts-${GOOS}-${GOARCH}-${CI_JOB_ID} main.go"
+  artifacts:
+    name: "${CI_JOB_NAME}_${CI_JOB_ID}"
+    untracked: true
+    paths:
+      - binaries/narcotk-hosts-${GOOS}-${GOARCH}-${CI_JOB_ID}
 
 test-osx-1:
   stage: test
@@ -44,7 +70,7 @@ test-osx-1:
     - pwd
     - ls -la
     - echo "Testing Display of help"
-    - binaries/osx-narcotk-hosts-${CI_JOB_ID} --help
+    - binaries/narcotk-hosts-darwin-amd64-${CI_JOB_ID} --help
 
 test-osx-2:
   stage: test
