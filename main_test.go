@@ -22,3 +22,18 @@ func TestMakePaddedIp(t *testing.T) {
 		}
 	}
 }
+
+func TestValidIP(t *testing.T) {
+	var validtests = []string{"1.1.1.1", "192.168.1.1", "192.168.100.101"}
+	var invalidtests = []string{"256.256.256.256", "99999999", "a.b.c.d"}
+	for i, v := range validtests {
+		if !ValidIP(v) {
+			t.Error("Test ", i, ": Expected: True  Actual: ", v)
+		}
+	}
+	for i, v := range invalidtests {
+		if ValidIP(v) {
+			t.Error("Test ", i, ": Expected: True  Actual: ", v)
+		}
+	}
+}

@@ -289,7 +289,7 @@ func addHost(databaseFile string, addhost string, network string, ipaddress stri
 	fmt.Println(short4)
 	fmt.Println(mac)
 	mac = PrepareMac(mac)
-	if validIP(ipaddress) {
+	if ValidIP(ipaddress) {
 		sqlquery := "insert into hosts (hostid, network, ipsuffix, ipaddress, fqdn, short1, short2, short3, short4, mac) values ('" + breakIp(network, 2) + "-" + breakIp(ipaddress, 3) + "', '" + network + "', '" + breakIp(ipaddress, 3) + "', '" + ipaddress + "', '" + addhost + "', '" + short1 + "', '" + short2 + "', '" + short3 + "', '" + short4 + "', '" + mac + "')"
 		runSql(databaseFile, sqlquery)
 	}
@@ -773,7 +773,7 @@ func handlerRegister(w http.ResponseWriter, r *http.Request) {
 		if (fqdn == "") || (ip == "") || (nw == "") {
 			log.Printf("Error: fqdn, ip or nw cannot be blank")
 		} else {
-			if validIP(ip) {
+			if ValidIP(ip) {
 				addHost(viper.GetString("Database"), fqdn, nw, ip, short1, short2, short3, short4, mac)
 				fmt.Fprintf(w, "Added: %s", vars)
 			}
@@ -794,7 +794,7 @@ func fileExists(path string) bool {
 	return true
 }
 
-func validIP(ip string) bool {
+func ValidIP(ip string) bool {
 	if net.ParseIP(ip) != nil {
 		return true
 	} else {
