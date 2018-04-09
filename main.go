@@ -557,13 +557,13 @@ func startWeb(databaseFile string, listenip string, listenport string, usetls bo
 	}
 
 	if usetls {
-		fmt.Println("Starting HTTPS Webserver: " + listenip + ":" + listenport)
+		log.Println("Starting HTTPS Webserver: " + listenip + ":" + listenport)
 		err := http.ListenAndServeTLS(listenip+":"+listenport, viper.GetString("tlscert"), viper.GetString("tlskey"), r)
 		if err != nil {
 			log.Printf("Error starting HTTPS webserver: %s", err)
 		}
 	} else {
-		fmt.Println("Starting HTTP Webserver: " + listenip + ":" + listenport)
+		log.Println("Starting HTTP Webserver: " + listenip + ":" + listenport)
 		err := http.ListenAndServe(listenip+":"+listenport, r)
 		if err != nil {
 			log.Printf("Error starting HTTP webserver: %s", err)
@@ -688,7 +688,7 @@ func handlerNetwork(w http.ResponseWriter, r *http.Request) {
 	queries := r.URL.Query()
 	givejson := false
 
-	log.Printf("queries = %q\n")
+	log.Printf("queries = %q\n", queries)
 
 	if strings.ToLower(queries.Get("json")) == "y" {
 		givejson = true
@@ -709,7 +709,7 @@ func handlerIp(w http.ResponseWriter, r *http.Request) {
 	givejson := false
 	showmac := false
 
-	log.Printf("queries = %q\n")
+	log.Printf("queries = %q\n", queries)
 
 	if strings.ToLower(queries.Get("json")) == "y" {
 		givejson = true
@@ -733,7 +733,7 @@ func handlerMac(w http.ResponseWriter, r *http.Request) {
 	givejson := false
 	showmac := false
 
-	log.Printf("queries = %q\n")
+	log.Printf("queries = %q\n", queries)
 
 	if strings.ToLower(queries.Get("json")) == "y" {
 		givejson = true
