@@ -73,8 +73,8 @@ func displayConfig() {
 	fmt.Printf("RegistrationKey: %s\n", viper.GetString("RegistationKey"))
 }
 
-func prepareMac(macaddress string) string {
-	fmt.Println("Starting prepareMac")
+func PrepareMac(macaddress string) string {
+	fmt.Println("Starting PrepareMac")
 	macaddress = strings.ToLower(macaddress)
 	// strip colons
 	macaddress = strings.Replace(macaddress, ":", "", -1)
@@ -95,7 +95,7 @@ func prepareMac(macaddress string) string {
 }
 
 func init() {
-	fmt.Println("Starting init function\n")
+	fmt.Println("Starting init function")
 	flag.String("addhost", "", "add a new host, use with --network, --ipaddress (optional: --short1, --short2, --short3, --short4 and --mac)")
 	flag.String("addnetwork", "", "add a new network, used with --cidr and --desc")
 	flag.String("cidr", "", "cidr of network, used with --adnetwork and --desc")
@@ -281,7 +281,7 @@ func addHost(databaseFile string, addhost string, network string, ipaddress stri
 	fmt.Println(short3)
 	fmt.Println(short4)
 	fmt.Println(mac)
-	mac = prepareMac(mac)
+	mac = PrepareMac(mac)
 	if validIP(ipaddress) {
 		sqlquery := "insert into hosts (hostid, network, ipsuffix, ipaddress, fqdn, short1, short2, short3, short4, mac) values ('" + breakIp(network, 2) + "-" + breakIp(ipaddress, 3) + "', '" + network + "', '" + breakIp(ipaddress, 3) + "', '" + ipaddress + "', '" + addhost + "', '" + short1 + "', '" + short2 + "', '" + short3 + "', '" + short4 + "', '" + mac + "')"
 		runSql(databaseFile, sqlquery)
@@ -744,7 +744,7 @@ func handlerMac(w http.ResponseWriter, r *http.Request) {
 		showmac = true
 	}
 
-	sqlquery := "select * from hosts where mac like '" + prepareMac(vars["mac"]) + "'"
+	sqlquery := "select * from hosts where mac like '" + PrepareMac(vars["mac"]) + "'"
 	listHost(viper.GetString("Database"), w, "", sqlquery, showmac, givejson)
 }
 
@@ -755,7 +755,7 @@ func handlerRegister(w http.ResponseWriter, r *http.Request) {
 		fqdn := vars.Get("fqdn")
 		ip := vars.Get("ip")
 		nw := vars.Get("nw")
-		mac := prepareMac(vars.Get("mac"))
+		mac := PrepareMac(vars.Get("mac"))
 		short1 := vars.Get("s1")
 		short2 := vars.Get("s2")
 		short3 := vars.Get("s3")
