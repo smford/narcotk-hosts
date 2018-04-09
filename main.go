@@ -164,7 +164,14 @@ func init() {
 }
 
 func main() {
-	fmt.Println("Starting main function\n")
+	fmt.Println("Starting main function")
+
+	if fileExists(viper.GetString("Database")) {
+		log.Printf("Database file %s exists\n", viper.GetString("Database"))
+	} else {
+		log.Printf("Database file %s does not exist, exiting\n", viper.GetString("Database"))
+		os.Exit(1)
+	}
 
 	if viper.GetBool("help") {
 		displayHelp()
