@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/smford/narcotk-hosts.svg?branch=master)](https://travis-ci.org/smford/narcotk-hosts)
+
 # narcotk-hosts
 
 ## What is narcotk-hosts?
