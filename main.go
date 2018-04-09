@@ -320,7 +320,7 @@ func runSql(databaseFile string, sqlquery string) {
 	fmt.Println("Running generic runSql function")
 	fmt.Println("runSql query: " + sqlquery)
 
-	if parseSql(sqlquery) {
+	if ParseSql(sqlquery) {
 		db, err := sql.Open("sqlite3", databaseFile)
 		if err != nil {
 			log.Fatal(err)
@@ -337,8 +337,8 @@ func runSql(databaseFile string, sqlquery string) {
 
 }
 
-func parseSql(sqlquery string) bool {
-	log.Println("Starting parseSql")
+func ParseSql(sqlquery string) bool {
+	log.Println("Starting ParseSql")
 	_, err := sqlparser.Parse(sqlquery)
 	if err != nil {
 		log.Printf("Error Detected in SQL: \"%s\" :%s\n", sqlquery, err)
@@ -352,7 +352,7 @@ func listNetworks(databaseFile string, webprint http.ResponseWriter, sqlquery st
 	if webprint == nil {
 		fmt.Println("webprint is null, printing to std out")
 	}
-	if parseSql(sqlquery) {
+	if ParseSql(sqlquery) {
 		db, err := sql.Open("sqlite3", databaseFile)
 		if err != nil {
 			log.Fatal(err)
@@ -435,8 +435,8 @@ func listHost(databaseFile string, webprint http.ResponseWriter, network string,
 		fmt.Println("webprint is null, printing to std out")
 	}
 
-	if parseSql(sqlquery) {
-		log.Println("succeed parseSql on ", sqlquery)
+	if ParseSql(sqlquery) {
+		log.Println("succeed ParseSql on ", sqlquery)
 		db, err := sql.Open("sqlite3", databaseFile)
 		if err != nil {
 			log.Fatal(err)

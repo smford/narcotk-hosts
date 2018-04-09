@@ -23,6 +23,21 @@ func TestMakePaddedIp(t *testing.T) {
 	}
 }
 
+func TestParseSql(t *testing.T) {
+	var validtests = []string{"select * from hosts", "select * from networks", "select * from hosts where fqdn like 'server.example.com'", "select * from hosts where network like '192.168.1'", "select * from networks where network like '192.168.1'", "select * from hosts where ipaddress like '192.168.1.1'", "select * from hosts where mac like 'de:ad:be:ef:ca:fe'"}
+	var invalidtests = []string{"random junk", "more junk", "even more junk"}
+	for i, v := range validtests {
+		if !ParseSql(v) {
+			t.Error("Test ", i, ": Expected: True  Actual: ", v)
+		}
+	}
+	for i, v := range invalidtests {
+		if ParseSql(v) {
+			t.Error("Test ", i, ": Expected: True  Actual: ", v)
+		}
+	}
+}
+
 func TestValidIP(t *testing.T) {
 	var validtests = []string{"1.1.1.1", "192.168.1.1", "192.168.100.101"}
 	var invalidtests = []string{"256.256.256.256", "99999999", "a.b.c.d"}
