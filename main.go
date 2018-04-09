@@ -451,7 +451,7 @@ func listHost(databaseFile string, webprint http.ResponseWriter, network string,
 			var short4 string
 			var mac string
 			err = rows.Scan(&hostid, &network, &ipsuffix, &ipaddress, &fqdn, &short1, &short2, &short3, &short4, &mac)
-			myhosts = append(myhosts, Host{makePaddedIp(ipaddress), ipaddress, fqdn, short1, short2, short3, short4, mac})
+			myhosts = append(myhosts, Host{MakePaddedIp(ipaddress), ipaddress, fqdn, short1, short2, short3, short4, mac})
 		}
 
 		if len(myhosts) > 0 {
@@ -806,7 +806,7 @@ func PadLeft(str string) string {
 	}
 }
 
-func makePaddedIp(ipaddress string) string {
+func MakePaddedIp(ipaddress string) string {
 	//fmt.Println("starting makePaddedIp")
 	f := func(c rune) bool {
 		return (c == rune('.'))
