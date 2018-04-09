@@ -74,7 +74,7 @@ func displayConfig() {
 }
 
 func PrepareMac(macaddress string) string {
-	fmt.Println("Starting PrepareMac")
+	//fmt.Println("Starting PrepareMac")
 	macaddress = strings.ToLower(macaddress)
 	// strip colons
 	macaddress = strings.Replace(macaddress, ":", "", -1)
@@ -95,7 +95,7 @@ func PrepareMac(macaddress string) string {
 }
 
 func init() {
-	fmt.Println("Starting init function")
+	//fmt.Println("Starting init function")
 	flag.String("addhost", "", "add a new host, use with --network, --ipaddress (optional: --short1, --short2, --short3, --short4 and --mac)")
 	flag.String("addnetwork", "", "add a new network, used with --cidr and --desc")
 	flag.String("cidr", "", "cidr of network, used with --adnetwork and --desc")
@@ -338,7 +338,7 @@ func runSql(databaseFile string, sqlquery string) {
 }
 
 func ParseSql(sqlquery string) bool {
-	log.Println("Starting ParseSql")
+	//log.Println("Starting ParseSql")
 	_, err := sqlparser.Parse(sqlquery)
 	if err != nil {
 		log.Printf("Error Detected in SQL: \"%s\" :%s\n", sqlquery, err)
