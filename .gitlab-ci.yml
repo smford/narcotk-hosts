@@ -22,6 +22,7 @@ build-osx-1:
     - echo "Building OSX"
     - pwd
     - ls -la
+    - which go
     - export GOOS=darwin
     - export GOARCH=amd64
     - export GOPATH=~/go
@@ -46,6 +47,7 @@ build-linux-1:
     - echo "Building Linux"
     - pwd
     - ls -la
+    - which go
     - export GOOS=linux
     - export GOARCH=amd64
     - export GOPATH=~/go
