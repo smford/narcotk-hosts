@@ -3,7 +3,7 @@
     "EnableTLS": false,
     "HeaderFile": "./header.txt",
     "JSON": false,
-    "ListenIP": "0.0.0.0",
+    "ListenIP": "127.0.0.1",
     "ListenPort": "23000",
     "Files": "./files",
     "ShowHeader": false,

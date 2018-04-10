@@ -184,16 +184,15 @@ func main() {
 		os.Exit(0)
 	}
 
+	StartPaas()
+
 	if viper.GetBool("startweb") {
 		startWeb(viper.GetString("Database"), viper.GetString("ListenIP"), viper.GetString("ListenPort"), viper.GetBool("EnableTLS"))
 		os.Exit(0)
 	}
 
-	if true {
-		//if viper.GetBool("starthttp") {
-		port := os.Getenv("PORT")
-		startWeb(viper.GetString("Database"), viper.GetString("ListenIP"), port, false)
-		//startWeb(viper.GetString("Database"), viper.GetString("ListenIP"), viper.GetString("ListenPort"), false)
+	if viper.GetBool("starthttp") {
+		startWeb(viper.GetString("Database"), viper.GetString("ListenIP"), viper.GetString("ListenPort"), false)
 		os.Exit(0)
 	}
 
@@ -826,6 +825,21 @@ func MakePaddedIp(ipaddress string) string {
 	paddedIp := PadLeft(s[0]) + PadLeft(s[1]) + PadLeft(s[2]) + PadLeft(s[3])
 	//fmt.Printf("P=%s\n", paddedIp)
 	return paddedIp
+}
+
+func StartPaas() {
+	port := os.Getenv("PORT")
+	if port != "" {
+		log.Println("PORT environment set, overiding configuration and starting PaaS mode")
+		log.Println("Original: ListenIP:", viper.GetString("ListenIP"), "  ListenPort: ", viper.GetBool("ListenPort"), "  EnableTLS: ", viper.GetBool("EnableTLS"), "  startweb: ", viper.GetBool("startweb"))
+		viper.Set("ListenIP", "0.0.0.0")
+		viper.Set("ListenPort", port)
+		viper.Set("EnableTLS", false)
+		viper.Set("startweb", true)
+		log.Println("PaaS Mode: ListenIP:", viper.GetString("ListenIP"), "  ListenPort: ", viper.GetBool("ListenPort"), "  EnableTLS: ", viper.GetBool("EnableTLS"), "  startweb: ", viper.GetBool("startweb"))
+	} else {
+		log.Println("No PORT environment variable set, not starting in PaaS mode")
+	}
 }
 
 func displayHelp() {
