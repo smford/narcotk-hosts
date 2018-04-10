@@ -188,8 +188,11 @@ func main() {
 		os.Exit(0)
 	}
 
-	if viper.GetBool("starthttp") {
-		startWeb(viper.GetString("Database"), viper.GetString("ListenIP"), viper.GetString("ListenPort"), false)
+	if true {
+		//if viper.GetBool("starthttp") {
+		port := os.Getenv("PORT")
+		startWeb(viper.GetString("Database"), viper.GetString("ListenIP"), port, false)
+		//startWeb(viper.GetString("Database"), viper.GetString("ListenIP"), viper.GetString("ListenPort"), false)
 		os.Exit(0)
 	}
 
