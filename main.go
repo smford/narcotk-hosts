@@ -62,7 +62,6 @@ func displayConfig() {
 	fmt.Printf("ShowHeader:      %s\n", viper.GetString("ShowHeader"))
 	fmt.Printf("ListenPort:      %s\n", viper.GetString("ListenPort"))
 	fmt.Printf("ListenIP:        %s\n", viper.GetString("ListenIP"))
-	fmt.Printf("Verbose:         %s\n", viper.GetString("Verbose"))
 	fmt.Printf("Database:        %s\n", viper.GetString("Database"))
 	fmt.Printf("HeaderFile:      %s\n", viper.GetString("HeaderFile"))
 	fmt.Printf("Files:           %s\n", viper.GetString("Files"))
@@ -71,6 +70,7 @@ func displayConfig() {
 	fmt.Printf("TLSCert:         %s\n", viper.GetString("TLSCert"))
 	fmt.Printf("TLSKey:          %s\n", viper.GetString("TLSKey"))
 	fmt.Printf("RegistrationKey: %s\n", viper.GetString("RegistationKey"))
+	fmt.Printf("Verbose:         %s\n", viper.GetString("Verbose"))
 }
 
 func PrepareMac(macaddress string) string {
@@ -160,6 +160,7 @@ func init() {
 		viper.SetDefault("TLSCert", "./tls/server.crt")
 		viper.SetDefault("TLSKey", "./tls/server.key")
 		viper.SetDefault("RegistrationKey", "")
+		viper.SetDefault("Verbose", true)
 	}
 }
 
@@ -182,6 +183,8 @@ func main() {
 		displayConfig()
 		os.Exit(0)
 	}
+
+	StartPaas()
 
 	if viper.GetBool("startweb") {
 		startWeb(viper.GetString("Database"), viper.GetString("ListenIP"), viper.GetString("ListenPort"), viper.GetBool("EnableTLS"))
@@ -822,6 +825,21 @@ func MakePaddedIp(ipaddress string) string {
 	paddedIp := PadLeft(s[0]) + PadLeft(s[1]) + PadLeft(s[2]) + PadLeft(s[3])
 	//fmt.Printf("P=%s\n", paddedIp)
 	return paddedIp
+}
+
+func StartPaas() {
+	port := os.Getenv("PORT")
+	if port != "" {
+		log.Println("PORT environment set, overiding configuration and starting PaaS mode")
+		log.Println("Original: ListenIP:", viper.GetString("ListenIP"), "  ListenPort: ", viper.GetBool("ListenPort"), "  EnableTLS: ", viper.GetBool("EnableTLS"), "  startweb: ", viper.GetBool("startweb"))
+		viper.Set("ListenIP", "0.0.0.0")
+		viper.Set("ListenPort", port)
+		viper.Set("EnableTLS", false)
+		viper.Set("startweb", true)
+		log.Println("PaaS Mode: ListenIP:", viper.GetString("ListenIP"), "  ListenPort: ", viper.GetBool("ListenPort"), "  EnableTLS: ", viper.GetBool("EnableTLS"), "  startweb: ", viper.GetBool("startweb"))
+	} else {
+		log.Println("No PORT environment variable set, not starting in PaaS mode")
+	}
 }
 
 func displayHelp() {
