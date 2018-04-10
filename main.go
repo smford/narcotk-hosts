@@ -62,7 +62,6 @@ func displayConfig() {
 	fmt.Printf("ShowHeader:      %s\n", viper.GetString("ShowHeader"))
 	fmt.Printf("ListenPort:      %s\n", viper.GetString("ListenPort"))
 	fmt.Printf("ListenIP:        %s\n", viper.GetString("ListenIP"))
-	fmt.Printf("Verbose:         %s\n", viper.GetString("Verbose"))
 	fmt.Printf("Database:        %s\n", viper.GetString("Database"))
 	fmt.Printf("HeaderFile:      %s\n", viper.GetString("HeaderFile"))
 	fmt.Printf("Files:           %s\n", viper.GetString("Files"))
@@ -71,6 +70,7 @@ func displayConfig() {
 	fmt.Printf("TLSCert:         %s\n", viper.GetString("TLSCert"))
 	fmt.Printf("TLSKey:          %s\n", viper.GetString("TLSKey"))
 	fmt.Printf("RegistrationKey: %s\n", viper.GetString("RegistationKey"))
+	fmt.Printf("Verbose:         %s\n", viper.GetString("Verbose"))
 }
 
 func PrepareMac(macaddress string) string {
@@ -160,6 +160,7 @@ func init() {
 		viper.SetDefault("TLSCert", "./tls/server.crt")
 		viper.SetDefault("TLSKey", "./tls/server.key")
 		viper.SetDefault("RegistrationKey", "")
+		viper.SetDefault("Verbose", true)
 	}
 }
 
