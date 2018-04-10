@@ -73,6 +73,8 @@ test-osx-1:
     - ls -la
     - echo "Testing Display of help"
     - binaries/narcotk-hosts-darwin-amd64-${CI_JOB_ID} --help
+  dependancies:
+    - build-osx-1
 
 test-osx-2:
   stage: test
@@ -84,7 +86,8 @@ test-osx-2:
     - ls -la
     - echo "Testing Display of help"
     - binaries/osx-narcotk-hosts-${CI_JOB_ID} --configfile=narco-hosts-config.json --database=narcotk_hosts_all.db
-
+  dependancies:
+    - build-osx-1
 
 deploy-osx-1:
   stage: deploy
@@ -92,3 +95,5 @@ deploy-osx-1:
     - osx
   script:
     - echo "deploy stage"
+  dependancies:
+    - test-osx-1
