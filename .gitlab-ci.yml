@@ -31,12 +31,12 @@ build-osx-1:
     - go env
     - go get ./
     - ls -la binaries/*
-    - "go build -ldflags \"-s -w\" -o binaries/narcotk-hosts-${GOOS}-${GOARCH}-${CI_JOB_ID} main.go"
+    - "go build -ldflags \"-s -w\" -o binaries/narcotk-hosts-osx-darwin main.go"
   artifacts:
     name: "${CI_JOB_NAME}_${CI_JOB_ID}"
     untracked: true
     paths:
-      - binaries/narcotk-hosts-${GOOS}-${GOARCH}-${CI_JOB_ID}
+      - binaries/narcotk-hosts-osx-darwin
 
 test-osx-1:
   stage: test
@@ -47,7 +47,7 @@ test-osx-1:
     - pwd
     - ls -la
     - echo "Testing Display of help"
-    - binaries/narcotk-hosts-darwin-amd64-${CI_JOB_ID} --help
+    - binaries/narcotk-hosts-osx-darwin --help
   dependencies:
     - build-osx-1
 
@@ -60,7 +60,7 @@ test-osx-2:
     - pwd
     - ls -la
     - echo "Testing Display of help"
-    - binaries/osx-narcotk-hosts-${CI_JOB_ID} --configfile=narco-hosts-config.json --database=narcotk_hosts_all.db
+    - binaries/osx-narcotk-hosts-osx-darwin --configfile=narco-hosts-config.json --database=narcotk_hosts_all.db
   dependencies:
     - build-osx-1
 
