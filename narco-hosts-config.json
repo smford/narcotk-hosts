@@ -9,6 +9,6 @@
     "ShowHeader": false,
     "TLSCert": "./tls/server.crt",
     "TLSKey": "./tls/server.key",
-    "RegistrationKey": "somepassword",
+    "RegistrationKey": "",
     "Verbose": true
 }
