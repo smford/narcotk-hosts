@@ -184,7 +184,7 @@ func main() {
 		os.Exit(0)
 	}
 
-	StartPaas()
+	//StartPaas()
 
 	if viper.GetBool("startweb") {
 		startWeb(viper.GetString("Database"), viper.GetString("ListenIP"), viper.GetString("ListenPort"), viper.GetBool("EnableTLS"))
