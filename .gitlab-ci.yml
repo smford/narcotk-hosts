@@ -60,7 +60,7 @@ test-osx-2:
     - pwd
     - ls -la
     - echo "Testing Display of help"
-    - binaries/osx-narcotk-hosts-osx-darwin --configfile=narco-hosts-config.json --database=narcotk_hosts_all.db
+    - binaries/narcotk-hosts-osx-darwin --configfile=narco-hosts-config.json --database=narcotk_hosts_all.db
   dependencies:
     - build-osx-1
 
