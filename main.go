@@ -64,6 +64,7 @@ func displayConfig() {
 	fmt.Printf("ListenIP:        %s\n", viper.GetString("ListenIP"))
 	fmt.Printf("Database:        %s\n", viper.GetString("Database"))
 	fmt.Printf("HeaderFile:      %s\n", viper.GetString("HeaderFile"))
+	fmt.Printf("IndexFile:       %s\n", viper.GetString("IndexFile"))
 	fmt.Printf("Files:           %s\n", viper.GetString("Files"))
 	fmt.Printf("JSON:            %s\n", viper.GetString("JSON"))
 	fmt.Printf("EnableTLS:       %s\n", viper.GetString("EnableTLS"))
@@ -154,6 +155,7 @@ func init() {
 		viper.SetDefault("Verbose", true)
 		viper.SetDefault("Database", "./narcotk_hosts_all.db")
 		viper.SetDefault("HeaderFile", "./header.txt")
+		viper.SetDefault("IndexFile", "")
 		viper.SetDefault("Files", "./files")
 		viper.SetDefault("JSON", false)
 		viper.SetDefault("EnableTLS", false)
@@ -276,6 +278,22 @@ func printHeader(headerfile string, webprint http.ResponseWriter) {
 		fmt.Fprintf(webprint, "%s", string(headertext))
 	} else {
 		fmt.Print(string(headertext))
+	}
+}
+
+func IndexPage(indexfile string, webprint http.ResponseWriter) {
+	fmt.Println("Starting IndexPage")
+	indextext, err := ioutil.ReadFile(indexfile)
+	if err != nil {
+		log.Println("Error: cannot open file " + indexfile)
+		if webprint != nil {
+			http.Error(webprint, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+		}
+	}
+	if webprint != nil {
+		fmt.Fprintf(webprint, "%s", string(indextext))
+	} else {
+		fmt.Print(string(indextext))
 	}
 }
 
@@ -532,8 +550,12 @@ func loggingMiddleware(next http.Handler) http.Handler {
 
 func startWeb(databaseFile string, listenip string, listenport string, usetls bool) {
 	r := mux.NewRouter()
-	hostsRouter := r.PathPrefix("/hosts").Subrouter()
 
+	if viper.GetString("IndexFile") != "" {
+		r.HandleFunc("/", handlerIndex)
+	}
+
+	hostsRouter := r.PathPrefix("/hosts").Subrouter()
 	hostsRouter.HandleFunc("", handlerHosts)
 	hostsRouter.HandleFunc("/{network}", handlerHosts)
 	hostsRouter.Use(loggingMiddleware)
@@ -577,6 +599,11 @@ func startWeb(databaseFile string, listenip string, listenport string, usetls bo
 			log.Printf("Error starting HTTP webserver: %s", err)
 		}
 	}
+}
+
+func handlerIndex(w http.ResponseWriter, r *http.Request) {
+	log.Println("Starting handlerIndex")
+	IndexPage("index.html", w)
 }
 
 func handlerHosts(w http.ResponseWriter, r *http.Request) {
