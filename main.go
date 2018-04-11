@@ -782,6 +782,8 @@ func handlerRegister(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	} else {
+		// https://golang.org/src/net/http/status.go
+		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
 		log.Printf("RegistrationKey invalid (%s), ignoring", regkey)
 	}
 }
