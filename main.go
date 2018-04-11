@@ -293,7 +293,7 @@ func addHost(databaseFile string, addhost string, network string, ipaddress stri
 	fmt.Println(mac)
 	mac = PrepareMac(mac)
 	if ValidIP(ipaddress) {
-		sqlquery := "insert into hosts (hostid, network, ipsuffix, ipaddress, fqdn, short1, short2, short3, short4, mac) values ('" + breakIp(network, 2) + "-" + breakIp(ipaddress, 3) + "', '" + network + "', '" + breakIp(ipaddress, 3) + "', '" + ipaddress + "', '" + addhost + "', '" + short1 + "', '" + short2 + "', '" + short3 + "', '" + short4 + "', '" + mac + "')"
+		sqlquery := "insert into hosts (hostid, network, ipsuffix, ipaddress, fqdn, short1, short2, short3, short4, mac) values ('" + BreakIp(network, 2) + "-" + BreakIp(ipaddress, 3) + "', '" + network + "', '" + BreakIp(ipaddress, 3) + "', '" + ipaddress + "', '" + addhost + "', '" + short1 + "', '" + short2 + "', '" + short3 + "', '" + short4 + "', '" + mac + "')"
 		runSql(databaseFile, sqlquery)
 	}
 }
@@ -515,7 +515,7 @@ func listHost(databaseFile string, webprint http.ResponseWriter, network string,
 	}
 }
 
-func breakIp(ipaddress string, position int) string {
+func BreakIp(ipaddress string, position int) string {
 	deliminator := func(c rune) bool {
 		return (c == '.')
 	}

@@ -5,6 +5,16 @@ import (
 	"testing"
 )
 
+func TestBreakIp(t *testing.T) {
+	var tests = []string{"1.2.3.4", "1.2.3.4", "1.2.3.4", "1.2.3.4"}
+	var expectedresults = []string{"1", "2", "3", "4"}
+	for i, v := range tests {
+		if BreakIp(v, i) != expectedresults[i] {
+			t.Error("Test ", i, ": Expected: ", expectedresults[i], "  Actual: ", BreakIp(v, i))
+		}
+	}
+}
+
 func TestMakePaddedIp(t *testing.T) {
 	var tests = []string{"1.1.1.1", "192.168.1.1", "192.168.100.101"}
 	var expectedresults = []string{"001001001001", "192168001001", "192168100101"}
