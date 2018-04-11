@@ -3,7 +3,8 @@
 
 cache:
   paths:
-  - binaries/*
+  - binaries/narcotk-hosts-osx-darwin
+  - binaries/narcotk-hosts-linux-amd64
 
 stages:
   - build
@@ -35,6 +36,7 @@ build-osx-1:
   artifacts:
     name: "${CI_JOB_NAME}_${CI_JOB_ID}"
     untracked: true
+    expire_in: '5 mins'
     paths:
       - binaries/narcotk-hosts-osx-darwin
 
