@@ -83,12 +83,13 @@ When running narcotk-hosts for the first time, you need to run the below command
 |:--|:--|:--|
 | Database | ./narcotk_hosts_all.db | database file to use |
 | EnableTLS | false | enable or disable TLS |
+| Files | ./files | directory of scripts |
 | HeaderFile | ./header.txt | display header file |
 | IndexFile | ./index.html | print index.html when user visits root web directory (http://server.com/) |
 | JSON | false | print output as json |
 | ListenPort | 23000 | port for narcotk-hosts to listen on |
 | ListenIP | 127.0.0.1 | IP for narcotk-hosts to bind to |
-| Files | ./files | directory of scripts |
+| RegistrationKey | <blank> | Registration key to use when registering hosts, blank disables registration |
 | ShowHeader | false | show header, false by default |
 | TLSCert | ./tls/server.crt | if EnableTLS true, use this TLS cert |
 | TLSKey | ./tls/server.crt | if EnableTLS true, use this TLS key |
@@ -103,16 +104,16 @@ The default configuration file (narco-hosts-config.json) is read from the same d
 {
     "Database": "./narcotk_hosts_all.db",
     "EnableTLS": false,
+    "Files": "./files",
     "HeaderFile": "./header.txt",
     "IndexFile": "./index.html",
     "JSON": false,
     "ListenIP": "127.0.0.1",
     "ListenPort": "23000",
-    "Files": "./files",
+    "RegistrationKey": "",
     "ShowHeader": false,
     "TLSCert": "./tls/server.crt",
     "TLSKey": "./tls/server.key",
-    "RegistrationKey": "somepassword",
     "Verbose": true
 }
 ```

@@ -1,15 +1,15 @@
 {
     "Database": "./narcotk_hosts_all.db",
     "EnableTLS": false,
+    "Files": "./files",
     "HeaderFile": "./header.txt",
     "IndexFile": "./index.html",
     "JSON": false,
     "ListenIP": "127.0.0.1",
     "ListenPort": "23000",
-    "Files": "./files",
+    "RegistrationKey": "",
     "ShowHeader": false,
     "TLSCert": "./tls/server.crt",
     "TLSKey": "./tls/server.key",
-    "RegistrationKey": "",
     "Verbose": true
 }
