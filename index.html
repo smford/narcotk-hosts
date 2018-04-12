@@ -1,1 +1,458 @@
-hello world index page
+Toggle Mode
+
+
+<p><a href="https://travis-ci.org/smford/narcotk-hosts"><img src="https://travis-ci.org/smford/narcotk-hosts.svg?branch=master" alt="Build Status"></a></p>
+<h1><a id="narcotkhosts_2"></a>narcotk-hosts</h1>
+<h2><a id="What_is_narcotkhosts_4"></a>What is narcotk-hosts?</h2>
+<p>narcotk-hosts is an simple hosts management application, the allows you to easily manage your cloud virtual machines and IOT devices.</p>
+<h2><a id="What_do_you_mean_manage_8"></a>What do you mean manage?</h2>
+<ul>
+<li>record VM or IOT device networking information</li>
+<li>add/delete/update information</li>
+<li>allow for devices to self register in narcotk-hosts</li>
+<li>provide a web api that allows devices to query their configuration</li>
+<li>provides a means to bootstrap VMs and IOT devices</li>
+</ul>
+<h2><a id="Features_17"></a>Features</h2>
+<ul>
+<li>lightweight and simple to use</li>
+<li>web api</li>
+<li>tls/ssl encryption</li>
+<li>output in plain text or json</li>
+<li>can run stand alone or as a web service</li>
+<li>easy to run on osx, linux and windows.</li>
+<li>VMs and IOT devices can get host specific files, useful for bootstrapping and configuring themselves</li>
+<li>easy to run in a docker container</li>
+<li>can generate an old school hosts file</li>
+<li>IPv4 compatible</li>
+<li>IPv6 compatiblity to be added</li>
+</ul>
+<h2><a id="Example_Uses_32"></a>Example Uses</h2>
+<ol>
+<li>As a simple hosts file maintenance tool: you can run narcotk-hosts as a simple hosts file maintainer, adding and deleting hosts, and to generate a hosts file.</li>
+<li>As a boot strapping tool: a VM or IOT device boots then runs <code>\curl http://server.com:23000/mac/de:ad:be:ef:ca:fe?file | bash</code> where narcotk-hosts provides a boot script that can configure your VM or IOT device.</li>
+</ol>
+<h2><a id="Installation_37"></a>Installation</h2>
+<h3><a id="Install_from_git_39"></a>Install from git</h3>
+<p>Requirements: go v1.9.1</p>
+<pre><code>git clone git@gitlab.com:narcotk/narcotk-hosts.git
+cd narcotk-hosts-2
+go get ./
+go build -o narcotk-hosts main.go
+./narcotk-hosts --setupdb --database=./new-database-file.db
+</code></pre>
+<h3><a id="Install_on_CentosRedhatFedora_51"></a>Install on Centos/Redhat/Fedora</h3>
+<h3><a id="Install_on_DebianUbuntu_54"></a>Install on Debian/Ubuntu</h3>
+<h3><a id="Install_on_OSX_57"></a>Install on OSX</h3>
+<h3><a id="Use_Docker_60"></a>Use Docker</h3>
+<h2><a id="Configuration_64"></a>Configuration</h2>
+<p>Configuration is possible three ways: using defaults, using a configuration file, or via command line arguments.  Configuration via environment variables will be added at a later date.</p>
+<h3><a id="First_Run_68"></a>First Run</h3>
+<p>When running narcotk-hosts for the first time, you need to run the below command to create a database file:</p>
+<h4><a id="Create_a_default_database_file_narcotk_hosts_alldb_72"></a>Create a default database file ./narcotk_hosts_all.db</h4>
+<p><code>./narcotk-hosts --setupdb</code></p>
+<h5><a id="Create_another_database_file_pathtosomefiledb_75"></a>Create another database file /path/to/somefile.db</h5>
+<p><code>./narcotk-hosts --setupdb --database=/path/to/somefile.db</code></p>
+<h3><a id="Default_Configuration_79"></a>Default Configuration</h3>
+<table class="table table-striped table-bordered">
+<thead>
+<tr>
+<th style="text-align:left">Setting</th>
+<th style="text-align:left">Default</th>
+<th style="text-align:left">Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">Database</td>
+<td style="text-align:left">./narcotk_hosts_all.db</td>
+<td style="text-align:left">database file to use</td>
+</tr>
+<tr>
+<td style="text-align:left">EnableTLS</td>
+<td style="text-align:left">false</td>
+<td style="text-align:left">enable or disable TLS</td>
+</tr>
+<tr>
+<td style="text-align:left">Files</td>
+<td style="text-align:left">./files</td>
+<td style="text-align:left">directory of scripts</td>
+</tr>
+<tr>
+<td style="text-align:left">HeaderFile</td>
+<td style="text-align:left">./header.txt</td>
+<td style="text-align:left">display header file</td>
+</tr>
+<tr>
+<td style="text-align:left">IndexFile</td>
+<td style="text-align:left">./index.html</td>
+<td style="text-align:left">print index.html when user visits root web directory (<a href="http://server.com/">http://server.com/</a>)</td>
+</tr>
+<tr>
+<td style="text-align:left">JSON</td>
+<td style="text-align:left">false</td>
+<td style="text-align:left">print output as json</td>
+</tr>
+<tr>
+<td style="text-align:left">ListenPort</td>
+<td style="text-align:left">23000</td>
+<td style="text-align:left">port for narcotk-hosts to listen on</td>
+</tr>
+<tr>
+<td style="text-align:left">ListenIP</td>
+<td style="text-align:left">127.0.0.1</td>
+<td style="text-align:left">IP for narcotk-hosts to bind to</td>
+</tr>
+<tr>
+<td style="text-align:left">RegistrationKey</td>
+<td style="text-align:left">&lt;blank&gt;</td>
+<td style="text-align:left">Registration key to use when registering hosts, blank disables registration</td>
+</tr>
+<tr>
+<td style="text-align:left">ShowHeader</td>
+<td style="text-align:left">false</td>
+<td style="text-align:left">show header, false by default</td>
+</tr>
+<tr>
+<td style="text-align:left">TLSCert</td>
+<td style="text-align:left">./tls/server.crt</td>
+<td style="text-align:left">if EnableTLS true, use this TLS cert</td>
+</tr>
+<tr>
+<td style="text-align:left">TLSKey</td>
+<td style="text-align:left">./tls/server.crt</td>
+<td style="text-align:left">if EnableTLS true, use this TLS key</td>
+</tr>
+<tr>
+<td style="text-align:left">Verbose</td>
+<td style="text-align:left">false</td>
+<td style="text-align:left">be verbose</td>
+</tr>
+</tbody>
+</table>
+<h3><a id="Configuration_File_98"></a>Configuration File</h3>
+<p>The default configuration file (narco-hosts-config.json) is read from the same directory as the narcotk-hosts executable.</p>
+<pre><code>{
+    &quot;Database&quot;: &quot;./narcotk_hosts_all.db&quot;,
+    &quot;EnableTLS&quot;: false,
+    &quot;Files&quot;: &quot;./files&quot;,
+    &quot;HeaderFile&quot;: &quot;./header.txt&quot;,
+    &quot;IndexFile&quot;: &quot;./index.html&quot;,
+    &quot;JSON&quot;: false,
+    &quot;ListenIP&quot;: &quot;127.0.0.1&quot;,
+    &quot;ListenPort&quot;: &quot;23000&quot;,
+    &quot;RegistrationKey&quot;: &quot;&quot;,
+    &quot;ShowHeader&quot;: false,
+    &quot;TLSCert&quot;: &quot;./tls/server.crt&quot;,
+    &quot;TLSKey&quot;: &quot;./tls/server.key&quot;,
+    &quot;Verbose&quot;: true
+}
+</code></pre>
+<h3><a id="Command_Line_Configuration_Options_121"></a>Command Line Configuration Options</h3>
+<table class="table table-striped table-bordered">
+<thead>
+<tr>
+<th style="text-align:left">Argument</th>
+<th style="text-align:left">Details</th>
+<th style="text-align:left">Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>--configfile</code></td>
+<td style="text-align:left">Configuration File</td>
+<td style="text-align:left">–configfile=/path/to/file.yaml</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>--database</code></td>
+<td style="text-align:left">Database File</td>
+<td style="text-align:left">–database=/path/to/somefile.db</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>--json</code></td>
+<td style="text-align:left">Print output as JSON</td>
+<td style="text-align:left">–json</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>--listenip</code></td>
+<td style="text-align:left">IP for narcotk-hosts to bind to</td>
+<td style="text-align:left">–listenip=127.0.0.1</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>--listenport</code></td>
+<td style="text-align:left">Port for narcotk-hosts to listen on</td>
+<td style="text-align:left">–listenport=23000</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>--showheader</code></td>
+<td style="text-align:left">Show header</td>
+<td style="text-align:left">–showheader</td>
+</tr>
+</tbody>
+</table>
+<h2><a id="Generating_HTTPS_Certificates_and_Keys_133"></a>Generating HTTPS Certificates and Keys</h2>
+<pre><code class="language-bash">openssl genrsa -out server.key <span class="hljs-number">2048</span>
+openssl req -new -x509 -sha256 -key server.key -out server.crt -days <span class="hljs-number">3650</span>
+</code></pre>
+<h2><a id="Web_Service_141"></a>Web Service</h2>
+<p>narcotk-hosts can can as a command line tool or as a web service.</p>
+<table class="table table-striped table-bordered">
+<thead>
+<tr>
+<th style="text-align:left">Argument</th>
+<th style="text-align:left">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><code>--startweb</code></td>
+<td style="text-align:left">starts the webservice using the configuration files setting for EnableTLS</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>--starthttp</code></td>
+<td style="text-align:left">force webservice to start using HTTP</td>
+</tr>
+<tr>
+<td style="text-align:left"><code>--starthttps</code></td>
+<td style="text-align:left">force webservice to start using HTTPS</td>
+</tr>
+</tbody>
+</table>
+<h2><a id="Webapi_URLS_152"></a>Webapi URLS</h2>
+<table class="table table-striped table-bordered">
+<thead>
+<tr>
+<th style="text-align:left">URL</th>
+<th style="text-align:left">Output</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><a href="http://localhost:23000/host/HOSTNAME">http://localhost:23000/host/HOSTNAME</a></td>
+<td style="text-align:left">print details for <strong>HOSTNAME</strong></td>
+</tr>
+<tr>
+<td style="text-align:left"><a href="http://localhost:23000/host/HOSTNAME?file">http://localhost:23000/host/HOSTNAME?file</a></td>
+<td style="text-align:left">download default file for <strong>HOSTNAME</strong></td>
+</tr>
+<tr>
+<td style="text-align:left"><a href="http://localhost:23000/host/HOSTNAME?file=motd">http://localhost:23000/host/HOSTNAME?file=motd</a></td>
+<td style="text-align:left">download motd file for <strong>HOSTNAME</strong></td>
+</tr>
+<tr>
+<td style="text-align:left"><a href="http://localhost:23000/host/HOSTNAME?header">http://localhost:23000/host/HOSTNAME?header</a></td>
+<td style="text-align:left">print details for <strong>HOSTNAME</strong> with header</td>
+</tr>
+<tr>
+<td style="text-align:left"><a href="http://localhost:23000/host/HOSTNAME?json">http://localhost:23000/host/HOSTNAME?json</a></td>
+<td style="text-align:left">print details for <strong>HOSTNAME</strong> in json</td>
+</tr>
+<tr>
+<td style="text-align:left"><a href="http://localhost:23000/hosts">http://localhost:23000/hosts</a></td>
+<td style="text-align:left">lists all hosts</td>
+</tr>
+<tr>
+<td style="text-align:left"><a href="http://localhost:23000/hosts?header=y">http://localhost:23000/hosts?header=y</a></td>
+<td style="text-align:left">list all hosts with header</td>
+</tr>
+<tr>
+<td style="text-align:left"><a href="http://localhost:23000/hosts?json=y">http://localhost:23000/hosts?json=y</a></td>
+<td style="text-align:left">list all hosts in json</td>
+</tr>
+<tr>
+<td style="text-align:left"><a href="http://localhost:23000/hosts?mac=y">http://localhost:23000/hosts?mac=y</a></td>
+<td style="text-align:left">list all hosts with mac address</td>
+</tr>
+<tr>
+<td style="text-align:left"><a href="http://localhost:23000/hosts?mac=y&amp;header=y">http://localhost:23000/hosts?mac=y&amp;header=y</a></td>
+<td style="text-align:left">list all hosts with mac address and header</td>
+</tr>
+<tr>
+<td style="text-align:left"><a href="http://localhost:23000/hosts/NETWORK_ID">http://localhost:23000/hosts/NETWORK_ID</a></td>
+<td style="text-align:left">lists all hosts for a specific <strong>NETWORK_ID</strong></td>
+</tr>
+<tr>
+<td style="text-align:left"><a href="http://localhost:23000/hosts/NETWORK_ID?header=y">http://localhost:23000/hosts/NETWORK_ID?header=y</a></td>
+<td style="text-align:left">list all hosts with header for a specific <strong>NETWORK_ID</strong></td>
+</tr>
+<tr>
+<td style="text-align:left"><a href="http://localhost:23000/hosts/NETWORK_ID?json=y">http://localhost:23000/hosts/NETWORK_ID?json=y</a></td>
+<td style="text-align:left">list all hosts in json for a specific <strong>NETWORK_ID</strong></td>
+</tr>
+<tr>
+<td style="text-align:left"><a href="http://localhost:23000/hosts/NETWORK_ID?mac=y">http://localhost:23000/hosts/NETWORK_ID?mac=y</a></td>
+<td style="text-align:left">list all hosts with mac address for a specific <strong>NETWORK_ID</strong></td>
+</tr>
+<tr>
+<td style="text-align:left"><a href="http://localhost:23000/hosts/NETWORK_ID?mac=y&amp;header=y">http://localhost:23000/hosts/NETWORK_ID?mac=y&amp;header=y</a></td>
+<td style="text-align:left">list all hosts with header and mac address for a specific <strong>NETWORK_ID</strong></td>
+</tr>
+<tr>
+<td style="text-align:left"><a href="http://localhost:23000/ip/IP?json=y">http://localhost:23000/ip/IP?json=y</a></td>
+<td style="text-align:left">print host details for <strong>IP</strong> in json</td>
+</tr>
+<tr>
+<td style="text-align:left"><a href="http://localhost:23000/ip/IP?mac=y">http://localhost:23000/ip/IP?mac=y</a></td>
+<td style="text-align:left">print host details with mac for <strong>IP</strong></td>
+</tr>
+<tr>
+<td style="text-align:left"><a href="http://localhost:23000/mac/MAC">http://localhost:23000/mac/MAC</a></td>
+<td style="text-align:left">print host details for <strong>MAC</strong></td>
+</tr>
+<tr>
+<td style="text-align:left"><a href="http://localhost:23000/mac/MAC?json">http://localhost:23000/mac/MAC?json</a></td>
+<td style="text-align:left">print host details for <strong>MAC</strong> in json</td>
+</tr>
+<tr>
+<td style="text-align:left"><a href="http://localhost:23000/networks">http://localhost:23000/networks</a></td>
+<td style="text-align:left">lists all networks</td>
+</tr>
+<tr>
+<td style="text-align:left"><a href="http://localhost:23000/networks?json=y">http://localhost:23000/networks?json=y</a></td>
+<td style="text-align:left">lists all networks in json</td>
+</tr>
+<tr>
+<td style="text-align:left"><a href="http://localhost:23000/network/NETWORK_ID">http://localhost:23000/network/NETWORK_ID</a></td>
+<td style="text-align:left">print details for <strong>NETWORK_ID</strong></td>
+</tr>
+<tr>
+<td style="text-align:left"><a href="http://localhost:23000/network/NETWORK_ID?json">http://localhost:23000/network/NETWORK_ID?json</a></td>
+<td style="text-align:left">print details for <strong>NETWORK_ID</strong> in json</td>
+</tr>
+</tbody>
+</table>
+<h2><a id="Registration_API_181"></a>Registration API</h2>
+<p>New hosts can be registered in to the database using the registration api call.  The registration api is only enabled when a RegistrationKey is set in the configuration file, to disable set RegistrationKey to “” (blank).</p>
+<table class="table table-striped table-bordered">
+<thead>
+<tr>
+<th style="text-align:left">Query</th>
+<th style="text-align:left"></th>
+<th style="text-align:left">Details</th>
+<th style="text-align:left">Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">key</td>
+<td style="text-align:left"><strong>MANDATORY</strong></td>
+<td style="text-align:left">RegistrationKey (from configfile)</td>
+<td style="text-align:left">key=somepassword</td>
+</tr>
+<tr>
+<td style="text-align:left">fqdn</td>
+<td style="text-align:left"><strong>MANDATORY</strong></td>
+<td style="text-align:left">hostname</td>
+<td style="text-align:left"><a href="http://fqdn=server1.domain.com">fqdn=server1.domain.com</a></td>
+</tr>
+<tr>
+<td style="text-align:left">ip</td>
+<td style="text-align:left"><strong>MANDATORY</strong></td>
+<td style="text-align:left">ip address</td>
+<td style="text-align:left">ip=10.10.1.67</td>
+</tr>
+<tr>
+<td style="text-align:left">nw</td>
+<td style="text-align:left"><strong>MANDATORY</strong></td>
+<td style="text-align:left">network</td>
+<td style="text-align:left">nw=10.10.1</td>
+</tr>
+<tr>
+<td style="text-align:left">s1</td>
+<td style="text-align:left">optional</td>
+<td style="text-align:left">shortname 1</td>
+<td style="text-align:left">s1=server1</td>
+</tr>
+<tr>
+<td style="text-align:left">s2</td>
+<td style="text-align:left">optional</td>
+<td style="text-align:left">shortname 2</td>
+<td style="text-align:left">s2=s1</td>
+</tr>
+<tr>
+<td style="text-align:left">s3</td>
+<td style="text-align:left">optional</td>
+<td style="text-align:left">shortname 3</td>
+<td style="text-align:left">s3=something1</td>
+</tr>
+<tr>
+<td style="text-align:left">s4</td>
+<td style="text-align:left">optional</td>
+<td style="text-align:left">shortname 4</td>
+<td style="text-align:left">s4=somethingelse1</td>
+</tr>
+<tr>
+<td style="text-align:left">mac</td>
+<td style="text-align:left">optional</td>
+<td style="text-align:left">mac address</td>
+<td style="text-align:left">mac=DE:AD:BE:EF:CA:FE</td>
+</tr>
+</tbody>
+</table>
+<h3><a id="Examples_197"></a>Examples</h3>
+<ul>
+<li><code>curl https://server.com/register?key=password&amp;fqdn=server1.domain.com&amp;ip=10.10.1.67&amp;nw=10.10.1</code></li>
+<li><code>curl https://server.com/register?key=password&amp;fqdn=server1.domain.com&amp;ip=10.10.1.67&amp;nw=10.10.1&amp;mac=DE:AD:BE:EF:CA:FE&amp;s1=server1</code></li>
+</ul>
+<h2><a id="Files_and_Scripts_202"></a>Files and Scripts</h2>
+<p>The web api can be used to present files and scripts back to a host.  These files and scripts can be used to do things such as configure the host.</p>
+<p>In the configuration file, set the path to “Files” and place your files and scripts in to that directory.</p>
+<p>Multiple files are possible, just pass the filename as a query.  Store the files in the files directory with the hostname has a prefix, for example:</p>
+<ul>
+<li>path/files/hostname</li>
+<li>path/files/hostname.something</li>
+<li>path/files/hostname.somethingelse</li>
+<li>path/files/hostname.otherthing</li>
+</ul>
+<table class="table table-striped table-bordered">
+<thead>
+<tr>
+<th style="text-align:left">Filepath</th>
+<th style="text-align:left">Details</th>
+<th style="text-align:left">API Call Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">path/files/<strong>hostname</strong></td>
+<td style="text-align:left">default</td>
+<td style="text-align:left"><a href="http://server.com:23000/host/server1.domain.com?file">http://server.com:23000/host/server1.domain.com?file</a></td>
+</tr>
+<tr>
+<td style="text-align:left">path/files/<strong>hostname</strong>.config</td>
+<td style="text-align:left">config</td>
+<td style="text-align:left"><a href="http://server.com:23000/host/server1.domain.com?file=config">http://server.com:23000/host/server1.domain.com?file=config</a></td>
+</tr>
+<tr>
+<td style="text-align:left">path/files/<strong>hostname</strong>.motd</td>
+<td style="text-align:left">motd</td>
+<td style="text-align:left"><a href="http://server.com:23000/host/server1.domain.com?file=motd">http://server.com:23000/host/server1.domain.com?file=motd</a></td>
+</tr>
+</tbody>
+</table>
+<h3><a id="Example_Path_Structure_for_Files_and_Scripts_220"></a>Example Path Structure for Files and Scripts</h3>
+<p><img src="https://github.com/smford/narcotk-hosts/raw/master/images/files.png" alt="Example path structure for files and scripts" title="Example path structure for files and scripts"></p>
+<h3><a id="Usage_Examples_224"></a>Usage Examples</h3>
+<ol>
+<li>
+<p>Download and run default file:</p>
+<pre><code>\curl -sSL https://server.com:23000/host/server1.domain.com?file | bash
+</code></pre>
+</li>
+<li>
+<p>Download and install a machines MOTD:</p>
+<pre><code>wget http://server.com:23000/host/server1.domain.com?file=motd -O /etc/motd
+</code></pre>
+</li>
+</ol>
+<h2><a id="Bootstrapping_a_System_235"></a>Bootstrapping a System</h2>
+<p>Assuming a vanilla machine boots and gets on the network via DHCP, this example will allow the system to configure itself by:</p>
+<ol>
+<li>system finds its mac address</li>
+<li>the system then queries the narcotk-hosts server for its hostname</li>
+<li>the system then downloads and runs its script which then configures the rest of the system</li>
+</ol>
+<pre><code>MACADDRESS=$(ifconfig en1|grep ether|cut -f2 -d\ )
+MYHOSTNAME=$(curl -s http://server.com:23000/mac/$MACADDRESS\?json | jq '.[].Hostname')
+\curl -sSL https://server.com:23000/host/$MYHOSTNAME?file | bash
+</code></pre>
