@@ -2,7 +2,7 @@
     "Database": "./narcotk_hosts_all.db",
     "EnableTLS": false,
     "HeaderFile": "./header.txt",
-    "IndexFile": "",
+    "IndexFile": "./index.html",
     "JSON": false,
     "ListenIP": "127.0.0.1",
     "ListenPort": "23000",

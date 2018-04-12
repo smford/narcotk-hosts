@@ -252,7 +252,7 @@ func main() {
 	}
 
 	if viper.GetBool("showheader") && !viper.GetBool("json") {
-		printHeader(viper.GetString("headerfile"), nil)
+		printFile(viper.GetString("HeaderFile"), nil)
 	}
 
 	if viper.GetString("network") != "" {
@@ -268,32 +268,19 @@ func main() {
 	}
 }
 
-func printHeader(headerfile string, webprint http.ResponseWriter) {
-	fmt.Println("Starting printHeader")
-	headertext, err := ioutil.ReadFile(headerfile)
+func printFile(filename string, webprint http.ResponseWriter) {
+	fmt.Println("Starting printFile")
+	texttoprint, err := ioutil.ReadFile(filename)
 	if err != nil {
-		fmt.Println("Error: cannot open file " + headerfile)
-	}
-	if webprint != nil {
-		fmt.Fprintf(webprint, "%s", string(headertext))
-	} else {
-		fmt.Print(string(headertext))
-	}
-}
-
-func IndexPage(indexfile string, webprint http.ResponseWriter) {
-	fmt.Println("Starting IndexPage")
-	indextext, err := ioutil.ReadFile(indexfile)
-	if err != nil {
-		log.Println("Error: cannot open file " + indexfile)
+		log.Println("Error: cannot open file " + filename)
 		if webprint != nil {
 			http.Error(webprint, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 		}
 	}
 	if webprint != nil {
-		fmt.Fprintf(webprint, "%s", string(indextext))
+		fmt.Fprintf(webprint, "%s", string(texttoprint))
 	} else {
-		fmt.Print(string(indextext))
+		fmt.Print(string(texttoprint))
 	}
 }
 
@@ -603,7 +590,7 @@ func startWeb(databaseFile string, listenip string, listenport string, usetls bo
 
 func handlerIndex(w http.ResponseWriter, r *http.Request) {
 	log.Println("Starting handlerIndex")
-	IndexPage("index.html", w)
+	printFile(viper.GetString("IndexFile"), w)
 }
 
 func handlerHosts(w http.ResponseWriter, r *http.Request) {
@@ -630,7 +617,7 @@ func handlerHosts(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if (strings.ToLower(queries.Get("header")) == "y") && (!givejson) {
-		printHeader(viper.GetString("headerfile"), w)
+		printFile(viper.GetString("HeaderFile"), w)
 	}
 
 	if strings.ToLower(queries.Get("mac")) == "y" {
@@ -655,7 +642,7 @@ func handlerHost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if (strings.ToLower(queries.Get("header")) == "y") && (!givejson) {
-		printHeader(viper.GetString("headerfile"), w)
+		printFile(viper.GetString("HeaderFile"), w)
 	}
 
 	if strings.ToLower(queries.Get("mac")) == "y" {

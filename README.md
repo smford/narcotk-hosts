@@ -84,6 +84,7 @@ When running narcotk-hosts for the first time, you need to run the below command
 | Database | ./narcotk_hosts_all.db | database file to use |
 | EnableTLS | false | enable or disable TLS |
 | HeaderFile | ./header.txt | display header file |
+| IndexFile | ./index.html | print index.html when user visits root web directory (http://server.com/) |
 | JSON | false | print output as json |
 | ListenPort | 23000 | port for narcotk-hosts to listen on |
 | ListenIP | 127.0.0.1 | IP for narcotk-hosts to bind to |
@@ -103,6 +104,7 @@ The default configuration file (narco-hosts-config.json) is read from the same d
     "Database": "./narcotk_hosts_all.db",
     "EnableTLS": false,
     "HeaderFile": "./header.txt",
+    "IndexFile": "./index.html",
     "JSON": false,
     "ListenIP": "127.0.0.1",
     "ListenPort": "23000",
