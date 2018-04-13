@@ -48,9 +48,10 @@ type HostsAllNetworks struct {
 }
 
 type SingleNetwork struct {
-	Network     string `json:"Network"`
-	CIDR        string `json:"CIDR"`
-	Description string `json:"Description"`
+	PaddedNetwork string `json:"PaddedNetwork"`
+	Network       string `json:"Network"`
+	CIDR          string `json:"CIDR"`
+	Description   string `json:"Description"`
 }
 
 type AllNetworks struct {
@@ -372,7 +373,7 @@ func listNetworks(databaseFile string, webprint http.ResponseWriter, sqlquery st
 			var cidr string
 			var description string
 			err = rows.Scan(&network, &cidr, &description)
-			mynetworks = append(mynetworks, SingleNetwork{network, cidr, description})
+			mynetworks = append(mynetworks, SingleNetwork{MakePaddedIp(network), network, cidr, description})
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -380,6 +381,10 @@ func listNetworks(databaseFile string, webprint http.ResponseWriter, sqlquery st
 
 		if len(mynetworks) > 0 {
 			log.Printf("%d networks found\n", len(mynetworks))
+
+			sort.Slice(mynetworks, func(i, j int) bool {
+				return bytes.Compare([]byte(mynetworks[i].PaddedNetwork), []byte(mynetworks[j].PaddedNetwork)) < 0
+			})
 
 			if printjson {
 				c, _ := json.Marshal(mynetworks)
@@ -815,13 +820,18 @@ func PadLeft(str string) string {
 }
 
 func MakePaddedIp(ipaddress string) string {
-	//fmt.Println("starting makePaddedIp")
 	f := func(c rune) bool {
 		return (c == rune('.'))
 	}
+
 	s := strings.FieldsFunc(ipaddress, f)
-	paddedIp := PadLeft(s[0]) + PadLeft(s[1]) + PadLeft(s[2]) + PadLeft(s[3])
-	//fmt.Printf("P=%s\n", paddedIp)
+
+	paddedIp := ""
+
+	for i := 0; i < len(s); i++ {
+		paddedIp = paddedIp + PadLeft(s[i])
+	}
+
 	return paddedIp
 }
 
