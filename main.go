@@ -656,34 +656,18 @@ func handlerHost(w http.ResponseWriter, r *http.Request) {
 }
 
 func handlerHostFile(w http.ResponseWriter, r *http.Request) {
-	log.Println("Starting handlerHostFile")
+	log.Println("Starting NewhandlerHostFile")
 	vars := mux.Vars(r)
 	queries := r.URL.Query()
-	var passedfilename string
-
-	log.Printf("queries = %q\n", queries)
 
 	if queries.Get("file") == "" {
-		passedfilename = viper.GetString("files") + "/" + vars["host"]
+		// error file doesnt exist, return 404
+		//w.WriteHeader(http.StatusNotFound)
+		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+		return
 	} else {
-		passedfilename = viper.GetString("files") + "/" + vars["host"] + "." + queries.Get("file")
-	}
-
-	log.Println("Passedfilename = ", passedfilename)
-
-	fmt.Println("Starting handlerHostFile")
-	if fileExists(passedfilename) {
-		file, err := ioutil.ReadFile(passedfilename)
-		if err != nil {
-			fmt.Println("Error: cannot open file " + string(file))
-		}
 		w.Header().Set("Content-Type", "application/octet-stream")
-		fmt.Fprintf(w, "%s", string(file))
-		log.Printf("%s requested %s sent file", r.RemoteAddr, r.URL)
-	} else {
-		w.WriteHeader(http.StatusNotFound)
-		log.Printf("%s requested %s file not found", r.RemoteAddr, r.URL)
-		fmt.Fprintf(w, "file doesnt exist")
+		printFile(viper.GetString("files")+"/"+vars["host"]+"."+queries.Get("file"), w)
 	}
 }
 

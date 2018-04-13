@@ -155,7 +155,6 @@ narcotk-hosts can can as a command line tool or as a web service.
 | URL | Output |
 |:--|:--|
 | http://localhost:23000/host/HOSTNAME | print details for **HOSTNAME** |
-| http://localhost:23000/host/HOSTNAME?file | download default file for **HOSTNAME** |
 | http://localhost:23000/host/HOSTNAME?file=motd | download motd file for **HOSTNAME** |
 | http://localhost:23000/host/HOSTNAME?header | print details for **HOSTNAME** with header |
 | http://localhost:23000/host/HOSTNAME?json | print details for **HOSTNAME** in json |
@@ -206,14 +205,14 @@ The web api can be used to present files and scripts back to a host.  These file
 In the configuration file, set the path to "Files" and place your files and scripts in to that directory.
 
 Multiple files are possible, just pass the filename as a query.  Store the files in the files directory with the hostname has a prefix, for example:
-- path/files/hostname
-- path/files/hostname.something
-- path/files/hostname.somethingelse
-- path/files/hostname.otherthing
+- path/to/files/server1.something.com.example
+- path/to/files/server1.something.com.ifcfg-eth0
+- path/to/files/server1.something.com.motd
+- path/to/files/server2.something.com.ifcfg-eth1
+- path/to/files/server2.something.com.motd
 
 | Filepath | Details | API Call Example |
 | :-- | :-- | :-- |
-| path/files/**hostname** | default | http://server.com:23000/host/server1.domain.com?file |
 | path/files/**hostname**.config | config | http://server.com:23000/host/server1.domain.com?file=config |
 | path/files/**hostname**.motd | motd | http://server.com:23000/host/server1.domain.com?file=motd |
 
