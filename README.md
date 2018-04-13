@@ -39,12 +39,14 @@ narcotk-hosts is an simple hosts management application, the allows you to easil
 
 ### Install from git
 
-Requirements: go v1.9.1
+Requirements:
+- go v1.9.10
+- dep v0.4.1
 
 ```
-git clone git@gitlab.com:narcotk/narcotk-hosts.git
-cd narcotk-hosts-2
-go get ./
+git clone git@github.com:smford/narcotk-hosts.git 
+cd narcotk-hosts
+dep ensure
 go build -o narcotk-hosts main.go
 ./narcotk-hosts --setupdb --database=./new-database-file.db
 ```
