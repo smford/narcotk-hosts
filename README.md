@@ -205,17 +205,13 @@ The web api can be used to present files and scripts back to a host.  These file
 In the configuration file, set the path to "Files" and place your files and scripts in to that directory.
 
 Multiple files are possible, just pass the filename as a query.  Store the files in the files directory with the hostname has a prefix, for example:
-- path/to/files/server1.something.com.example
-- path/to/files/server1.something.com.ifcfg-eth0
-- path/to/files/server1.something.com.motd
-- path/to/files/server2.something.com.ifcfg-eth1
-- path/to/files/server2.something.com.motd
-
 | Filepath | Details | API Call Example |
 | :-- | :-- | :-- |
-| path/files/**hostname**.config | config | http://server.com:23000/host/server1.domain.com?file=config |
-| path/files/**hostname**.motd | motd | http://server.com:23000/host/server1.domain.com?file=motd |
-
+| path/to/files/server1.something.com.example | example | http://server.com:23000/host/server1.something.com?file=example |
+| path/to/files/server1.something.com.ifcfg-eth0 | ifcfg-eth0 | http://server.com:23000/host/server1.something.com?file=ifcfg-eth0 |
+| path/to/files/server1.something.com.motd | motd | http://server.com:23000/host/server1.something.com?file=motd |
+| path/to/files/server2.something.com.ifcfg-eth1 | ifcfg-eth1 | http://server.com:23000/host/server2.something.com?file=ifcfg-eth1 |
+| path/to/files/server2.something.com.motd | motd | http://server.com:23000/host/server2.something.com?file=motd |
 
 ### Example Path Structure for Files and Scripts
 ![Example path structure for files and scripts](https://github.com/smford/narcotk-hosts/raw/master/images/files.png "Example path structure for files and scripts")
@@ -224,12 +220,12 @@ Multiple files are possible, just pass the filename as a query.  Store the files
 ### Usage Examples
 1. Download and run default file:
 
-       \curl -sSL https://server.com:23000/host/server1.domain.com?file | bash
+       \curl -sSL https://server.com:23000/host/server1.something.com?file=example | bash
 
 
 2. Download and install a machines MOTD:
 
-       wget http://server.com:23000/host/server1.domain.com?file=motd -O /etc/motd
+       wget http://server.com:23000/host/server1.something.com?file=motd -O /etc/motd
 
 
 ## Bootstrapping a System
