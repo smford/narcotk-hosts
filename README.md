@@ -205,6 +205,7 @@ The web api can be used to present files and scripts back to a host.  These file
 In the configuration file, set the path to "Files" and place your files and scripts in to that directory.
 
 Multiple files are possible, just pass the filename as a query.  Store the files in the files directory with the hostname has a prefix, for example:
+
 | Filepath | Details | API Call Example |
 | :-- | :-- | :-- |
 | path/to/files/server1.something.com.example | example | http://server.com:23000/host/server1.something.com?file=example |
