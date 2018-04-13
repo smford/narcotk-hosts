@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/smford/narcotk-hosts.svg?branch=master)](https://travis-ci.org/smford/narcotk-hosts) [![Go Report Card](https://goreportcard.com/badge/github.com/smford/narcotk-hosts)](https://goreportcard.com/report/github.com/smford/narcotk-hosts)
+[![Build Status Travis](https://travis-ci.org/smford/narcotk-hosts.svg?branch=master)](https://travis-ci.org/smford/narcotk-hosts) [![Go Report Card](https://goreportcard.com/badge/github.com/smford/narcotk-hosts)](https://goreportcard.com/report/github.com/smford/narcotk-hosts) [![Build Status Appveyor](https://ci.appveyor.com/api/projects/status/10uohklo1vmpbto1?svg=true)](https://ci.appveyor.com/project/smford/narcotk-hosts)
 
 # narcotk-hosts
 
