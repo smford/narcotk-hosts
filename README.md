@@ -239,5 +239,5 @@ Assuming a vanilla machine boots and gets on the network via DHCP, this example 
 ```
 MACADDRESS=$(ifconfig en1|grep ether|cut -f2 -d\ )
 MYHOSTNAME=$(curl -s http://server.com:23000/mac/$MACADDRESS\?json | jq '.[].Hostname')
-\curl -sSL https://server.com:23000/host/$MYHOSTNAME?file | bash
+\curl -sSL https://server.com:23000/host/$MYHOSTNAME?file=example | bash
 ```
