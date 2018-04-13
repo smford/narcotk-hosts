@@ -244,3 +244,7 @@ MACADDRESS=$(ifconfig en1|grep ether|cut -f2 -d\ )
 MYHOSTNAME=$(curl -s http://server.com:23000/mac/$MACADDRESS\?json | jq '.[].Hostname')
 \curl -sSL https://server.com:23000/host/$MYHOSTNAME?file=example | bash
 ```
+
+
+### CLI Examples
+[![asciicast](https://asciinema.org/a/cgD7GgVVUKhnwgDuZJrroPSAo.png)](https://asciinema.org/a/cgD7GgVVUKhnwgDuZJrroPSAo)
