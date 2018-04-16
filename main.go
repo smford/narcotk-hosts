@@ -22,14 +22,15 @@ import (
 )
 
 type Host struct {
-	PaddedIP  string `json:"PaddedIP"`
-	IPAddress string `json:"IPAddress"`
-	Hostname  string `json:"Hostname"`
-	Short1    string `json:"Short1"`
-	Short2    string `json:"Short2"`
-	Short3    string `json:"Short3"`
-	Short4    string `json:"Short4"`
-	MAC       string `json:"MAC"`
+	PaddedIP string `json:"PaddedIP"`
+	IPv4     string `json:"IPv4"`
+	IPv6     string `json:"IPv6"`
+	Hostname string `json:"Hostname"`
+	Short1   string `json:"Short1"`
+	Short2   string `json:"Short2"`
+	Short3   string `json:"Short3"`
+	Short4   string `json:"Short4"`
+	MAC      string `json:"MAC"`
 }
 
 type Hosts struct {
@@ -98,7 +99,7 @@ func PrepareMac(macaddress string) string {
 
 func init() {
 	//fmt.Println("Starting init function")
-	flag.String("addhost", "", "add a new host, use with --network, --ipaddress (optional: --short1, --short2, --short3, --short4 and --mac)")
+	flag.String("addhost", "", "add a new host, use with --network, --ipv4 (optional: --ipv6 --short1, --short2, --short3, --short4 and --mac)")
 	flag.String("addnetwork", "", "add a new network, used with --cidr and --desc")
 	flag.String("cidr", "", "cidr of network, used with --adnetwork and --desc")
 	configFile := flag.String("configfile", "", "configuration file to use")
@@ -109,7 +110,8 @@ func init() {
 	flag.String("desc", "", "description of network, used with --addnetwork and --cidr")
 	flag.Bool("help", false, "display help information")
 	flag.String("host", "", "display details for a specific host")
-	flag.String("ipaddress", "", "ip address of new host")
+	flag.String("ipv4", "", "ipv4 address of new host")
+	flag.String("ipv6", "", "ipv6 address of new host")
 	flag.Bool("json", false, "output in json")
 	listenIp := flag.String("listenip", "", "ip address for webservice to bind to")
 	listenPort := flag.String("listenport", "", "port for webservice to listen upon")
@@ -243,11 +245,11 @@ func main() {
 	}
 
 	if viper.GetString("addhost") != "" {
-		if (viper.GetString("network") == "") || (viper.GetString("ipaddress") == "") {
-			fmt.Println("Error: When using --addhost you must also provide --network and --ipaddress")
+		if (viper.GetString("network") == "") || (viper.GetString("ipv4") == "") {
+			fmt.Println("Error: When using --addhost you must also provide --network and --ipv4")
 			os.Exit(1)
 		} else {
-			addHost(viper.GetString("Database"), viper.GetString("addhost"), viper.GetString("network"), viper.GetString("ipaddress"), viper.GetString("short1"), viper.GetString("short2"), viper.GetString("short3"), viper.GetString("short4"), viper.GetString("mac"))
+			addHost(viper.GetString("Database"), viper.GetString("addhost"), viper.GetString("network"), viper.GetString("ipv4"), viper.GetString("ipv6"), viper.GetString("short1"), viper.GetString("short2"), viper.GetString("short3"), viper.GetString("short4"), viper.GetString("mac"))
 			os.Exit(0)
 		}
 	}
@@ -285,19 +287,20 @@ func printFile(filename string, webprint http.ResponseWriter) {
 	}
 }
 
-func addHost(databaseFile string, addhost string, network string, ipaddress string, short1 string, short2 string, short3 string, short4 string, mac string) {
+func addHost(databaseFile string, addhost string, network string, ipv4 string, ipv6 string, short1 string, short2 string, short3 string, short4 string, mac string) {
 	fmt.Println("Adding new host:")
 	fmt.Println(addhost)
 	fmt.Println(network)
-	fmt.Println(ipaddress)
+	fmt.Println(ipv4)
+	fmt.Println(ipv6)
 	fmt.Println(short1)
 	fmt.Println(short2)
 	fmt.Println(short3)
 	fmt.Println(short4)
 	fmt.Println(mac)
 	mac = PrepareMac(mac)
-	if ValidIP(ipaddress) {
-		sqlquery := "insert into hosts (hostid, network, ipsuffix, ipaddress, fqdn, short1, short2, short3, short4, mac) values ('" + BreakIp(network, 2) + "-" + BreakIp(ipaddress, 3) + "', '" + network + "', '" + BreakIp(ipaddress, 3) + "', '" + ipaddress + "', '" + addhost + "', '" + short1 + "', '" + short2 + "', '" + short3 + "', '" + short4 + "', '" + mac + "')"
+	if ValidIP(ipv4) {
+		sqlquery := "insert into hosts (hostid, network, ipsuffix, ipv4, ipv6, fqdn, short1, short2, short3, short4, mac) values ('" + BreakIp(network, 2) + "-" + BreakIp(ipv4, 3) + "', '" + network + "', '" + BreakIp(ipv4, 3) + "', '" + ipv4 + "', '" + ipv6 + "', '" + addhost + "', '" + short1 + "', '" + short2 + "', '" + short3 + "', '" + short4 + "', '" + mac + "')"
 		runSql(databaseFile, sqlquery)
 	}
 }
@@ -424,7 +427,8 @@ func setupdb(databaseFile string) {
 	  hostid text PRIMARY KEY,
 	  network text NOT NULL,
 	  ipsuffix integer NOT NULL,
-	  ipaddress text NOT NULL,
+	  ipv4 text NOT NULL,
+		ipv6 text DEFAULT '',
 	  fqdn text NOT NULL,
 	  short1 text NOT NULL DEFAULT '',
 	  short2 text NOT NULL DEFAULT '',
@@ -461,15 +465,16 @@ func listHost(databaseFile string, webprint http.ResponseWriter, network string,
 			var hostid string
 			var network string
 			var ipsuffix int
-			var ipaddress string
+			var ipv4 string
+			var ipv6 string
 			var fqdn string
 			var short1 string
 			var short2 string
 			var short3 string
 			var short4 string
 			var mac string
-			err = rows.Scan(&hostid, &network, &ipsuffix, &ipaddress, &fqdn, &short1, &short2, &short3, &short4, &mac)
-			myhosts = append(myhosts, Host{MakePaddedIp(ipaddress), ipaddress, fqdn, short1, short2, short3, short4, mac})
+			err = rows.Scan(&hostid, &network, &ipsuffix, &ipv4, &ipv6, &fqdn, &short1, &short2, &short3, &short4, &mac)
+			myhosts = append(myhosts, Host{MakePaddedIp(ipv4), ipv4, ipv6, fqdn, short1, short2, short3, short4, mac})
 		}
 
 		if len(myhosts) > 0 {
@@ -491,11 +496,11 @@ func listHost(databaseFile string, webprint http.ResponseWriter, network string,
 				if webprint == nil {
 					if showmac {
 						for _, host := range myhosts {
-							fmt.Printf("%-17s  %-15s    %s  %s  %s  %s  %s\n", host.MAC, host.IPAddress, host.Hostname, host.Short1, host.Short2, host.Short3, host.Short4)
+							fmt.Printf("%-17s  %-15s    %s  %s  %s  %s  %s\n", host.MAC, host.IPv4, host.Hostname, host.Short1, host.Short2, host.Short3, host.Short4)
 						}
 					} else {
 						for _, host := range myhosts {
-							fmt.Printf("%-15s    %s  %s  %s  %s  %s\n", host.IPAddress, host.Hostname, host.Short1, host.Short2, host.Short3, host.Short4)
+							fmt.Printf("%-15s    %s  %s  %s  %s  %s\n", host.IPv4, host.Hostname, host.Short1, host.Short2, host.Short3, host.Short4)
 						}
 					}
 				} else {
@@ -504,12 +509,12 @@ func listHost(databaseFile string, webprint http.ResponseWriter, network string,
 						log.Println("webprint=y showmac=y")
 						for _, host := range myhosts {
 							log.Println("webprint=y showmac=y")
-							fmt.Fprintf(webprint, "%-17s  %-15s    %s  %s  %s  %s  %s\n", host.MAC, host.IPAddress, host.Hostname, host.Short1, host.Short2, host.Short3, host.Short4)
+							fmt.Fprintf(webprint, "%-17s  %-15s    %s  %s  %s  %s  %s\n", host.MAC, host.IPv4, host.Hostname, host.Short1, host.Short2, host.Short3, host.Short4)
 						}
 					} else {
 						log.Println("webprint=y showmac=n")
 						for _, host := range myhosts {
-							fmt.Fprintf(webprint, "%-15s    %s  %s  %s  %s  %s\n", host.IPAddress, host.Hostname, host.Short1, host.Short2, host.Short3, host.Short4)
+							fmt.Fprintf(webprint, "%-15s    %s  %s  %s  %s  %s\n", host.IPv4, host.Hostname, host.Short1, host.Short2, host.Short3, host.Short4)
 						}
 					}
 				}
@@ -523,11 +528,11 @@ func listHost(databaseFile string, webprint http.ResponseWriter, network string,
 	}
 }
 
-func BreakIp(ipaddress string, position int) string {
+func BreakIp(ipv4 string, position int) string {
 	deliminator := func(c rune) bool {
 		return (c == '.')
 	}
-	ipArray := strings.FieldsFunc(ipaddress, deliminator)
+	ipArray := strings.FieldsFunc(ipv4, deliminator)
 	return ipArray[position]
 }
 
@@ -731,7 +736,7 @@ func handlerIp(w http.ResponseWriter, r *http.Request) {
 		showmac = true
 	}
 
-	sqlquery := "select * from hosts where ipaddress like '" + vars["ip"] + "'"
+	sqlquery := "select * from hosts where ipv4 like '" + vars["ip"] + "'"
 
 	listHost(viper.GetString("Database"), w, "", sqlquery, showmac, givejson)
 }
@@ -764,7 +769,8 @@ func handlerRegister(w http.ResponseWriter, r *http.Request) {
 	regkey := vars.Get("key")
 	if regkey == viper.GetString("RegistrationKey") {
 		fqdn := vars.Get("fqdn")
-		ip := vars.Get("ip")
+		ipv4 := vars.Get("ipv4")
+		ipv6 := vars.Get("ipv6")
 		nw := vars.Get("nw")
 		mac := PrepareMac(vars.Get("mac"))
 		short1 := vars.Get("s1")
@@ -772,13 +778,13 @@ func handlerRegister(w http.ResponseWriter, r *http.Request) {
 		short3 := vars.Get("s3")
 		short4 := vars.Get("s4")
 		fmt.Println(vars)
-		fmt.Printf("Starting handlerRegister: fqdn=%s / ip=%s / nw=%s / mac=%s / s1=%s / s2=%s / s3=%s / s4=%s\n", fqdn, ip, nw, mac, short1, short2, short3, short4)
+		fmt.Printf("Starting handlerRegister: fqdn=%s / ipv4=%s / ipv6=%s / nw=%s / mac=%s / s1=%s / s2=%s / s3=%s / s4=%s\n", fqdn, ipv4, ipv6, nw, mac, short1, short2, short3, short4)
 		log.Printf("%s requested %s", r.RemoteAddr, r.URL)
-		if (fqdn == "") || (ip == "") || (nw == "") {
-			log.Printf("Error: fqdn, ip or nw cannot be blank")
+		if (fqdn == "") || (ipv4 == "") || (nw == "") {
+			log.Printf("Error: fqdn, ipv4 or nw cannot be blank")
 		} else {
-			if ValidIP(ip) {
-				addHost(viper.GetString("Database"), fqdn, nw, ip, short1, short2, short3, short4, mac)
+			if ValidIP(ipv4) {
+				addHost(viper.GetString("Database"), fqdn, nw, ipv4, ipv6, short1, short2, short3, short4, mac)
 				fmt.Fprintf(w, "Added: %s", vars)
 			}
 		}
@@ -819,12 +825,12 @@ func PadLeft(str string) string {
 	}
 }
 
-func MakePaddedIp(ipaddress string) string {
+func MakePaddedIp(ipv4 string) string {
 	f := func(c rune) bool {
 		return (c == rune('.'))
 	}
 
-	s := strings.FieldsFunc(ipaddress, f)
+	s := strings.FieldsFunc(ipv4, f)
 
 	paddedIp := ""
 
@@ -867,10 +873,10 @@ Commands:
       --host=server1.domain.com
 
   Adding a host:
-      --addhost=server-1-199.domain.com --network=192.168.1 --ipaddress=192.168.1.13 --short1=server-1-199 --short2=server --short3=serv --short4=ser --mac=de:ad:be:ef:ca:fe
+      --addhost=server-1-199.domain.com --network=192.168.1 --ipv4=192.168.1.13 --ipv6=::6 --short1=server-1-199 --short2=server --short3=serv --short4=ser --mac=de:ad:be:ef:ca:fe
 
   Update a host:
-      --updatehost=server-1-199.domain.com --host=server-1-200.domain.com --network=192.168.1 --ipaddress=192.168.1.200 --short1=server-1-200 --short2=server --short3=serv --short4=ser --mac=de:ad:be:ef:ca:fe
+      --updatehost=server-1-199.domain.com --host=server-1-200.domain.com --network=192.168.1 --ipv4=192.168.1.200 --ipv6=::6 --short1=server-1-200 --short2=server --short3=serv --short4=ser --mac=de:ad:be:ef:ca:fe
       ** When updating a host entry, all fields will be updated
 
   Delete a host:

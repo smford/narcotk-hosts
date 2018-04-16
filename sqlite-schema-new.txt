@@ -1,0 +1,27 @@
+CREATE TABLE hosts (
+network text NOT NULL,
+ipv4 text NOT NULL,
+ipv6 text DEFAULT '',
+fqdn text NOT NULL,
+short1 text NOT NULL DEFAULT '',
+short2 text NOT NULL DEFAULT '',
+short3 text NOT NULL DEFAULT '',
+short4 text NOT NULL DEFAULT ''
+, mac text DEFAULT '');
+CREATE TABLE networks (
+network text PRIMARY KEY,
+cidr text NOT NULL,
+description text NOT NULL DEFAULT ''
+);
+
+sqlite3 filename
+.mode csv
+- define tables
+.import hosts.csv hosts
+.import networks.csv networks
+
+192.168.1,192.168.1.2,::2,n1.narco.tk,n1,,,,de:ad:be:ef:ca:fe
+192.168.1,192.168.1.3,::3,n2.narco.tk,n2,,,,de:ad:be:ef:ca:ff
+192.168.1,192.168.1.52,::52,qnas.narco.tk,qnas,,,,de:ad:be:ef:ca:fg
+192.168.1,192.168.1.101,::101,bee1.narco.tk,bee1,,,,de:ad:be:ef:ca:fh
+192.168.1,192.168.1.102,::102,bee2.narco.tk,bee2,,,,de:ad:be:ef:ca:fi
