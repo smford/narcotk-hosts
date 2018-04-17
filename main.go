@@ -300,7 +300,7 @@ func addHost(databaseFile string, addhost string, network string, ipv4 string, i
 	fmt.Println(mac)
 	mac = PrepareMac(mac)
 	if ValidIP(ipv4) {
-		sqlquery := "insert into hosts (hostid, network, ipsuffix, ipv4, ipv6, fqdn, short1, short2, short3, short4, mac) values ('" + BreakIp(network, 2) + "-" + BreakIp(ipv4, 3) + "', '" + network + "', '" + BreakIp(ipv4, 3) + "', '" + ipv4 + "', '" + ipv6 + "', '" + addhost + "', '" + short1 + "', '" + short2 + "', '" + short3 + "', '" + short4 + "', '" + mac + "')"
+		sqlquery := "insert into hosts (network, ipv4, ipv6, fqdn, short1, short2, short3, short4, mac) values ('" + network + "', '" + ipv4 + "', '" + ipv6 + "', '" + addhost + "', '" + short1 + "', '" + short2 + "', '" + short3 + "', '" + short4 + "', '" + mac + "')"
 		runSql(databaseFile, sqlquery)
 	}
 }
