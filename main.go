@@ -423,24 +423,22 @@ func displayVersion() {
 func setupdb(databaseFile string) {
 	fmt.Println("Setting up a new database file: " + databaseFile)
 	sqlquery := `
-	CREATE TABLE hosts (
-	  hostid text PRIMARY KEY,
-	  network text NOT NULL,
-	  ipsuffix integer NOT NULL,
-	  ipv4 text NOT NULL,
-		ipv6 text DEFAULT '',
-	  fqdn text NOT NULL,
-	  short1 text NOT NULL DEFAULT '',
-	  short2 text NOT NULL DEFAULT '',
-	  short3 text NOT NULL DEFAULT '',
-	  short4 text NOT NULL DEFAULT '',
-	  mac TEXT DEFAULT '')`
+  CREATE TABLE hosts (
+    network text NOT NULL,
+    ipv4 text DEFAULT '',
+    ipv6 text DEFAULT '',
+    fqdn text NOT NULL,
+    short1 text DEFAULT '',
+    short2 text DEFAULT '',
+    short3 text DEFAULT '',
+    short4 text DEFAULT '',
+    mac text DEFAULT '')`
 	runSql(databaseFile, sqlquery)
 	sqlquery = `
-	CREATE TABLE networks (
-     network text PRIMARY KEY,
-     cidr text NOT NULL,
-     description text NOT NULL DEFAULT '')`
+  CREATE TABLE networks (
+    network text PRIMARY KEY,
+    cidr text NOT NULL,
+    description text NOT NULL DEFAULT '')`
 	runSql(databaseFile, sqlquery)
 }
 
@@ -462,9 +460,7 @@ func listHost(databaseFile string, webprint http.ResponseWriter, network string,
 		log.Println("err = ", err)
 		log.Println("rows = ", rows)
 		for rows.Next() {
-			var hostid string
 			var network string
-			var ipsuffix int
 			var ipv4 string
 			var ipv6 string
 			var fqdn string
@@ -473,7 +469,7 @@ func listHost(databaseFile string, webprint http.ResponseWriter, network string,
 			var short3 string
 			var short4 string
 			var mac string
-			err = rows.Scan(&hostid, &network, &ipsuffix, &ipv4, &ipv6, &fqdn, &short1, &short2, &short3, &short4, &mac)
+			err = rows.Scan(&network, &ipv4, &ipv6, &fqdn, &short1, &short2, &short3, &short4, &mac)
 			myhosts = append(myhosts, Host{MakePaddedIp(ipv4), ipv4, ipv6, fqdn, short1, short2, short3, short4, mac})
 		}
 
