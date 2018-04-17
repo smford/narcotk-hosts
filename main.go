@@ -172,6 +172,11 @@ func init() {
 func main() {
 	fmt.Println("Starting main function")
 
+	if viper.GetBool("setupdb") {
+		setupdb(viper.GetString("Database"))
+		os.Exit(0)
+	}
+
 	if fileExists(viper.GetString("Database")) {
 		log.Printf("Database file %s exists\n", viper.GetString("Database"))
 	} else {
@@ -221,11 +226,6 @@ func main() {
 
 	if viper.GetBool("version") {
 		displayVersion()
-		os.Exit(0)
-	}
-
-	if viper.GetBool("setupdb") {
-		setupdb(viper.GetString("Database"))
 		os.Exit(0)
 	}
 
