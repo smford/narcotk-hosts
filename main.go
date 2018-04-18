@@ -732,7 +732,8 @@ func handlerIp(w http.ResponseWriter, r *http.Request) {
 		showmac = true
 	}
 
-	sqlquery := "select * from hosts where ipv4 like '" + vars["ip"] + "'"
+	//sqlquery := "select * from hosts where ipv4 like '" + vars["ip"] + "'"
+	sqlquery := "select * from hosts where (ipv4 like '" + vars["ip"] + "') or (ipv6 like '" + vars["ip"] + "')"
 
 	listHost(viper.GetString("Database"), w, "", sqlquery, showmac, givejson)
 }
