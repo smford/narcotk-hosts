@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -x
+../../main --setupdb --database=./test-setupdb.db
+sqlite3 ./test-setupdb.db << EOF
+.mode csv
+.import ./test-setupdb-hosts.csv hosts
+.import ./test-setupdb-networks.csv networks
+select * from hosts;
+select * from networks;
+.q
+EOF
+rm ./test-setupdb.db
