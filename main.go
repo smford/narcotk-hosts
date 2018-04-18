@@ -728,6 +728,10 @@ func handlerIp(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 	}
 
+	if (strings.ToLower(queries.Get("header")) == "y") && (!givejson) {
+		printFile(viper.GetString("HeaderFile"), w)
+	}
+
 	if strings.ToLower(queries.Get("mac")) == "y" {
 		showmac = true
 	}
@@ -751,6 +755,10 @@ func handlerMac(w http.ResponseWriter, r *http.Request) {
 	if strings.ToLower(queries.Get("json")) == "y" {
 		givejson = true
 		w.Header().Set("Content-Type", "application/json")
+	}
+
+	if (strings.ToLower(queries.Get("header")) == "y") && (!givejson) {
+		printFile(viper.GetString("HeaderFile"), w)
 	}
 
 	if strings.ToLower(queries.Get("mac")) == "y" {
