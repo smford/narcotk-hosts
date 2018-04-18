@@ -245,11 +245,11 @@ func main() {
 	}
 
 	if viper.GetString("addhost") != "" {
-		if (viper.GetString("network") == "") || (viper.GetString("ipv4") == "") {
-			fmt.Println("Error: When using --addhost you must also provide --network and --ipv4")
+		if (viper.GetString("network") == "") || (viper.GetString("ip") == "") {
+			fmt.Println("Error: When using --addhost you must also provide --network and --ip")
 			os.Exit(1)
 		} else {
-			addHost(viper.GetString("Database"), viper.GetString("addhost"), viper.GetString("network"), viper.GetString("ipv4"), viper.GetString("ipv6"), viper.GetString("short1"), viper.GetString("short2"), viper.GetString("short3"), viper.GetString("short4"), viper.GetString("mac"))
+			addHost(viper.GetString("Database"), viper.GetString("addhost"), viper.GetString("network"), viper.GetString("ip"), viper.GetString("ipv6"), viper.GetString("short1"), viper.GetString("short2"), viper.GetString("short3"), viper.GetString("short4"), viper.GetString("mac"))
 			os.Exit(0)
 		}
 	}
@@ -287,11 +287,11 @@ func printFile(filename string, webprint http.ResponseWriter) {
 	}
 }
 
-func addHost(databaseFile string, addhost string, network string, ipv4 string, ipv6 string, short1 string, short2 string, short3 string, short4 string, mac string) {
+func addHost(databaseFile string, addhost string, network string, ip string, ipv6 string, short1 string, short2 string, short3 string, short4 string, mac string) {
 	fmt.Println("Adding new host:")
 	fmt.Println(addhost)
 	fmt.Println(network)
-	fmt.Println(ipv4)
+	fmt.Println(ip)
 	fmt.Println(ipv6)
 	fmt.Println(short1)
 	fmt.Println(short2)
@@ -299,8 +299,8 @@ func addHost(databaseFile string, addhost string, network string, ipv4 string, i
 	fmt.Println(short4)
 	fmt.Println(mac)
 	mac = PrepareMac(mac)
-	if ValidIP(ipv4) {
-		sqlquery := "insert into hosts (network, ipv4, ipv6, fqdn, short1, short2, short3, short4, mac) values ('" + network + "', '" + ipv4 + "', '" + ipv6 + "', '" + addhost + "', '" + short1 + "', '" + short2 + "', '" + short3 + "', '" + short4 + "', '" + mac + "')"
+	if ValidIP(ip) {
+		sqlquery := "insert into hosts (network, ipv4, ipv6, fqdn, short1, short2, short3, short4, mac) values ('" + network + "', '" + ip + "', '" + ipv6 + "', '" + addhost + "', '" + short1 + "', '" + short2 + "', '" + short3 + "', '" + short4 + "', '" + mac + "')"
 		runSql(databaseFile, sqlquery)
 	}
 }
@@ -765,7 +765,7 @@ func handlerRegister(w http.ResponseWriter, r *http.Request) {
 	regkey := vars.Get("key")
 	if regkey == viper.GetString("RegistrationKey") {
 		fqdn := vars.Get("fqdn")
-		ipv4 := vars.Get("ipv4")
+		ip := vars.Get("ip")
 		ipv6 := vars.Get("ipv6")
 		nw := vars.Get("nw")
 		mac := PrepareMac(vars.Get("mac"))
@@ -774,13 +774,13 @@ func handlerRegister(w http.ResponseWriter, r *http.Request) {
 		short3 := vars.Get("s3")
 		short4 := vars.Get("s4")
 		fmt.Println(vars)
-		fmt.Printf("Starting handlerRegister: fqdn=%s / ipv4=%s / ipv6=%s / nw=%s / mac=%s / s1=%s / s2=%s / s3=%s / s4=%s\n", fqdn, ipv4, ipv6, nw, mac, short1, short2, short3, short4)
+		fmt.Printf("Starting handlerRegister: fqdn=%s / ip=%s / ipv6=%s / nw=%s / mac=%s / s1=%s / s2=%s / s3=%s / s4=%s\n", fqdn, ip, ipv6, nw, mac, short1, short2, short3, short4)
 		log.Printf("%s requested %s", r.RemoteAddr, r.URL)
-		if (fqdn == "") || (ipv4 == "") || (nw == "") {
-			log.Printf("Error: fqdn, ipv4 or nw cannot be blank")
+		if (fqdn == "") || (ip == "") || (nw == "") {
+			log.Printf("Error: fqdn, ip or nw cannot be blank")
 		} else {
-			if ValidIP(ipv4) {
-				addHost(viper.GetString("Database"), fqdn, nw, ipv4, ipv6, short1, short2, short3, short4, mac)
+			if ValidIP(ip) {
+				addHost(viper.GetString("Database"), fqdn, nw, ip, ipv6, short1, short2, short3, short4, mac)
 				fmt.Fprintf(w, "Added: %s", vars)
 			}
 		}
@@ -869,10 +869,10 @@ Commands:
       --host=server1.domain.com
 
   Adding a host:
-      --addhost=server-1-199.domain.com --network=192.168.1 --ipv4=192.168.1.13 --ipv6=::6 --short1=server-1-199 --short2=server --short3=serv --short4=ser --mac=de:ad:be:ef:ca:fe
+      --addhost=server-1-199.domain.com --network=192.168.1 --ip=192.168.1.13 --ipv6=::6 --short1=server-1-199 --short2=server --short3=serv --short4=ser --mac=de:ad:be:ef:ca:fe
 
   Update a host:
-      --updatehost=server-1-199.domain.com --host=server-1-200.domain.com --network=192.168.1 --ipv4=192.168.1.200 --ipv6=::6 --short1=server-1-200 --short2=server --short3=serv --short4=ser --mac=de:ad:be:ef:ca:fe
+      --updatehost=server-1-199.domain.com --host=server-1-200.domain.com --network=192.168.1 --ip=192.168.1.200 --ipv6=::6 --short1=server-1-200 --short2=server --short3=serv --short4=ser --mac=de:ad:be:ef:ca:fe
       ** When updating a host entry, all fields will be updated
 
   Delete a host:

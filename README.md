@@ -189,6 +189,7 @@ New hosts can be registered in to the database using the registration api call. 
 | key | **MANDATORY** | RegistrationKey (from configfile) | key=somepassword |
 | fqdn | **MANDATORY** | hostname | fqdn=server1.domain.com |
 | ip | **MANDATORY** | ip address | ip=10.10.1.67 |
+| ipv6 | optional | ipv6 address | ipv6=::67 |
 | nw | **MANDATORY** | network | nw=10.10.1 |
 | s1 | optional | shortname 1 | s1=server1 |
 | s2 | optional | shortname 2 | s2=s1 |
@@ -198,7 +199,7 @@ New hosts can be registered in to the database using the registration api call. 
 
 ### Examples
 - ```curl https://server.com/register?key=password&fqdn=server1.domain.com&ip=10.10.1.67&nw=10.10.1```
-- ```curl https://server.com/register?key=password&fqdn=server1.domain.com&ip=10.10.1.67&nw=10.10.1&mac=DE:AD:BE:EF:CA:FE&s1=server1```
+- ```curl https://server.com/register?key=password&fqdn=server1.domain.com&ip=10.10.1.67&nw=10.10.1&mac=DE:AD:BE:EF:CA:FE&s1=server1&ipv6=::67```
 
 
 ## Files and Scripts
