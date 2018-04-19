@@ -128,6 +128,7 @@ func init() {
 	flag.Bool("startweb", false, "start web service using config file setting for EnableTLS")
 	flag.Bool("starthttp", false, "start http web service")
 	flag.Bool("starthttps", false, "start https web service")
+	flag.String("updatenetwork", "", "network to update")
 	flag.Bool("version", false, "display version information")
 	pflag.CommandLine.AddGoFlagSet(flag.CommandLine)
 	pflag.Parse()
@@ -222,6 +223,16 @@ func main() {
 			delHost(viper.GetString("Database"), viper.GetString("delhost"), viper.GetString("network"))
 			os.Exit(0)
 		}
+	}
+
+	if viper.GetString("updatenetwork") != "" {
+		if (viper.GetString("network") == "") || (viper.GetString("cidr") == "") || (viper.GetString("desc") == "") {
+			log.Println("network, cidr and desc must be defined")
+			os.Exit(1)
+		} else {
+			updateNetwork(viper.GetString("Database"), viper.GetString("updatenetwork"), viper.GetString("network"), viper.GetString("cidr"), viper.GetString("desc"))
+		}
+		os.Exit(0)
 	}
 
 	if viper.GetBool("version") {
@@ -440,6 +451,12 @@ func setupdb(databaseFile string) {
     cidr text NOT NULL,
     description text NOT NULL DEFAULT '')`
 	runSql(databaseFile, sqlquery)
+}
+
+func updateNetwork(databaseFile string, oldnetwork string, newnetwork string, cidr string, desc string) {
+	log.Println("Starting updateNetwork")
+	sqlquery := "update networks set network = '" + newnetwork + "', cidr = '" + cidr + "', description = '" + desc + "' where network like '" + oldnetwork + "'"
+	runSql(viper.GetString("Database"), sqlquery)
 }
 
 func listHost(databaseFile string, webprint http.ResponseWriter, network string, sqlquery string, showmac bool, printjson bool) {
