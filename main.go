@@ -110,7 +110,7 @@ func init() {
 	flag.String("desc", "", "description of network, used with --addnetwork and --cidr")
 	flag.Bool("help", false, "display help information")
 	flag.String("host", "", "display details for a specific host")
-	flag.String("ipv4", "", "ipv4 address of new host")
+	flag.String("ip", "", "ipv4 address of new host")
 	flag.String("ipv6", "", "ipv6 address of new host")
 	flag.Bool("json", false, "output in json")
 	listenIp := flag.String("listenip", "", "ip address for webservice to bind to")
@@ -119,6 +119,7 @@ func init() {
 	flag.Bool("showmac", false, "show mac addresses of hosts")
 	flag.String("mac", "", "mac address of host")
 	flag.String("network", "", "display hosts within a particular network")
+	flag.String("newnetwork", "", "new network for host")
 	flag.Bool("setupdb", false, "setup a new database")
 	flag.String("short1", "", "short1 hostname")
 	flag.String("short2", "", "short2 hostname")
@@ -128,6 +129,7 @@ func init() {
 	flag.Bool("startweb", false, "start web service using config file setting for EnableTLS")
 	flag.Bool("starthttp", false, "start http web service")
 	flag.Bool("starthttps", false, "start https web service")
+	flag.String("updatehost", "", "host to update")
 	flag.String("updatenetwork", "", "network to update")
 	flag.Bool("version", false, "display version information")
 	pflag.CommandLine.AddGoFlagSet(flag.CommandLine)
@@ -265,6 +267,17 @@ func main() {
 		}
 	}
 
+	if viper.GetString("updatehost") != "" {
+		if (viper.GetString("network") == "") || (viper.GetString("host") == "") {
+			fmt.Println("Error: When using --updatehost you must also provide --network and --host")
+			os.Exit(1)
+		} else {
+			//fmt.Println(viper.GetString("Database") + "|" + viper.GetString("updatehost") + "|" + viper.GetString("network") + "|" + viper.GetString("host") + "|" + viper.GetString("newnetwork") + "|" + viper.GetString("ip") + "|" + viper.GetString("ipv6") + "|" + viper.GetString("short1") + "|" + viper.GetString("short2") + "|" + viper.GetString("short3") + "|" + viper.GetString("short4") + "|" + viper.GetString("mac"))
+			updateHost(viper.GetString("Database"), viper.GetString("updatehost"), viper.GetString("network"), viper.GetString("host"), viper.GetString("newnetwork"), viper.GetString("ip"), viper.GetString("ipv6"), viper.GetString("short1"), viper.GetString("short2"), viper.GetString("short3"), viper.GetString("short4"), viper.GetString("mac"))
+			os.Exit(0)
+		}
+	}
+
 	if viper.GetBool("showheader") && !viper.GetBool("json") {
 		printFile(viper.GetString("HeaderFile"), nil)
 	}
@@ -312,6 +325,18 @@ func addHost(databaseFile string, addhost string, network string, ip string, ipv
 	mac = PrepareMac(mac)
 	if ValidIP(ip) {
 		sqlquery := "insert into hosts (network, ipv4, ipv6, fqdn, short1, short2, short3, short4, mac) values ('" + network + "', '" + ip + "', '" + ipv6 + "', '" + addhost + "', '" + short1 + "', '" + short2 + "', '" + short3 + "', '" + short4 + "', '" + mac + "')"
+		runSql(databaseFile, sqlquery)
+	}
+}
+
+func updateHost(databaseFile string, oldhost string, oldnetwork string, newhost string, newnetwork string, ip string, ipv6 string, short1 string, short2 string, short3 string, short4 string, mac string) {
+	fmt.Println("Starting updateHost")
+	if newnetwork == "" {
+		newnetwork = oldnetwork
+	}
+	mac = PrepareMac(mac)
+	if ValidIP(ip) {
+		sqlquery := "update hosts set network = '" + newnetwork + "', ipv4 = '" + ip + "', ipv6 = '" + ipv6 + "', fqdn = '" + newhost + "', short1 = '" + short1 + "', short2 = '" + short2 + "', short3 = '" + short3 + "', short4 = '" + short4 + "', mac = '" + mac + "' where fqdn like '" + oldhost + "' and network like '" + oldnetwork + "'"
 		runSql(databaseFile, sqlquery)
 	}
 }
