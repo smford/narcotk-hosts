@@ -312,6 +312,41 @@ func printFile(filename string, webprint http.ResponseWriter) {
 	}
 }
 
+func checkNetwork(databaseFile string, network string) bool {
+	fmt.Println("Starting checkNetwork")
+	sqlquery := "select * from networks where network like '" + network + "'"
+
+	if ParseSql(sqlquery) {
+		db, err := sql.Open("sqlite3", databaseFile)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer db.Close()
+		var mynetworks []SingleNetwork
+		rows, err := db.Query(sqlquery)
+
+		for rows.Next() {
+			var network string
+			var cidr string
+			var description string
+			err = rows.Scan(&network, &cidr, &description)
+			mynetworks = append(mynetworks, SingleNetwork{MakePaddedIp(network), network, cidr, description})
+			if err != nil {
+				log.Fatal(err)
+			}
+		}
+
+		if len(mynetworks) >= 1 {
+			log.Printf("%d networks found\n", len(mynetworks))
+			return true
+		} else {
+			log.Printf("no network found for: " + network)
+			return false
+		}
+	}
+	return false
+}
+
 func addHost(databaseFile string, addhost string, network string, ip string, ipv6 string, short1 string, short2 string, short3 string, short4 string, mac string) {
 	fmt.Println("Adding new host:")
 	fmt.Println(addhost)
@@ -324,7 +359,7 @@ func addHost(databaseFile string, addhost string, network string, ip string, ipv
 	fmt.Println(short4)
 	fmt.Println(mac)
 	mac = PrepareMac(mac)
-	if ValidIP(ip) {
+	if checkNetwork(viper.GetString("Database"), network) && ValidIP(ip) {
 		sqlquery := "insert into hosts (network, ipv4, ipv6, fqdn, short1, short2, short3, short4, mac) values ('" + network + "', '" + ip + "', '" + ipv6 + "', '" + addhost + "', '" + short1 + "', '" + short2 + "', '" + short3 + "', '" + short4 + "', '" + mac + "')"
 		runSql(databaseFile, sqlquery)
 	}
