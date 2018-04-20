@@ -23,6 +23,7 @@ import (
 
 type Host struct {
 	PaddedIP string `json:"PaddedIP"`
+	Network  string `json:"Network"`
 	IPv4     string `json:"IPv4"`
 	IPv6     string `json:"IPv6"`
 	Hostname string `json:"Hostname"`
@@ -512,7 +513,7 @@ func listHost(databaseFile string, webprint http.ResponseWriter, network string,
 			var short4 string
 			var mac string
 			err = rows.Scan(&network, &ipv4, &ipv6, &fqdn, &short1, &short2, &short3, &short4, &mac)
-			myhosts = append(myhosts, Host{MakePaddedIp(ipv4), ipv4, ipv6, fqdn, short1, short2, short3, short4, mac})
+			myhosts = append(myhosts, Host{MakePaddedIp(ipv4), network, ipv4, ipv6, fqdn, short1, short2, short3, short4, mac})
 		}
 
 		if len(myhosts) > 0 {
