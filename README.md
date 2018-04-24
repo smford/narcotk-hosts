@@ -175,7 +175,7 @@ narcotk-hosts can can as a command line tool or as a web service.
 | http://localhost:23000/ip/IP?json=y | print host details for **IP** (either IPv4 or IPv6) in json |
 | http://localhost:23000/ip/IP?mac=y | print host details with mac for **IP** (either IPv4 or IPv6) |
 | http://localhost:23000/mac/MAC | print host details for **MAC** |
-| http://localhost:23000/mac/MAC?header=y | print host details with header for **MAC* |
+| http://localhost:23000/mac/MAC?header=y | print host details with header for **MAC** |
 | http://localhost:23000/mac/MAC?json=y | print host details for **MAC** in json |
 | http://localhost:23000/networks | lists all networks |
 | http://localhost:23000/networks?json=y | lists all networks in json |
