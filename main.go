@@ -229,8 +229,8 @@ func main() {
 	}
 
 	if viper.GetString("updatenetwork") != "" {
-		if (viper.GetString("network") == "") || (viper.GetString("cidr") == "") || (viper.GetString("desc") == "") {
-			log.Println("network, cidr and desc must be defined")
+		if (viper.GetString("network") == "") && (viper.GetString("cidr") == "") && (viper.GetString("desc") == "") {
+			log.Println("Error: at least one of network, cidr or desc must be specified")
 			os.Exit(1)
 		} else {
 			updateNetwork(viper.GetString("Database"), viper.GetString("updatenetwork"), viper.GetString("network"), viper.GetString("cidr"), viper.GetString("desc"))
@@ -516,8 +516,67 @@ func setupdb(databaseFile string) {
 
 func updateNetwork(databaseFile string, oldnetwork string, newnetwork string, cidr string, desc string) {
 	log.Println("Starting updateNetwork")
-	sqlquery := "update networks set network = '" + newnetwork + "', cidr = '" + cidr + "', description = '" + desc + "' where network like '" + oldnetwork + "'"
-	runSql(viper.GetString("Database"), sqlquery)
+	// check if something already exists and load in to struct Network
+	var originalnetwork []SingleNetwork
+	var sqlquery string
+	var updatesqlquery string
+
+	// check that oldnetwork exists
+	if checkNetwork(viper.GetString("Database"), oldnetwork) {
+		sqlquery = "select * from networks where network like '" + oldnetwork + "'"
+
+		if ParseSql(sqlquery) {
+			db, err := sql.Open("sqlite3", databaseFile)
+			if err != nil {
+				log.Fatal(err)
+			}
+			defer db.Close()
+			rows, err := db.Query(sqlquery)
+			for rows.Next() {
+				var network string
+				var cidr string
+				var description string
+				err = rows.Scan(&network, &cidr, &description)
+				originalnetwork = append(originalnetwork, SingleNetwork{MakePaddedIp(network), network, cidr, description})
+				if err != nil {
+					log.Fatal(err)
+				}
+			}
+
+			if len(originalnetwork) != 1 {
+				log.Println("Error, more than one network with identifier " + oldnetwork + " discovered")
+			} else {
+				for _, network := range originalnetwork {
+					var updatenetwork string
+					var updatecidr string
+					var updatedesc string
+					if newnetwork == "" {
+						updatenetwork = network.Network
+					} else {
+						updatenetwork = newnetwork
+					}
+					if cidr == "" {
+						updatecidr = network.CIDR
+					} else {
+						updatecidr = cidr
+					}
+					if desc == "" {
+						updatedesc = network.Description
+					} else {
+						updatedesc = desc
+					}
+					updatesqlquery = "update networks set network = '" + updatenetwork + "', cidr = '" + updatecidr + "', description = '" + updatedesc + "' where network like '" + oldnetwork + "'"
+				}
+			}
+		} else {
+			log.Println("Error parsing sql: \"" + sqlquery + "\"")
+			os.Exit(1)
+		}
+		runSql(viper.GetString("Database"), updatesqlquery)
+	} else {
+		log.Println("Error updating network: \"" + oldnetwork + "\" does not exist")
+		os.Exit(1)
+	}
 }
 
 func listHost(databaseFile string, webprint http.ResponseWriter, network string, sqlquery string, showmac bool, printjson bool) {
