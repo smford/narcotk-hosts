@@ -98,8 +98,8 @@ narcotk-hosts is an simple hosts management application, the allows you to easil
 
 | API | Example URL | Description |
 |:--|:--|:--|
-| http://localhost:23000/mac/MAC | [http://hosts.narco.tk/mac/de:ad:be:ef:ca:fe](http://hosts.narco.tk/mac/de:ad:be:ef:ca:fe") | print host details for MAC |
-| http://localhost:23000/mac/MAC?header=y | [http://hosts.narco.tk/mac/de:ad:be:ef:ca:fe?header=y](http://hosts.narco.tk/mac/de:ad:be:ef:ca:fe?header=y") | print host details with header for MAC |
+| http://localhost:23000/mac/MAC | [http://hosts.narco.tk/mac/de:ad:be:ef:ca:fe](http://hosts.narco.tk/mac/de:ad:be:ef:ca:fe) | print host details for MAC |
+| http://localhost:23000/mac/MAC?header=y | [http://hosts.narco.tk/mac/de:ad:be:ef:ca:fe?header=y](http://hosts.narco.tk/mac/de:ad:be:ef:ca:fe?header=y) | print host details with header for MAC |
 | http://localhost:23000/mac/MAC?json=y | [http://hosts.narco.tk/mac/de:ad:be:ef:ca:fe?json=y](http://hosts.narco.tk/mac/de:ad:be:ef:ca:fe?json=y) | print host details for MAC in json |
 
 
