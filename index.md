@@ -56,7 +56,7 @@ narcotk-hosts is an simple hosts management application, the allows you to easil
 - Send files and scripts
 
 | API | Example URL | Description |
-|:--|:--|
+|:--|:--|:--|
 | http://localhost:23000/host/HOSTNAME | [http://hosts.narco.tk/host/server1.something.com](http://hosts.narco.tk/host/server1.something.com) | print details for HOSTNAME |
 | http://localhost:23000/host/HOSTNAME?file=motd | [http://hosts.narco.tk/host/server1.something.com?file=motd](http://hosts.narco.tk/host/server1.something.com?file=motd) | download motd file for HOSTNAME |
 | http://localhost:23000/host/HOSTNAME?header=y | [http://hosts.narco.tk/host/server1.something.com?header=y](http://hosts.narco.tk/host/server1.something.com?header=y)| print details for HOSTNAME with header |
@@ -69,7 +69,7 @@ narcotk-hosts is an simple hosts management application, the allows you to easil
 - Print hosts within a specific network
 
 | API | Example URL | Description |
-|:--|:--|
+|:--|:--|:--|
 | http://localhost:23000/hosts | [http://hosts.narco.tk/hosts](http://hosts.narco.tk/hosts) | lists all hosts |
 | http://localhost:23000/hosts?header=y | [http://hosts.narco.tk/hosts?header=y](http://hosts.narco.tk/hosts?header=y) | list all hosts with header |
 | http://localhost:23000/hosts?json=y | [http://hosts.narco.tk/hosts?json=y](http://hosts.narco.tk/hosts?json=y) | list all hosts in json |
@@ -86,7 +86,7 @@ narcotk-hosts is an simple hosts management application, the allows you to easil
 - Give details about a specific host
 
 | API | Example URL | Description |
-|:--|:--|
+|:--|:--|:--|
 | http://localhost:23000/ip/IP |[http://hosts.narco.tk/ip/192.168.1.1](http://hosts.narco.tk/ip/192.168.1.1) | print host details for IP (either IPv4 or IPv6) |
 | http://localhost:23000/ip/IP?header=y | [http://hosts.narco.tk/ip/192.168.1.1?header=y](http://hosts.narco.tk/ip/192.168.1.1?header=y) | print host details with header for IP (either IPv4 or IPv6) |
 | http://localhost:23000/ip/IP?json=y | [http://hosts.narco.tk/ip/192.168.1.1?json=y](http://hosts.narco.tk/ip/192.168.1.1/json=y) |print host details for IP (either IPv4 or IPv6) in json |
@@ -97,7 +97,7 @@ narcotk-hosts is an simple hosts management application, the allows you to easil
 - Give details about a specific host
 
 | API | Example URL | Description |
-|:--|:--|
+|:--|:--|:--|
 | http://localhost:23000/mac/MAC | [http://hosts.narco.tk/mac/de:ad:be:ef:ca:fe](http://hosts.narco.tk/mac/de:ad:be:ef:ca:fe") | print host details for MAC |
 | http://localhost:23000/mac/MAC?header=y | [http://hosts.narco.tk/mac/de:ad:be:ef:ca:fe?header=y](http://hosts.narco.tk/mac/de:ad:be:ef:ca:fe?header=y") | print host details with header for MAC |
 | http://localhost:23000/mac/MAC?json=y | [http://hosts.narco.tk/mac/de:ad:be:ef:ca:fe?json=y](http://hosts.narco.tk/mac/de:ad:be:ef:ca:fe?json=y) | print host details for MAC in json |
@@ -107,7 +107,7 @@ narcotk-hosts is an simple hosts management application, the allows you to easil
 - List all available networks
 
 | API | Example URL | Description |
-|:--|:--|
+|:--|:--|:--|
 | http://localhost:23000/networks | [http://hosts.narco.tk/networks](http://hosts.narco.tk/networks) | lists all networks |
 | http://localhost:23000/networks?json=y | [http://hosts.narco.tk/networks?json=y](http://hosts.narco.tk/networks?json=y)| lists all networks in json |
 
@@ -116,6 +116,6 @@ narcotk-hosts is an simple hosts management application, the allows you to easil
 - Give details about a specific network
 
 | API | Example URL | Description |
-|:--|:--|
+|:--|:--|:--|
 | http://localhost:23000/network/NETWORK_ID | [http://hosts.narco.tk/network/192.168.1](http://hosts.narco.tk/network/192.168.1) | print details for NETWORK_ID |
 | http://localhost:23000/network/NETWORK_ID?json=y | [http://hosts.narco.tk/network/192.168.1?json=y](http://hosts.narco.tk/network/192.168.1?json=y) | print details for NETWORK_ID in json |
