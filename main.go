@@ -957,7 +957,7 @@ func fileExists(path string) bool {
 	return true
 }
 
-// ValipIP makes sure that an IP is valid
+// ValidIP makes sure that an IP is valid
 func ValidIP(ip string) bool {
 	if net.ParseIP(ip) != nil {
 		return true
