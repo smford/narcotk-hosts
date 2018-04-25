@@ -21,6 +21,7 @@ import (
 	_ "unicode"
 )
 
+// Host holds all details internally within narcotk-hosts for a particular host
 type Host struct {
 	PaddedIP string `json:"PaddedIP"`
 	Network  string `json:"Network"`
@@ -34,10 +35,12 @@ type Host struct {
 	MAC      string `json:"MAC"`
 }
 
+// Hosts is an array of hosts
 type Hosts struct {
 	Hosts []Host `json:"Hosts"`
 }
 
+// HostsSingleNetwork details a network and all its constituent hosts
 type HostsSingleNetwork struct {
 	Network     string `json:"Network"`
 	CIDR        string `json:"CIDR"`
@@ -45,10 +48,12 @@ type HostsSingleNetwork struct {
 	Hosts       []Host `json:"Hosts"`
 }
 
+// HostsAllNetworks contains all hosts in all networks
 type HostsAllNetworks struct {
 	Networks []HostsSingleNetwork `json:"Networks"`
 }
 
+// SingleNetwork holds details of a specific network
 type SingleNetwork struct {
 	PaddedNetwork string `json:"PaddedNetwork"`
 	Network       string `json:"Network"`
@@ -56,6 +61,7 @@ type SingleNetwork struct {
 	Description   string `json:"Description"`
 }
 
+// AllNetworks holds details of all networks
 type AllNetworks struct {
 	Networks []SingleNetwork `json:"Networks"`
 }
@@ -77,6 +83,7 @@ func displayConfig() {
 	fmt.Printf("Verbose:         %s\n", viper.GetString("Verbose"))
 }
 
+// PrepareMac cleans up a mac address and makes in to a consistent format
 func PrepareMac(macaddress string) string {
 	//fmt.Println("Starting PrepareMac")
 	macaddress = strings.ToLower(macaddress)
@@ -419,6 +426,7 @@ func runSql(databaseFile string, sqlquery string) {
 
 }
 
+// ParseSql checks whether the sql generated is valid
 func ParseSql(sqlquery string) bool {
 	//log.Println("Starting ParseSql")
 	_, err := sqlparser.Parse(sqlquery)
