@@ -1,10 +1,12 @@
-[![Build Status Travis](https://travis-ci.org/smford/narcotk-hosts.svg?branch=master)](https://travis-ci.org/smford/narcotk-hosts) [![Go Report Card](https://goreportcard.com/badge/github.com/smford/narcotk-hosts)](https://goreportcard.com/report/github.com/smford/narcotk-hosts) [![Build Status Appveyor](https://ci.appveyor.com/api/projects/status/10uohklo1vmpbto1?svg=true)](https://ci.appveyor.com/project/smford/narcotk-hosts)
-
 # narcotk-hosts
+
+[![Build Status Travis](https://travis-ci.org/smford/narcotk-hosts.svg?branch=master)](https://travis-ci.org/smford/narcotk-hosts) [![Go Report Card](https://goreportcard.com/badge/github.com/smford/narcotk-hosts)](https://goreportcard.com/report/github.com/smford/narcotk-hosts)
+
 
 ## What is narcotk-hosts?
 
-narcotk-hosts is an simple hosts management application, the allows you to easily manage your cloud virtual machines and IOT devices.
+narcotk-hosts is an simple hosts management application, the allows you to easily manage your virtual machines and IOT devices.  It is both a cli tool and has a web api, enabling for management via the command line and by allowing virtual machines or IOT devices access data stored within narcotk-hosts.
+
 
 ## What do you mean manage?
 
@@ -17,25 +19,31 @@ narcotk-hosts is an simple hosts management application, the allows you to easil
 
 ## Features
 
-- lightweight and simple to use
+- cli tool
 - web api
-- tls/ssl encryption
-- output in plain text or json
 - can run stand alone or as a web service
+- lightweight and simple to use
+- tls/ssl encryption
+- basic auth
+- oauth (soon)
+- output in plain text or json
 - easy to run on osx, linux and windows.
-- VMs and IOT devices can get host specific files, useful for bootstrapping and configuring themselves 
+- self registration of VMs and IOT devices
+- VMs and IOT devices can get host specific files, useful for them bootstrapping and configuring themselves
 - easy to run in a docker container
+- easy to run within heroku (free tier even) or other container services
 - can generate an old school hosts file
-- IPv4 compatible
-- IPv6 compatiblity to be added
+- IPv4 and IPv6 compatible
 
 
 ## Example Uses
 
 1. As a simple hosts file maintenance tool: you can run narcotk-hosts as a simple hosts file maintainer, adding and deleting hosts, and to generate a hosts file.
-2. As a boot strapping tool: a VM or IOT device boots then runs ```\curl http://server.com:23000/mac/de:ad:be:ef:ca:fe?file | bash ``` where narcotk-hosts provides a boot script that can configure your VM or IOT device.
+2. As a boot strapping tool: a VM or IOT device boots then runs ```\curl http://server.com:23000/mac/de:ad:be:ef:ca:fe?file=configure-system | bash ``` where narcotk-hosts provides a configure system script that can configure your VM or IOT device.
+
 
 ## Installation
+
 
 ### Install from git
 
@@ -58,6 +66,10 @@ go build -o narcotk-hosts main.go
 
 
 ### Install on OSX
+
+
+
+### Install on Heroku
 
 
 ### Use Docker
