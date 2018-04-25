@@ -669,6 +669,7 @@ func listHost(databaseFile string, webprint http.ResponseWriter, network string,
 	}
 }
 
+// BreakIp chops an IP into parts
 func BreakIp(ipv4 string, position int) string {
 	deliminator := func(c rune) bool {
 		return (c == '.')
@@ -956,6 +957,7 @@ func fileExists(path string) bool {
 	return true
 }
 
+// ValipIP makes sure that an IP is valid
 func ValidIP(ip string) bool {
 	if net.ParseIP(ip) != nil {
 		return true
@@ -965,6 +967,7 @@ func ValidIP(ip string) bool {
 	}
 }
 
+// PadLeft prefixs a string with 0's
 func PadLeft(str string) string {
 	for {
 		padding := "00"
@@ -975,6 +978,7 @@ func PadLeft(str string) string {
 	}
 }
 
+// MakePaddedIp is used to create a standardised number that is then used to sort the ips
 func MakePaddedIp(ipv4 string) string {
 	f := func(c rune) bool {
 		return (c == rune('.'))
