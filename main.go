@@ -87,11 +87,11 @@ func PrepareMac(macaddress string) string {
 	// add colons
 	var n = 2
 	var buffer bytes.Buffer
-	var n_1 = n - 1
-	var l_1 = len(macaddress) - 1
+	var n1 = n - 1
+	var l1 = len(macaddress) - 1
 	for i, rune := range macaddress {
 		buffer.WriteRune(rune)
-		if i%n == n_1 && i != l_1 {
+		if i%n == n1 && i != l1 {
 			buffer.WriteRune(':')
 		}
 	}
