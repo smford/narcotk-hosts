@@ -17,6 +17,10 @@ narcotk-hosts is an simple hosts management application, the allows you to easil
 - provides a means to bootstrap VMs and IOT devices
 
 
+## Demo
+A demo of narcotk-hosts running as the web api is available [https://hosts.narco.tk](https://hosts.narco.tk/)
+
+
 ## Features
 
 - cli tool
