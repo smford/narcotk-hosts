@@ -276,8 +276,8 @@ func main() {
 	}
 
 	if viper.GetString("updatehost") != "" {
-		if (viper.GetString("network") == "") || (viper.GetString("host") == "") {
-			fmt.Println("Error: When using --updatehost you must also provide --network and --host")
+		if viper.GetString("network") == "" {
+			fmt.Println("Error: When using --updatehost you must also provide --network")
 			os.Exit(1)
 		} else {
 			//fmt.Println(viper.GetString("Database") + "|" + viper.GetString("updatehost") + "|" + viper.GetString("network") + "|" + viper.GetString("host") + "|" + viper.GetString("newnetwork") + "|" + viper.GetString("ip") + "|" + viper.GetString("ipv6") + "|" + viper.GetString("short1") + "|" + viper.GetString("short2") + "|" + viper.GetString("short3") + "|" + viper.GetString("short4") + "|" + viper.GetString("mac"))
@@ -319,6 +319,46 @@ func printFile(filename string, webprint http.ResponseWriter) {
 	}
 }
 
+func checkHost(databaseFile string, host string, network string) bool {
+	fmt.Println("Starting checkHost")
+	sqlquery := "select * from hosts where (fqdn like '" + host + "' and network like '" + network + "')"
+	fmt.Println("===" + sqlquery)
+	if ParseSql(sqlquery) {
+		db, err := sql.Open("sqlite3", databaseFile)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer db.Close()
+		var myhosts []Host
+		rows, err := db.Query(sqlquery)
+
+		for rows.Next() {
+			var network string
+			var ipv4 string
+			var ipv6 string
+			var fqdn string
+			var short1 string
+			var short2 string
+			var short3 string
+			var short4 string
+			var mac string
+			err = rows.Scan(&network, &ipv4, &ipv6, &fqdn, &short1, &short2, &short3, &short4, &mac)
+			myhosts = append(myhosts, Host{MakePaddedIp(ipv4), network, ipv4, ipv6, fqdn, short1, short2, short3, short4, mac})
+			if err != nil {
+				log.Fatal(err)
+			}
+			if len(myhosts) >= 1 {
+				log.Printf("%d hosts found matching %s/%s", len(myhosts), host, network)
+				return true
+			} else {
+				log.Println("Error: no host found for host: " + host + " ip: " + network)
+				return false
+			}
+		}
+	}
+	return false
+}
+
 func checkNetwork(databaseFile string, network string) bool {
 	fmt.Println("Starting checkNetwork")
 	sqlquery := "select * from networks where network like '" + network + "'"
@@ -347,7 +387,7 @@ func checkNetwork(databaseFile string, network string) bool {
 			log.Printf("%d networks found\n", len(mynetworks))
 			return true
 		} else {
-			log.Printf("no network found for: " + network)
+			log.Println("no network found for: " + network)
 			return false
 		}
 	}
@@ -372,15 +412,106 @@ func addHost(databaseFile string, addhost string, network string, ip string, ipv
 	}
 }
 
-func updateHost(databaseFile string, oldhost string, oldnetwork string, newhost string, newnetwork string, ip string, ipv6 string, short1 string, short2 string, short3 string, short4 string, mac string) {
+func updateHost(databaseFile string, oldhost string, oldnetwork string, newhost string, newnetwork string, newipv4 string, newipv6 string, newshort1 string, newshort2 string, newshort3 string, newshort4 string, newmac string) {
 	fmt.Println("Starting updateHost")
-	if newnetwork == "" {
-		newnetwork = oldnetwork
-	}
-	mac = PrepareMac(mac)
-	if ValidIP(ip) {
-		sqlquery := "update hosts set network = '" + newnetwork + "', ipv4 = '" + ip + "', ipv6 = '" + ipv6 + "', fqdn = '" + newhost + "', short1 = '" + short1 + "', short2 = '" + short2 + "', short3 = '" + short3 + "', short4 = '" + short4 + "', mac = '" + mac + "' where fqdn like '" + oldhost + "' and network like '" + oldnetwork + "'"
-		runSql(databaseFile, sqlquery)
+	var originalhost []Host
+	var sqlquery string
+	var updatesqlquery string
+
+	// if we can find at least one host
+	if checkHost(viper.GetString("Database"), oldhost, oldnetwork) {
+		sqlquery = "select * from hosts where (fqdn like '" + oldhost + "' and network like '" + oldnetwork + "')"
+		if ParseSql(sqlquery) {
+			db, err := sql.Open("sqlite3", databaseFile)
+			if err != nil {
+				log.Fatal(err)
+			}
+			defer db.Close()
+			rows, err := db.Query(sqlquery)
+			for rows.Next() {
+				var network string
+				var ipv4 string
+				var ipv6 string
+				var fqdn string
+				var short1 string
+				var short2 string
+				var short3 string
+				var short4 string
+				var mac string
+				err = rows.Scan(&network, &ipv4, &ipv6, &fqdn, &short1, &short2, &short3, &short4, &mac)
+				originalhost = append(originalhost, Host{MakePaddedIp(ipv4), network, ipv4, ipv6, fqdn, short1, short2, short3, short4, mac})
+				if err != nil {
+					log.Fatal(err)
+				}
+			}
+			if len(originalhost) != 1 {
+				log.Println("Error: more than one host with identifier " + oldhost + "/" + oldnetwork + " discovered")
+			} else {
+				for _, host := range originalhost {
+					var updatenetwork string
+					var updateipv4 string
+					var updateipv6 string
+					var updatefqdn string
+					var updateshort1 string
+					var updateshort2 string
+					var updateshort3 string
+					var updateshort4 string
+					var updatemac string
+					if newnetwork == "" {
+						updatenetwork = host.Network
+					} else {
+						updatenetwork = newnetwork
+					}
+					if newipv4 == "" {
+						updateipv4 = host.IPv4
+					} else {
+						updateipv4 = newipv4
+					}
+					if newipv6 == "" {
+						updateipv6 = host.IPv6
+					} else {
+						updateipv6 = newipv6
+					}
+					if newhost == "" {
+						updatefqdn = host.Hostname
+					} else {
+						updatefqdn = newhost
+					}
+					if newshort1 == "" {
+						updateshort1 = host.Short1
+					} else {
+						updateshort1 = newshort1
+					}
+					if newshort2 == "" {
+						updateshort2 = host.Short2
+					} else {
+						updateshort2 = newshort2
+					}
+					if newshort3 == "" {
+						updateshort3 = host.Short3
+					} else {
+						updateshort3 = newshort3
+					}
+					if newshort4 == "" {
+						updateshort4 = host.Short4
+					} else {
+						updateshort4 = newshort4
+					}
+					if newmac == "" {
+						updatemac = host.MAC
+					} else {
+						updatemac = newmac
+					}
+					if checkNetwork(viper.GetString("Database"), updatenetwork) && ValidIP(newipv4) {
+						updatesqlquery = "update hosts set network = '" + updatenetwork + "', ipv4 = '" + updateipv4 + "', ipv6 = '" + updateipv6 + "', fqdn = '" + updatefqdn + "', short1 = '" + updateshort1 + "', short2 = '" + updateshort2 + "', short3 = '" + updateshort3 + "', short4 = '" + updateshort4 + "', mac = '" + updatemac + "' where fqdn like '" + oldhost + "' and network like '" + oldnetwork + "'"
+						runSql(databaseFile, updatesqlquery)
+						fmt.Println("NEW UPDATE=" + updatesqlquery)
+					}
+				}
+			}
+		}
+	} else {
+		log.Printf("Error: Could not find host %s/%s", oldhost, oldnetwork)
 	}
 }
 
@@ -614,7 +745,7 @@ func listHost(databaseFile string, webprint http.ResponseWriter, network string,
 			var short3 string
 			var short4 string
 			var mac string
-			//err = rows.Scan(&network, &ipv4, &ipv6, &fqdn, &short1, &short2, &short3, &short4, &mac)
+			err = rows.Scan(&network, &ipv4, &ipv6, &fqdn, &short1, &short2, &short3, &short4, &mac)
 			myhosts = append(myhosts, Host{MakePaddedIp(ipv4), network, ipv4, ipv6, fqdn, short1, short2, short3, short4, mac})
 		}
 
@@ -1022,6 +1153,7 @@ Commands:
 
   Update a network:
       --updatenetwork=192.168.2 --network=192.168.3 --cidr=192.168.3/24 --desc="3rd Management Network"
+      ** --updatenetwork is mandatory, the other params are optional
 
   Display a host:
       --host=server1.domain.com
@@ -1030,8 +1162,8 @@ Commands:
       --addhost=server-1-199.domain.com --network=192.168.1 --ip=192.168.1.13 --ipv6=::6 --short1=server-1-199 --short2=server --short3=serv --short4=ser --mac=de:ad:be:ef:ca:fe
 
   Update a host:
-      --updatehost=server-1-199.domain.com --host=server-1-200.domain.com --network=192.168.1 --ip=192.168.1.200 --ipv6=::6 --short1=server-1-200 --short2=server --short3=serv --short4=ser --mac=de:ad:be:ef:ca:fe
-      ** When updating a host entry, all fields will be updated
+      --updatehost=server-1-199.domain.com --network=192.168.1 --host=server-1-200.domain.com --newnetwork=192.168.1 --ip=192.168.1.200 --ipv6=::6 --short1=server-1-200 --short2=server --short3=serv --short4=ser --mac=de:ad:be:ef:ca:fe
+      ** --updatehost and --network are mandatory, other params are optional 
 
   Delete a host:
       --delhost=server-1-200.domain.com --network=192.168.1
