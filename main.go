@@ -745,6 +745,9 @@ func listHost(webprint http.ResponseWriter, network string, sqlquery string, sho
 			var short4 string
 			var mac string
 			err = rows.Scan(&network, &ipv4, &ipv6, &fqdn, &short1, &short2, &short3, &short4, &mac)
+			if err != nil {
+				log.Fatal(err)
+			}
 			myhosts = append(myhosts, Host{MakePaddedIp(ipv4), network, ipv4, ipv6, fqdn, short1, short2, short3, short4, mac})
 		}
 
