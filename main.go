@@ -186,7 +186,6 @@ func init() {
 }
 
 func initDb(databaseFile string, databaseType string) {
-	//------
 	fmt.Println("*** initDb")
 	var err error
 	db, err = sql.Open(databaseType, databaseFile)
@@ -197,8 +196,6 @@ func initDb(databaseFile string, databaseType string) {
 	if err = db.Ping(); err != nil {
 		log.Panic(err)
 	}
-	//defer db.Close()
-	//------
 }
 
 func main() {
@@ -226,9 +223,7 @@ func main() {
 		os.Exit(0)
 	}
 
-	//------
 	initDb(viper.GetString("Database"), viper.GetString("DatabaseType"))
-	//------
 
 	if viper.GetBool("startweb") {
 		startWeb(viper.GetString("Database"), viper.GetString("ListenIP"), viper.GetString("ListenPort"), viper.GetBool("EnableTLS"))
@@ -305,7 +300,6 @@ func main() {
 			fmt.Println("Error: When using --updatehost you must also provide --network")
 			os.Exit(1)
 		} else {
-			//fmt.Println(viper.GetString("Database") + "|" + viper.GetString("updatehost") + "|" + viper.GetString("network") + "|" + viper.GetString("host") + "|" + viper.GetString("newnetwork") + "|" + viper.GetString("ip") + "|" + viper.GetString("ipv6") + "|" + viper.GetString("short1") + "|" + viper.GetString("short2") + "|" + viper.GetString("short3") + "|" + viper.GetString("short4") + "|" + viper.GetString("mac"))
 			updateHost(viper.GetString("Database"), viper.GetString("updatehost"), viper.GetString("network"), viper.GetString("host"), viper.GetString("newnetwork"), viper.GetString("ip"), viper.GetString("ipv6"), viper.GetString("short1"), viper.GetString("short2"), viper.GetString("short3"), viper.GetString("short4"), viper.GetString("mac"))
 			os.Exit(0)
 		}
@@ -349,12 +343,6 @@ func checkHost(databaseFile string, host string, network string) bool {
 	sqlquery := "select * from hosts where (fqdn like '" + host + "' and network like '" + network + "')"
 	fmt.Println("===" + sqlquery)
 	if ParseSql(sqlquery) {
-		fmt.Println("*** sqlopen 1")
-		//db, err := sql.Open("sqlite3", databaseFile)
-		//if err != nil {
-		//	log.Fatal(err)
-		//}
-		//defer db.Close()
 		var myhosts []Host
 		rows, err := db.Query(sqlquery)
 		defer rows.Close()
@@ -392,11 +380,6 @@ func checkNetwork(databaseFile string, network string) bool {
 
 	if ParseSql(sqlquery) {
 		fmt.Println("*** sqlopen 2")
-		//db, err := sql.Open("sqlite3", databaseFile)
-		//if err != nil {
-		//	log.Fatal(err)
-		//}
-		//defer db.Close()
 		var mynetworks []SingleNetwork
 		rows, err := db.Query(sqlquery)
 		defer rows.Close()
@@ -452,11 +435,6 @@ func updateHost(databaseFile string, oldhost string, oldnetwork string, newhost 
 		sqlquery = "select * from hosts where (fqdn like '" + oldhost + "' and network like '" + oldnetwork + "')"
 		if ParseSql(sqlquery) {
 			fmt.Println("*** sqlopen 3")
-			//db, err := sql.Open("sqlite3", databaseFile)
-			//if err != nil {
-			//	log.Fatal(err)
-			//}
-			//defer db.Close()
 			rows, err := db.Query(sqlquery)
 			defer rows.Close()
 
@@ -574,12 +552,6 @@ func runSql(databaseFile string, sqlquery string) {
 
 	if ParseSql(sqlquery) {
 		fmt.Println("*** sqlopen 4")
-		//db, err := sql.Open("sqlite3", databaseFile)
-		//if err != nil {
-		//	log.Fatal(err)
-		//	log.Println("----------")
-		//}
-		//defer db.Close()
 		_, err := db.Exec(sqlquery)
 		if err != nil {
 			log.Printf("%q: %s\n", err, sqlquery)
@@ -609,11 +581,6 @@ func listNetworks(databaseFile string, webprint http.ResponseWriter, sqlquery st
 	}
 	if ParseSql(sqlquery) {
 		fmt.Println("*** sqlopen 5")
-		//db, err := sql.Open("sqlite3", databaseFile)
-		//if err != nil {
-		//	log.Fatal(err)
-		//}
-		//defer db.Close()
 		var mynetworks []SingleNetwork
 		rows, err := db.Query(sqlquery)
 		defer rows.Close()
@@ -702,11 +669,6 @@ func updateNetwork(databaseFile string, oldnetwork string, newnetwork string, ci
 
 		if ParseSql(sqlquery) {
 			fmt.Println("*** sqlopen 6")
-			//db, err := sql.Open("sqlite3", databaseFile)
-			//if err != nil {
-			//	log.Fatal(err)
-			//}
-			//defer db.Close()
 			rows, err := db.Query(sqlquery)
 			defer rows.Close()
 
@@ -766,11 +728,6 @@ func listHost(databaseFile string, webprint http.ResponseWriter, network string,
 	if ParseSql(sqlquery) {
 		log.Println("succeed ParseSql on ", sqlquery)
 		fmt.Println("*** sqlopen 7")
-		//db, err := sql.Open("sqlite3", databaseFile)
-		//if err != nil {
-		//	log.Fatal(err)
-		//}
-		//defer db.Close()
 		var myhosts []Host
 		rows, err := db.Query(sqlquery)
 		defer rows.Close()
