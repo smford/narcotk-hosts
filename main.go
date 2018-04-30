@@ -202,7 +202,7 @@ func main() {
 	fmt.Println("Starting main function")
 
 	if viper.GetBool("setupdb") {
-		setupdb(viper.GetString("Database"))
+		setupdb()
 		os.Exit(0)
 	}
 
@@ -226,22 +226,22 @@ func main() {
 	initDb(viper.GetString("Database"), viper.GetString("DatabaseType"))
 
 	if viper.GetBool("startweb") {
-		startWeb(viper.GetString("Database"), viper.GetString("ListenIP"), viper.GetString("ListenPort"), viper.GetBool("EnableTLS"))
+		startWeb(viper.GetString("ListenIP"), viper.GetString("ListenPort"), viper.GetBool("EnableTLS"))
 		os.Exit(0)
 	}
 
 	if viper.GetBool("starthttp") {
-		startWeb(viper.GetString("Database"), viper.GetString("ListenIP"), viper.GetString("ListenPort"), false)
+		startWeb(viper.GetString("ListenIP"), viper.GetString("ListenPort"), false)
 		os.Exit(0)
 	}
 
 	if viper.GetBool("starthttps") {
-		startWeb(viper.GetString("Database"), viper.GetString("ListenIP"), viper.GetString("ListenPort"), true)
+		startWeb(viper.GetString("ListenIP"), viper.GetString("ListenPort"), true)
 		os.Exit(0)
 	}
 
 	if viper.GetString("delnetwork") != "" {
-		delNetwork(viper.GetString("Database"), viper.GetString("delnetwork"))
+		delNetwork(viper.GetString("delnetwork"))
 		os.Exit(0)
 	}
 
@@ -250,7 +250,7 @@ func main() {
 			fmt.Println("Error a network must be provided")
 			os.Exit(1)
 		} else {
-			delHost(viper.GetString("Database"), viper.GetString("delhost"), viper.GetString("network"))
+			delHost(viper.GetString("delhost"), viper.GetString("network"))
 			os.Exit(0)
 		}
 	}
@@ -260,7 +260,7 @@ func main() {
 			log.Println("Error: at least one of network, cidr or desc must be specified")
 			os.Exit(1)
 		} else {
-			updateNetwork(viper.GetString("Database"), viper.GetString("updatenetwork"), viper.GetString("network"), viper.GetString("cidr"), viper.GetString("desc"))
+			updateNetwork(viper.GetString("updatenetwork"), viper.GetString("network"), viper.GetString("cidr"), viper.GetString("desc"))
 		}
 		os.Exit(0)
 	}
@@ -271,7 +271,7 @@ func main() {
 	}
 
 	if viper.GetBool("listnetworks") {
-		listNetworks(viper.GetString("Database"), nil, "select * from networks", viper.GetBool("json"))
+		listNetworks(nil, "select * from networks", viper.GetBool("json"))
 		os.Exit(0)
 	}
 
@@ -280,7 +280,7 @@ func main() {
 			fmt.Println("Error: When using --addnetwork you must also provide --cidr and --desc")
 			os.Exit(1)
 		} else {
-			addNetwork(viper.GetString("Database"), viper.GetString("addnetwork"), viper.GetString("cidr"), viper.GetString("desc"))
+			addNetwork(viper.GetString("addnetwork"), viper.GetString("cidr"), viper.GetString("desc"))
 			os.Exit(0)
 		}
 	}
@@ -290,7 +290,7 @@ func main() {
 			fmt.Println("Error: When using --addhost you must also provide --network and --ip")
 			os.Exit(1)
 		} else {
-			addHost(viper.GetString("Database"), viper.GetString("addhost"), viper.GetString("network"), viper.GetString("ip"), viper.GetString("ipv6"), viper.GetString("short1"), viper.GetString("short2"), viper.GetString("short3"), viper.GetString("short4"), viper.GetString("mac"))
+			addHost(viper.GetString("addhost"), viper.GetString("network"), viper.GetString("ip"), viper.GetString("ipv6"), viper.GetString("short1"), viper.GetString("short2"), viper.GetString("short3"), viper.GetString("short4"), viper.GetString("mac"))
 			os.Exit(0)
 		}
 	}
@@ -300,7 +300,7 @@ func main() {
 			fmt.Println("Error: When using --updatehost you must also provide --network")
 			os.Exit(1)
 		} else {
-			updateHost(viper.GetString("Database"), viper.GetString("updatehost"), viper.GetString("network"), viper.GetString("host"), viper.GetString("newnetwork"), viper.GetString("ip"), viper.GetString("ipv6"), viper.GetString("short1"), viper.GetString("short2"), viper.GetString("short3"), viper.GetString("short4"), viper.GetString("mac"))
+			updateHost(viper.GetString("updatehost"), viper.GetString("network"), viper.GetString("host"), viper.GetString("newnetwork"), viper.GetString("ip"), viper.GetString("ipv6"), viper.GetString("short1"), viper.GetString("short2"), viper.GetString("short3"), viper.GetString("short4"), viper.GetString("mac"))
 			os.Exit(0)
 		}
 	}
@@ -310,15 +310,15 @@ func main() {
 	}
 
 	if viper.GetString("network") != "" {
-		listHost(viper.GetString("Database"), nil, viper.GetString("network"), "select * from hosts where network like '"+viper.GetString("network")+"'", viper.GetBool("showmac"), viper.GetBool("json"))
+		listHost(nil, viper.GetString("network"), "select * from hosts where network like '"+viper.GetString("network")+"'", viper.GetBool("showmac"), viper.GetBool("json"))
 		os.Exit(0)
 	}
 
 	if viper.GetString("host") != "" {
 		sqlquery := "select * from hosts where fqdn like '" + viper.GetString("host") + "'"
-		listHost(viper.GetString("Database"), nil, "", sqlquery, viper.GetBool("showmac"), viper.GetBool("json"))
+		listHost(nil, "", sqlquery, viper.GetBool("showmac"), viper.GetBool("json"))
 	} else {
-		listHost(viper.GetString("Database"), nil, viper.GetString("network"), "select * from hosts", viper.GetBool("showmac"), viper.GetBool("json"))
+		listHost(nil, viper.GetString("network"), "select * from hosts", viper.GetBool("showmac"), viper.GetBool("json"))
 	}
 }
 
@@ -338,7 +338,7 @@ func printFile(filename string, webprint http.ResponseWriter) {
 	}
 }
 
-func checkHost(databaseFile string, host string, network string) bool {
+func checkHost(host string, network string) bool {
 	fmt.Println("Starting checkHost")
 	sqlquery := "select * from hosts where (fqdn like '" + host + "' and network like '" + network + "')"
 	fmt.Println("===" + sqlquery)
@@ -374,7 +374,7 @@ func checkHost(databaseFile string, host string, network string) bool {
 	return false
 }
 
-func checkNetwork(databaseFile string, network string) bool {
+func checkNetwork(network string) bool {
 	fmt.Println("Starting checkNetwork")
 	sqlquery := "select * from networks where network like '" + network + "'"
 
@@ -406,7 +406,7 @@ func checkNetwork(databaseFile string, network string) bool {
 	return false
 }
 
-func addHost(databaseFile string, addhost string, network string, ip string, ipv6 string, short1 string, short2 string, short3 string, short4 string, mac string) {
+func addHost(addhost string, network string, ip string, ipv6 string, short1 string, short2 string, short3 string, short4 string, mac string) {
 	fmt.Println("Adding new host:")
 	fmt.Println(addhost)
 	fmt.Println(network)
@@ -418,20 +418,20 @@ func addHost(databaseFile string, addhost string, network string, ip string, ipv
 	fmt.Println(short4)
 	fmt.Println(mac)
 	mac = PrepareMac(mac)
-	if checkNetwork(viper.GetString("Database"), network) && ValidIP(ip) {
+	if checkNetwork(network) && ValidIP(ip) {
 		sqlquery := "insert into hosts (network, ipv4, ipv6, fqdn, short1, short2, short3, short4, mac) values ('" + network + "', '" + ip + "', '" + ipv6 + "', '" + addhost + "', '" + short1 + "', '" + short2 + "', '" + short3 + "', '" + short4 + "', '" + mac + "')"
-		runSql(databaseFile, sqlquery)
+		runSql(sqlquery)
 	}
 }
 
-func updateHost(databaseFile string, oldhost string, oldnetwork string, newhost string, newnetwork string, newipv4 string, newipv6 string, newshort1 string, newshort2 string, newshort3 string, newshort4 string, newmac string) {
+func updateHost(oldhost string, oldnetwork string, newhost string, newnetwork string, newipv4 string, newipv6 string, newshort1 string, newshort2 string, newshort3 string, newshort4 string, newmac string) {
 	fmt.Println("Starting updateHost")
 	var originalhost []Host
 	var sqlquery string
 	var updatesqlquery string
 
 	// if we can find at least one host
-	if checkHost(viper.GetString("Database"), oldhost, oldnetwork) {
+	if checkHost(oldhost, oldnetwork) {
 		sqlquery = "select * from hosts where (fqdn like '" + oldhost + "' and network like '" + oldnetwork + "')"
 		if ParseSql(sqlquery) {
 			fmt.Println("*** sqlopen 3")
@@ -512,9 +512,9 @@ func updateHost(databaseFile string, oldhost string, oldnetwork string, newhost 
 					} else {
 						updatemac = newmac
 					}
-					if checkNetwork(viper.GetString("Database"), updatenetwork) && ValidIP(newipv4) {
+					if checkNetwork(updatenetwork) && ValidIP(newipv4) {
 						updatesqlquery = "update hosts set network = '" + updatenetwork + "', ipv4 = '" + updateipv4 + "', ipv6 = '" + updateipv6 + "', fqdn = '" + updatefqdn + "', short1 = '" + updateshort1 + "', short2 = '" + updateshort2 + "', short3 = '" + updateshort3 + "', short4 = '" + updateshort4 + "', mac = '" + updatemac + "' where fqdn like '" + oldhost + "' and network like '" + oldnetwork + "'"
-						runSql(databaseFile, updatesqlquery)
+						runSql(updatesqlquery)
 						fmt.Println("NEW UPDATE=" + updatesqlquery)
 					}
 				}
@@ -525,28 +525,28 @@ func updateHost(databaseFile string, oldhost string, oldnetwork string, newhost 
 	}
 }
 
-func delHost(databaseFile string, host string, network string) {
+func delHost(host string, network string) {
 	fmt.Println("Deleting host:")
 	fmt.Println(host)
 	fmt.Println(network)
 	sqlquery := "delete from hosts where (fqdn like '" + host + "') and (network like '" + network + "')"
-	runSql(databaseFile, sqlquery)
+	runSql(sqlquery)
 }
 
-func addNetwork(databaseFile string, network string, cidr string, desc string) {
+func addNetwork(network string, cidr string, desc string) {
 	fmt.Println("Adding new network: " + network + "\nCIDR: " + cidr + "\nDescription: " + desc)
 	sqlquery := "insert into networks (network, cidr, description) values ('" + network + "', '" + cidr + "', '" + desc + "')"
 	fmt.Println("addNetwork query: " + sqlquery)
-	runSql(databaseFile, sqlquery)
+	runSql(sqlquery)
 }
 
-func delNetwork(databasefile string, network string) {
+func delNetwork(network string) {
 	fmt.Println("Deleting network: " + network)
 	sqlquery := "delete from networks where network like '" + network + "'"
-	runSql(databasefile, sqlquery)
+	runSql(sqlquery)
 }
 
-func runSql(databaseFile string, sqlquery string) {
+func runSql(sqlquery string) {
 	fmt.Println("Running generic runSql function")
 	fmt.Println("runSql query: " + sqlquery)
 
@@ -574,7 +574,7 @@ func ParseSql(sqlquery string) bool {
 	return true
 }
 
-func listNetworks(databaseFile string, webprint http.ResponseWriter, sqlquery string, printjson bool) {
+func listNetworks(webprint http.ResponseWriter, sqlquery string, printjson bool) {
 	fmt.Println("Starting listNetworks")
 	if webprint == nil {
 		fmt.Println("webprint is null, printing to std out")
@@ -634,8 +634,8 @@ func displayVersion() {
 	fmt.Println("narcotk-hosts: 0.1")
 }
 
-func setupdb(databaseFile string) {
-	fmt.Println("Setting up a new database file: " + databaseFile)
+func setupdb() {
+	fmt.Printf("Setting up a new database: %s / %s", viper.GetString("Database"), viper.GetString("DatabaseType"))
 	sqlquery := `
   CREATE TABLE hosts (
     network text NOT NULL,
@@ -647,16 +647,16 @@ func setupdb(databaseFile string) {
     short3 text DEFAULT '',
     short4 text DEFAULT '',
     mac text DEFAULT '')`
-	runSql(databaseFile, sqlquery)
+	runSql(sqlquery)
 	sqlquery = `
   CREATE TABLE networks (
     network text PRIMARY KEY,
     cidr text NOT NULL,
     description text NOT NULL DEFAULT '')`
-	runSql(databaseFile, sqlquery)
+	runSql(sqlquery)
 }
 
-func updateNetwork(databaseFile string, oldnetwork string, newnetwork string, cidr string, desc string) {
+func updateNetwork(oldnetwork string, newnetwork string, cidr string, desc string) {
 	log.Println("Starting updateNetwork")
 	// check if something already exists and load in to struct Network
 	var originalnetwork []SingleNetwork
@@ -664,7 +664,7 @@ func updateNetwork(databaseFile string, oldnetwork string, newnetwork string, ci
 	var updatesqlquery string
 
 	// check that oldnetwork exists
-	if checkNetwork(viper.GetString("Database"), oldnetwork) {
+	if checkNetwork(oldnetwork) {
 		sqlquery = "select * from networks where network like '" + oldnetwork + "'"
 
 		if ParseSql(sqlquery) {
@@ -712,14 +712,14 @@ func updateNetwork(databaseFile string, oldnetwork string, newnetwork string, ci
 			log.Println("Error parsing sql: \"" + sqlquery + "\"")
 			os.Exit(1)
 		}
-		runSql(viper.GetString("Database"), updatesqlquery)
+		runSql(updatesqlquery)
 	} else {
 		log.Println("Error updating network: \"" + oldnetwork + "\" does not exist")
 		os.Exit(1)
 	}
 }
 
-func listHost(databaseFile string, webprint http.ResponseWriter, network string, sqlquery string, showmac bool, printjson bool) {
+func listHost(webprint http.ResponseWriter, network string, sqlquery string, showmac bool, printjson bool) {
 	log.Println("Starting listHost")
 	if webprint == nil {
 		fmt.Println("webprint is null, printing to std out")
@@ -817,7 +817,7 @@ func loggingMiddleware(next http.Handler) http.Handler {
 	})
 }
 
-func startWeb(databaseFile string, listenip string, listenport string, usetls bool) {
+func startWeb(listenip string, listenport string, usetls bool) {
 	r := mux.NewRouter()
 
 	if viper.GetString("IndexFile") != "" {
@@ -906,7 +906,7 @@ func handlerHosts(w http.ResponseWriter, r *http.Request) {
 		showmac = true
 	}
 
-	listHost(viper.GetString("Database"), w, viper.GetString("network"), sqlquery, showmac, givejson)
+	listHost(w, viper.GetString("network"), sqlquery, showmac, givejson)
 
 }
 
@@ -934,7 +934,7 @@ func handlerHost(w http.ResponseWriter, r *http.Request) {
 	// problem that when passing mac=y it does not print the mac
 	sqlquery := "select * from hosts where fqdn like '" + vars["host"] + "'"
 	log.Println("sqlquery = ", sqlquery)
-	listHost(viper.GetString("Database"), w, viper.GetString("network"), sqlquery, showmac, givejson)
+	listHost(w, viper.GetString("network"), sqlquery, showmac, givejson)
 }
 
 func handlerHostFile(w http.ResponseWriter, r *http.Request) {
@@ -966,7 +966,7 @@ func handlerNetworks(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 	}
 
-	listNetworks(viper.GetString("Database"), w, sqlquery, givejson)
+	listNetworks(w, sqlquery, givejson)
 
 }
 
@@ -985,7 +985,7 @@ func handlerNetwork(w http.ResponseWriter, r *http.Request) {
 
 	sqlquery := "select * from networks where network like '" + vars["network"] + "'"
 
-	listNetworks(viper.GetString("Database"), w, sqlquery, givejson)
+	listNetworks(w, sqlquery, givejson)
 
 }
 
@@ -1015,7 +1015,7 @@ func handlerIp(w http.ResponseWriter, r *http.Request) {
 	//sqlquery := "select * from hosts where ipv4 like '" + vars["ip"] + "'"
 	sqlquery := "select * from hosts where (ipv4 like '" + vars["ip"] + "') or (ipv6 like '" + vars["ip"] + "')"
 
-	listHost(viper.GetString("Database"), w, "", sqlquery, showmac, givejson)
+	listHost(w, "", sqlquery, showmac, givejson)
 }
 
 func handlerMac(w http.ResponseWriter, r *http.Request) {
@@ -1042,7 +1042,7 @@ func handlerMac(w http.ResponseWriter, r *http.Request) {
 	}
 
 	sqlquery := "select * from hosts where mac like '" + PrepareMac(vars["mac"]) + "'"
-	listHost(viper.GetString("Database"), w, "", sqlquery, showmac, givejson)
+	listHost(w, "", sqlquery, showmac, givejson)
 }
 
 func handlerRegister(w http.ResponseWriter, r *http.Request) {
@@ -1065,7 +1065,7 @@ func handlerRegister(w http.ResponseWriter, r *http.Request) {
 			log.Printf("Error: fqdn, ip or nw cannot be blank")
 		} else {
 			if ValidIP(ip) {
-				addHost(viper.GetString("Database"), fqdn, nw, ip, ipv6, short1, short2, short3, short4, mac)
+				addHost(fqdn, nw, ip, ipv6, short1, short2, short3, short4, mac)
 				fmt.Fprintf(w, "Added: %s", vars)
 			}
 		}
