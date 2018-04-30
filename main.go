@@ -21,6 +21,8 @@ import (
 	_ "unicode"
 )
 
+var db *sql.DB
+
 // Host holds all details internally within narcotk-hosts for a particular host
 type Host struct {
 	PaddedIP string `json:"PaddedIP"`
@@ -72,6 +74,7 @@ func displayConfig() {
 	fmt.Printf("ListenPort:      %s\n", viper.GetString("ListenPort"))
 	fmt.Printf("ListenIP:        %s\n", viper.GetString("ListenIP"))
 	fmt.Printf("Database:        %s\n", viper.GetString("Database"))
+	fmt.Printf("DatabaseType:    %s\n", viper.GetString("DatabaseType"))
 	fmt.Printf("HeaderFile:      %s\n", viper.GetString("HeaderFile"))
 	fmt.Printf("IndexFile:       %s\n", viper.GetString("IndexFile"))
 	fmt.Printf("Files:           %s\n", viper.GetString("Files"))
@@ -112,6 +115,7 @@ func init() {
 	flag.String("cidr", "", "cidr of network, used with --adnetwork and --desc")
 	configFile := flag.String("configfile", "", "configuration file to use")
 	flag.String("database", "", "database file to use")
+	flag.String("databasetype", "", "database type to use")
 	flag.String("delhost", "", "delete a host, used with --network")
 	flag.String("delnetwork", "", "delete a network")
 	flag.Bool("displayconfig", false, "display configuration")
@@ -168,6 +172,7 @@ func init() {
 		viper.SetDefault("ListenIP", "127.0.0.1")
 		viper.SetDefault("Verbose", true)
 		viper.SetDefault("Database", "./narcotk_hosts_all.db")
+		viper.SetDefault("DatabaseType", "sqlite3")
 		viper.SetDefault("HeaderFile", "./header.txt")
 		viper.SetDefault("IndexFile", "")
 		viper.SetDefault("Files", "./files")
@@ -178,6 +183,22 @@ func init() {
 		viper.SetDefault("RegistrationKey", "")
 		viper.SetDefault("Verbose", true)
 	}
+}
+
+func initDb(databaseFile string, databaseType string) {
+	//------
+	fmt.Println("*** initDb")
+	var err error
+	db, err = sql.Open(databaseType, databaseFile)
+	if err != nil {
+		log.Fatal(err)
+		log.Println("----------")
+	}
+	if err = db.Ping(); err != nil {
+		log.Panic(err)
+	}
+	//defer db.Close()
+	//------
 }
 
 func main() {
@@ -206,13 +227,7 @@ func main() {
 	}
 
 	//------
-	fmt.Println("*** STARTING MAIN sqlopen")
-	db, err := sql.Open("sqlite3", databaseFile)
-	if err != nil {
-		log.Fatal(err)
-		log.Println("----------")
-	}
-	defer db.Close()
+	initDb(viper.GetString("Database"), viper.GetString("DatabaseType"))
 	//------
 
 	if viper.GetBool("startweb") {
@@ -335,13 +350,14 @@ func checkHost(databaseFile string, host string, network string) bool {
 	fmt.Println("===" + sqlquery)
 	if ParseSql(sqlquery) {
 		fmt.Println("*** sqlopen 1")
-		db, err := sql.Open("sqlite3", databaseFile)
-		if err != nil {
-			log.Fatal(err)
-		}
-		defer db.Close()
+		//db, err := sql.Open("sqlite3", databaseFile)
+		//if err != nil {
+		//	log.Fatal(err)
+		//}
+		//defer db.Close()
 		var myhosts []Host
 		rows, err := db.Query(sqlquery)
+		defer rows.Close()
 
 		for rows.Next() {
 			var network string
@@ -376,13 +392,14 @@ func checkNetwork(databaseFile string, network string) bool {
 
 	if ParseSql(sqlquery) {
 		fmt.Println("*** sqlopen 2")
-		db, err := sql.Open("sqlite3", databaseFile)
-		if err != nil {
-			log.Fatal(err)
-		}
-		defer db.Close()
+		//db, err := sql.Open("sqlite3", databaseFile)
+		//if err != nil {
+		//	log.Fatal(err)
+		//}
+		//defer db.Close()
 		var mynetworks []SingleNetwork
 		rows, err := db.Query(sqlquery)
+		defer rows.Close()
 
 		for rows.Next() {
 			var network string
@@ -435,12 +452,14 @@ func updateHost(databaseFile string, oldhost string, oldnetwork string, newhost 
 		sqlquery = "select * from hosts where (fqdn like '" + oldhost + "' and network like '" + oldnetwork + "')"
 		if ParseSql(sqlquery) {
 			fmt.Println("*** sqlopen 3")
-			db, err := sql.Open("sqlite3", databaseFile)
-			if err != nil {
-				log.Fatal(err)
-			}
-			defer db.Close()
+			//db, err := sql.Open("sqlite3", databaseFile)
+			//if err != nil {
+			//	log.Fatal(err)
+			//}
+			//defer db.Close()
 			rows, err := db.Query(sqlquery)
+			defer rows.Close()
+
 			for rows.Next() {
 				var network string
 				var ipv4 string
@@ -555,13 +574,13 @@ func runSql(databaseFile string, sqlquery string) {
 
 	if ParseSql(sqlquery) {
 		fmt.Println("*** sqlopen 4")
-		db, err := sql.Open("sqlite3", databaseFile)
-		if err != nil {
-			log.Fatal(err)
-			log.Println("----------")
-		}
-		defer db.Close()
-		_, err = db.Exec(sqlquery)
+		//db, err := sql.Open("sqlite3", databaseFile)
+		//if err != nil {
+		//	log.Fatal(err)
+		//	log.Println("----------")
+		//}
+		//defer db.Close()
+		_, err := db.Exec(sqlquery)
 		if err != nil {
 			log.Printf("%q: %s\n", err, sqlquery)
 			return
@@ -590,13 +609,14 @@ func listNetworks(databaseFile string, webprint http.ResponseWriter, sqlquery st
 	}
 	if ParseSql(sqlquery) {
 		fmt.Println("*** sqlopen 5")
-		db, err := sql.Open("sqlite3", databaseFile)
-		if err != nil {
-			log.Fatal(err)
-		}
-		defer db.Close()
+		//db, err := sql.Open("sqlite3", databaseFile)
+		//if err != nil {
+		//	log.Fatal(err)
+		//}
+		//defer db.Close()
 		var mynetworks []SingleNetwork
 		rows, err := db.Query(sqlquery)
+		defer rows.Close()
 
 		for rows.Next() {
 			var network string
@@ -682,12 +702,14 @@ func updateNetwork(databaseFile string, oldnetwork string, newnetwork string, ci
 
 		if ParseSql(sqlquery) {
 			fmt.Println("*** sqlopen 6")
-			db, err := sql.Open("sqlite3", databaseFile)
-			if err != nil {
-				log.Fatal(err)
-			}
-			defer db.Close()
+			//db, err := sql.Open("sqlite3", databaseFile)
+			//if err != nil {
+			//	log.Fatal(err)
+			//}
+			//defer db.Close()
 			rows, err := db.Query(sqlquery)
+			defer rows.Close()
+
 			for rows.Next() {
 				var network string
 				var cidr string
@@ -744,13 +766,15 @@ func listHost(databaseFile string, webprint http.ResponseWriter, network string,
 	if ParseSql(sqlquery) {
 		log.Println("succeed ParseSql on ", sqlquery)
 		fmt.Println("*** sqlopen 7")
-		db, err := sql.Open("sqlite3", databaseFile)
-		if err != nil {
-			log.Fatal(err)
-		}
-		defer db.Close()
+		//db, err := sql.Open("sqlite3", databaseFile)
+		//if err != nil {
+		//	log.Fatal(err)
+		//}
+		//defer db.Close()
 		var myhosts []Host
 		rows, err := db.Query(sqlquery)
+		defer rows.Close()
+
 		log.Println("err = ", err)
 		log.Println("rows = ", rows)
 		for rows.Next() {

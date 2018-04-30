@@ -1,5 +1,6 @@
 {
     "Database": "./narcotk_hosts_all.db",
+    "DatabaseType": "sqlite3",
     "EnableTLS": false,
     "Files": "./files",
     "HeaderFile": "./header.txt",
