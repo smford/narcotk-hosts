@@ -151,7 +151,7 @@ func init() {
 	viper.AddConfigPath(".")
 
 	if *configFile == "" {
-		viper.SetConfigName("narco-hosts-config")
+		viper.SetConfigName("narcotk-hosts-config")
 	} else {
 		viper.SetConfigName(*configFile)
 	}

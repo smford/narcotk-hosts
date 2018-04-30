@@ -116,7 +116,7 @@ When running narcotk-hosts for the first time, you need to run the below command
 
 ### Configuration File
 
-The default configuration file (narco-hosts-config.json) is read from the same directory as the narcotk-hosts executable.
+The default configuration file (narcotk-hosts-config.json) is read from the same directory as the narcotk-hosts executable.
 
 ```
 {
