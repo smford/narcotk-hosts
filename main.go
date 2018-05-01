@@ -399,10 +399,9 @@ func checkNetwork(network string) bool {
 	if len(mynetworks) >= 1 {
 		log.Printf("%d networks found\n", len(mynetworks))
 		return true
-	} else {
-		log.Println("no network found for: " + network)
-		return false
 	}
+	log.Println("no network found for: " + network)
+	return false
 }
 
 func addHost(addhost string, network string, ip string, ipv6 string, short1 string, short2 string, short3 string, short4 string, mac string) {
