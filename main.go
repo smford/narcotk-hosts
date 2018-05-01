@@ -403,7 +403,6 @@ func checkNetwork(network string) bool {
 		log.Println("no network found for: " + network)
 		return false
 	}
-	return false
 }
 
 func addHost(addhost string, network string, ip string, ipv6 string, short1 string, short2 string, short3 string, short4 string, mac string) {
