@@ -391,7 +391,6 @@ func checkNetwork(network string) bool {
 	sqlquery := "select * from networks where network like '" + network + "'"
 
 	if ParseSql(sqlquery) {
-		fmt.Println("*** sqlopen 2")
 		var mynetworks []SingleNetwork
 		rows, err := db.Query(sqlquery)
 		defer rows.Close()
@@ -448,7 +447,6 @@ func updateHost(oldhost string, oldnetwork string, newhost string, newnetwork st
 	if checkHost(oldhost, oldnetwork) {
 		sqlquery = "select * from hosts where (fqdn like '" + oldhost + "' and network like '" + oldnetwork + "')"
 		if ParseSql(sqlquery) {
-			fmt.Println("*** sqlopen 3")
 			rows, err := db.Query(sqlquery)
 			defer rows.Close()
 			showerror("error running db query", err)
@@ -567,7 +565,6 @@ func runSql(sqlquery string) {
 	fmt.Println("runSql query: " + sqlquery)
 
 	if ParseSql(sqlquery) {
-		fmt.Println("*** sqlopen 4")
 		_, err := db.Exec(sqlquery)
 		if err != nil {
 			log.Printf("ERROR: error executing squery: %s: %q\n", sqlquery, err)
@@ -594,7 +591,6 @@ func listNetworks(webprint http.ResponseWriter, sqlquery string, printjson bool)
 		fmt.Println("webprint is null, printing to std out")
 	}
 	if ParseSql(sqlquery) {
-		fmt.Println("*** sqlopen 5")
 		var mynetworks []SingleNetwork
 		rows, err := db.Query(sqlquery)
 		defer rows.Close()
@@ -685,7 +681,6 @@ func updateNetwork(oldnetwork string, newnetwork string, cidr string, desc strin
 		sqlquery = "select * from networks where network like '" + oldnetwork + "'"
 
 		if ParseSql(sqlquery) {
-			fmt.Println("*** sqlopen 6")
 			rows, err := db.Query(sqlquery)
 			defer rows.Close()
 			showerror("error running db query", err)
@@ -746,7 +741,6 @@ func listHost(webprint http.ResponseWriter, network string, sqlquery string, sho
 
 	if ParseSql(sqlquery) {
 		log.Println("succeed ParseSql on ", sqlquery)
-		fmt.Println("*** sqlopen 7")
 		var myhosts []Host
 		rows, err := db.Query(sqlquery)
 		defer rows.Close()
