@@ -356,35 +356,33 @@ func checkHost(host string, network string) bool {
 	fmt.Println("Starting checkHost")
 	sqlquery := "select * from hosts where (fqdn like '" + host + "' and network like '" + network + "')"
 	fmt.Println("===" + sqlquery)
-	if ParseSql(sqlquery) {
-		var myhosts []Host
-		rows, err := db.Query(sqlquery)
-		defer rows.Close()
-		showerror("error running db query", err, "warn")
+	var myhosts []Host
+	rows, err := db.Query(sqlquery)
+	defer rows.Close()
+	showerror("error running db query", err, "warn")
 
-		for rows.Next() {
-			var network string
-			var ipv4 string
-			var ipv6 string
-			var fqdn string
-			var short1 string
-			var short2 string
-			var short3 string
-			var short4 string
-			var mac string
-			err = rows.Scan(&network, &ipv4, &ipv6, &fqdn, &short1, &short2, &short3, &short4, &mac)
-			showerror("cannot parse hosts results", err, "warn")
-			myhosts = append(myhosts, Host{MakePaddedIp(ipv4), network, ipv4, ipv6, fqdn, short1, short2, short3, short4, mac})
-			//if err != nil {
-			//	log.Fatal(err)
-			//}
-			if len(myhosts) >= 1 {
-				log.Printf("%d hosts found matching %s/%s", len(myhosts), host, network)
-				return true
-			} else {
-				log.Println("Error: no host found for host: " + host + " ip: " + network)
-				return false
-			}
+	for rows.Next() {
+		var network string
+		var ipv4 string
+		var ipv6 string
+		var fqdn string
+		var short1 string
+		var short2 string
+		var short3 string
+		var short4 string
+		var mac string
+		err = rows.Scan(&network, &ipv4, &ipv6, &fqdn, &short1, &short2, &short3, &short4, &mac)
+		showerror("cannot parse hosts results", err, "warn")
+		myhosts = append(myhosts, Host{MakePaddedIp(ipv4), network, ipv4, ipv6, fqdn, short1, short2, short3, short4, mac})
+		//if err != nil {
+		//	log.Fatal(err)
+		//}
+		if len(myhosts) >= 1 {
+			log.Printf("%d hosts found matching %s/%s", len(myhosts), host, network)
+			return true
+		} else {
+			log.Println("Error: no host found for host: " + host + " ip: " + network)
+			return false
 		}
 	}
 	return false
