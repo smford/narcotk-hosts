@@ -547,8 +547,12 @@ func delHost(host string, network string) {
 	fmt.Println("Deleting host:")
 	fmt.Println(host)
 	fmt.Println(network)
-	sqlquery := "delete from hosts where (fqdn like '" + host + "') and (network like '" + network + "')"
-	runSql(sqlquery)
+	if checkHost(host, network) {
+		sqlquery := "delete from hosts where (fqdn like '" + host + "') and (network like '" + network + "')"
+		runSql(sqlquery)
+	} else {
+		fmt.Println("ERROR: host " + host + " / " + network + " not found")
+	}
 }
 
 func addNetwork(network string, cidr string, desc string) {
