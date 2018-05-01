@@ -68,9 +68,13 @@ type AllNetworks struct {
 	Networks []SingleNetwork `json:"Networks"`
 }
 
-func showerror(message string, e error) {
+func showerror(message string, e error, reaction string) {
 	if e != nil {
-		log.Fatalf("ERROR: %s:%s", message, e)
+		if strings.ToLower(reaction) == "fatal" {
+			log.Fatalf("ERROR: %s:%s", message, e)
+		} else {
+			log.Printf("ERROR: %s:%s", message, e)
+		}
 	}
 }
 
@@ -195,14 +199,14 @@ func initDb(databaseFile string, databaseType string) {
 	fmt.Println("*** initDb")
 	var err error
 	db, err = sql.Open(databaseType, databaseFile)
-	showerror("cannot open database", err)
+	showerror("cannot open database", err, "warn")
 	//if err != nil {
 	//	log.Fatal(err)
 	//	log.Println("----------")
 	//}
 
 	err = db.Ping()
-	showerror("cannot connect to database", err)
+	showerror("cannot connect to database", err, "warn")
 	//if err = db.Ping(); err != nil {
 	//	log.Panic(err)
 	//}
@@ -356,7 +360,7 @@ func checkHost(host string, network string) bool {
 		var myhosts []Host
 		rows, err := db.Query(sqlquery)
 		defer rows.Close()
-		showerror("error running db query", err)
+		showerror("error running db query", err, "warn")
 
 		for rows.Next() {
 			var network string
@@ -369,7 +373,7 @@ func checkHost(host string, network string) bool {
 			var short4 string
 			var mac string
 			err = rows.Scan(&network, &ipv4, &ipv6, &fqdn, &short1, &short2, &short3, &short4, &mac)
-			showerror("cannot parse hosts results", err)
+			showerror("cannot parse hosts results", err, "warn")
 			myhosts = append(myhosts, Host{MakePaddedIp(ipv4), network, ipv4, ipv6, fqdn, short1, short2, short3, short4, mac})
 			//if err != nil {
 			//	log.Fatal(err)
@@ -394,14 +398,14 @@ func checkNetwork(network string) bool {
 		var mynetworks []SingleNetwork
 		rows, err := db.Query(sqlquery)
 		defer rows.Close()
-		showerror("error running db query", err)
+		showerror("error running db query", err, "warn")
 
 		for rows.Next() {
 			var network string
 			var cidr string
 			var description string
 			err = rows.Scan(&network, &cidr, &description)
-			showerror("cannot parse network results", err)
+			showerror("cannot parse network results", err, "warn")
 			mynetworks = append(mynetworks, SingleNetwork{MakePaddedIp(network), network, cidr, description})
 			//if err != nil {
 			//	log.Fatal(err)
@@ -449,7 +453,7 @@ func updateHost(oldhost string, oldnetwork string, newhost string, newnetwork st
 		if ParseSql(sqlquery) {
 			rows, err := db.Query(sqlquery)
 			defer rows.Close()
-			showerror("error running db query", err)
+			showerror("error running db query", err, "warn")
 
 			for rows.Next() {
 				var network string
@@ -462,7 +466,7 @@ func updateHost(oldhost string, oldnetwork string, newhost string, newnetwork st
 				var short4 string
 				var mac string
 				err = rows.Scan(&network, &ipv4, &ipv6, &fqdn, &short1, &short2, &short3, &short4, &mac)
-				showerror("cannot parse hosts results", err)
+				showerror("cannot parse hosts results", err, "warn")
 				originalhost = append(originalhost, Host{MakePaddedIp(ipv4), network, ipv4, ipv6, fqdn, short1, short2, short3, short4, mac})
 				//if err != nil {
 				//	log.Fatal(err)
@@ -577,7 +581,7 @@ func runSql(sqlquery string) {
 func ParseSql(sqlquery string) bool {
 	//log.Println("Starting ParseSql")
 	_, err := sqlparser.Parse(sqlquery)
-	showerror("error parsing query", err)
+	showerror("error parsing query", err, "warn")
 	if err != nil {
 		log.Printf("ERROR: detected in sql: \"%s\" :%s\n", sqlquery, err)
 		return false
@@ -594,14 +598,14 @@ func listNetworks(webprint http.ResponseWriter, sqlquery string, printjson bool)
 		var mynetworks []SingleNetwork
 		rows, err := db.Query(sqlquery)
 		defer rows.Close()
-		showerror("error running db query", err)
+		showerror("error running db query", err, "warn")
 
 		for rows.Next() {
 			var network string
 			var cidr string
 			var description string
 			err = rows.Scan(&network, &cidr, &description)
-			showerror("cannot parse network results", err)
+			showerror("cannot parse network results", err, "warn")
 			mynetworks = append(mynetworks, SingleNetwork{MakePaddedIp(network), network, cidr, description})
 			//if err != nil {
 			//	log.Fatal(err)
@@ -617,7 +621,7 @@ func listNetworks(webprint http.ResponseWriter, sqlquery string, printjson bool)
 
 			if printjson {
 				c, err := json.Marshal(mynetworks)
-				showerror("cannot marshal json", err)
+				showerror("cannot marshal json", err, "warn")
 				if webprint == nil {
 					fmt.Printf("%s", c)
 				} else {
@@ -683,14 +687,14 @@ func updateNetwork(oldnetwork string, newnetwork string, cidr string, desc strin
 		if ParseSql(sqlquery) {
 			rows, err := db.Query(sqlquery)
 			defer rows.Close()
-			showerror("error running db query", err)
+			showerror("error running db query", err, "warn")
 
 			for rows.Next() {
 				var network string
 				var cidr string
 				var description string
 				err = rows.Scan(&network, &cidr, &description)
-				showerror("cannot parse hosts results", err)
+				showerror("cannot parse hosts results", err, "warn")
 				originalnetwork = append(originalnetwork, SingleNetwork{MakePaddedIp(network), network, cidr, description})
 				//if err != nil {
 				//	log.Fatal(err)
@@ -744,7 +748,7 @@ func listHost(webprint http.ResponseWriter, network string, sqlquery string, sho
 		var myhosts []Host
 		rows, err := db.Query(sqlquery)
 		defer rows.Close()
-		showerror("error running db query", err)
+		showerror("error running db query", err, "warn")
 
 		//log.Println("err = ", err)
 		log.Println("rows = ", rows)
@@ -762,7 +766,7 @@ func listHost(webprint http.ResponseWriter, network string, sqlquery string, sho
 			//if err != nil {
 			//	log.Fatal(err)
 			//}
-			showerror("cannot parse hosts results", err)
+			showerror("cannot parse hosts results", err, "warn")
 			myhosts = append(myhosts, Host{MakePaddedIp(ipv4), network, ipv4, ipv6, fqdn, short1, short2, short3, short4, mac})
 		}
 
@@ -775,7 +779,7 @@ func listHost(webprint http.ResponseWriter, network string, sqlquery string, sho
 			if printjson {
 				// print json
 				c, err := json.Marshal(myhosts)
-				showerror("cannot marshal json", err)
+				showerror("cannot marshal json", err, "warn")
 				if webprint == nil {
 					fmt.Printf("%s", c)
 				} else {
@@ -880,14 +884,14 @@ func startWeb(listenip string, listenport string, usetls bool) {
 		//if err != nil {
 		//	log.Printf("Error starting HTTPS webserver: %s", err)
 		//}
-		showerror("cannot start https server", err)
+		showerror("cannot start https server", err, "fatal")
 	} else {
 		log.Println("Starting HTTP Webserver: " + listenip + ":" + listenport)
 		err := http.ListenAndServe(listenip+":"+listenport, r)
 		//if err != nil {
 		//	log.Printf("Error starting HTTP webserver: %s", err)
 		//}
-		showerror("cannot start http server", err)
+		showerror("cannot start http server", err, "fatal")
 	}
 }
 

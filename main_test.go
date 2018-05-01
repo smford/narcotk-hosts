@@ -51,7 +51,7 @@ func TestParseSql(t *testing.T) {
 	}
 	fmt.Println("Testing for bad SQL queries:")
 	for i, v := range invalidtests {
-		if ParseSql(v) {
+		if !ParseSql(v) {
 			t.Error("Test ", i, ": Expected: True  Actual: ", v)
 		}
 	}
