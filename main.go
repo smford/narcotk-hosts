@@ -1077,10 +1077,9 @@ func fileExists(path string) bool {
 func ValidIP(ip string) bool {
 	if net.ParseIP(ip) != nil {
 		return true
-	} else {
-		log.Printf("Error: ip %s is not valid", ip)
-		return false
 	}
+	log.Printf("Error: ip %s is not valid", ip)
+	return false
 }
 
 // PadLeft prefixs a string with 0's
