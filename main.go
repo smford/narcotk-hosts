@@ -564,8 +564,12 @@ func addNetwork(network string, cidr string, desc string) {
 
 func delNetwork(network string) {
 	fmt.Println("Deleting network: " + network)
-	sqlquery := "delete from networks where network like '" + network + "'"
-	runSql(sqlquery)
+	if checkNetwork(network) {
+		sqlquery := "delete from networks where network like '" + network + "'"
+		runSql(sqlquery)
+	} else {
+		fmt.Println("ERROR: network " + network + " not found")
+	}
 }
 
 func runSql(sqlquery string) {
