@@ -446,91 +446,89 @@ func updateHost(oldhost string, oldnetwork string, newhost string, newnetwork st
 	// if we can find at least one host
 	if checkHost(oldhost, oldnetwork) {
 		sqlquery = "select * from hosts where (fqdn like '" + oldhost + "' and network like '" + oldnetwork + "')"
-		if ParseSql(sqlquery) {
-			rows, err := db.Query(sqlquery)
-			defer rows.Close()
-			showerror("error running db query", err, "warn")
+		rows, err := db.Query(sqlquery)
+		defer rows.Close()
+		showerror("error running db query", err, "warn")
 
-			for rows.Next() {
-				var network string
-				var ipv4 string
-				var ipv6 string
-				var fqdn string
-				var short1 string
-				var short2 string
-				var short3 string
-				var short4 string
-				var mac string
-				err = rows.Scan(&network, &ipv4, &ipv6, &fqdn, &short1, &short2, &short3, &short4, &mac)
-				showerror("cannot parse hosts results", err, "warn")
-				originalhost = append(originalhost, Host{MakePaddedIp(ipv4), network, ipv4, ipv6, fqdn, short1, short2, short3, short4, mac})
-				//if err != nil {
-				//	log.Fatal(err)
-				//}
-			}
-			if len(originalhost) != 1 {
-				log.Println("Error: more than one host with identifier " + oldhost + "/" + oldnetwork + " discovered")
-			} else {
-				for _, host := range originalhost {
-					var updatenetwork string
-					var updateipv4 string
-					var updateipv6 string
-					var updatefqdn string
-					var updateshort1 string
-					var updateshort2 string
-					var updateshort3 string
-					var updateshort4 string
-					var updatemac string
-					if newnetwork == "" {
-						updatenetwork = host.Network
-					} else {
-						updatenetwork = newnetwork
-					}
-					if newipv4 == "" {
-						updateipv4 = host.IPv4
-					} else {
-						updateipv4 = newipv4
-					}
-					if newipv6 == "" {
-						updateipv6 = host.IPv6
-					} else {
-						updateipv6 = newipv6
-					}
-					if newhost == "" {
-						updatefqdn = host.Hostname
-					} else {
-						updatefqdn = newhost
-					}
-					if newshort1 == "" {
-						updateshort1 = host.Short1
-					} else {
-						updateshort1 = newshort1
-					}
-					if newshort2 == "" {
-						updateshort2 = host.Short2
-					} else {
-						updateshort2 = newshort2
-					}
-					if newshort3 == "" {
-						updateshort3 = host.Short3
-					} else {
-						updateshort3 = newshort3
-					}
-					if newshort4 == "" {
-						updateshort4 = host.Short4
-					} else {
-						updateshort4 = newshort4
-					}
-					if newmac == "" {
-						updatemac = host.MAC
-					} else {
-						updatemac = newmac
-					}
-					if checkNetwork(updatenetwork) && ValidIP(newipv4) {
-						updatesqlquery = "update hosts set network = '" + updatenetwork + "', ipv4 = '" + updateipv4 + "', ipv6 = '" + updateipv6 + "', fqdn = '" + updatefqdn + "', short1 = '" + updateshort1 + "', short2 = '" + updateshort2 + "', short3 = '" + updateshort3 + "', short4 = '" + updateshort4 + "', mac = '" + updatemac + "' where fqdn like '" + oldhost + "' and network like '" + oldnetwork + "'"
-						runSql(updatesqlquery)
-						fmt.Println("NEW UPDATE=" + updatesqlquery)
-					}
+		for rows.Next() {
+			var network string
+			var ipv4 string
+			var ipv6 string
+			var fqdn string
+			var short1 string
+			var short2 string
+			var short3 string
+			var short4 string
+			var mac string
+			err = rows.Scan(&network, &ipv4, &ipv6, &fqdn, &short1, &short2, &short3, &short4, &mac)
+			showerror("cannot parse hosts results", err, "warn")
+			originalhost = append(originalhost, Host{MakePaddedIp(ipv4), network, ipv4, ipv6, fqdn, short1, short2, short3, short4, mac})
+			//if err != nil {
+			//	log.Fatal(err)
+			//}
+		}
+		if len(originalhost) != 1 {
+			log.Println("Error: more than one host with identifier " + oldhost + "/" + oldnetwork + " discovered")
+		} else {
+			for _, host := range originalhost {
+				var updatenetwork string
+				var updateipv4 string
+				var updateipv6 string
+				var updatefqdn string
+				var updateshort1 string
+				var updateshort2 string
+				var updateshort3 string
+				var updateshort4 string
+				var updatemac string
+				if newnetwork == "" {
+					updatenetwork = host.Network
+				} else {
+					updatenetwork = newnetwork
+				}
+				if newipv4 == "" {
+					updateipv4 = host.IPv4
+				} else {
+					updateipv4 = newipv4
+				}
+				if newipv6 == "" {
+					updateipv6 = host.IPv6
+				} else {
+					updateipv6 = newipv6
+				}
+				if newhost == "" {
+					updatefqdn = host.Hostname
+				} else {
+					updatefqdn = newhost
+				}
+				if newshort1 == "" {
+					updateshort1 = host.Short1
+				} else {
+					updateshort1 = newshort1
+				}
+				if newshort2 == "" {
+					updateshort2 = host.Short2
+				} else {
+					updateshort2 = newshort2
+				}
+				if newshort3 == "" {
+					updateshort3 = host.Short3
+				} else {
+					updateshort3 = newshort3
+				}
+				if newshort4 == "" {
+					updateshort4 = host.Short4
+				} else {
+					updateshort4 = newshort4
+				}
+				if newmac == "" {
+					updatemac = host.MAC
+				} else {
+					updatemac = newmac
+				}
+				if checkNetwork(updatenetwork) && ValidIP(newipv4) {
+					updatesqlquery = "update hosts set network = '" + updatenetwork + "', ipv4 = '" + updateipv4 + "', ipv6 = '" + updateipv6 + "', fqdn = '" + updatefqdn + "', short1 = '" + updateshort1 + "', short2 = '" + updateshort2 + "', short3 = '" + updateshort3 + "', short4 = '" + updateshort4 + "', mac = '" + updatemac + "' where fqdn like '" + oldhost + "' and network like '" + oldnetwork + "'"
+					runSql(updatesqlquery)
+					fmt.Println("NEW UPDATE=" + updatesqlquery)
 				}
 			}
 		}
