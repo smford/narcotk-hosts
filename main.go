@@ -743,81 +743,79 @@ func listHost(webprint http.ResponseWriter, network string, sqlquery string, sho
 		fmt.Println("webprint is null, printing to std out")
 	}
 
-	if ParseSql(sqlquery) {
-		log.Println("succeed ParseSql on ", sqlquery)
-		var myhosts []Host
-		rows, err := db.Query(sqlquery)
-		defer rows.Close()
-		showerror("error running db query", err, "warn")
+	log.Println("succeed ParseSql on ", sqlquery)
+	var myhosts []Host
+	rows, err := db.Query(sqlquery)
+	defer rows.Close()
+	showerror("error running db query", err, "warn")
 
-		//log.Println("err = ", err)
-		log.Println("rows = ", rows)
-		for rows.Next() {
-			var network string
-			var ipv4 string
-			var ipv6 string
-			var fqdn string
-			var short1 string
-			var short2 string
-			var short3 string
-			var short4 string
-			var mac string
-			err = rows.Scan(&network, &ipv4, &ipv6, &fqdn, &short1, &short2, &short3, &short4, &mac)
-			//if err != nil {
-			//	log.Fatal(err)
-			//}
-			showerror("cannot parse hosts results", err, "warn")
-			myhosts = append(myhosts, Host{MakePaddedIp(ipv4), network, ipv4, ipv6, fqdn, short1, short2, short3, short4, mac})
-		}
+	//log.Println("err = ", err)
+	log.Println("rows = ", rows)
+	for rows.Next() {
+		var network string
+		var ipv4 string
+		var ipv6 string
+		var fqdn string
+		var short1 string
+		var short2 string
+		var short3 string
+		var short4 string
+		var mac string
+		err = rows.Scan(&network, &ipv4, &ipv6, &fqdn, &short1, &short2, &short3, &short4, &mac)
+		//if err != nil {
+		//	log.Fatal(err)
+		//}
+		showerror("cannot parse hosts results", err, "warn")
+		myhosts = append(myhosts, Host{MakePaddedIp(ipv4), network, ipv4, ipv6, fqdn, short1, short2, short3, short4, mac})
+	}
 
-		if len(myhosts) > 0 {
-			log.Printf("%d hosts found\n", len(myhosts))
+	if len(myhosts) > 0 {
+		log.Printf("%d hosts found\n", len(myhosts))
 
-			sort.Slice(myhosts, func(i, j int) bool {
-				return bytes.Compare([]byte(myhosts[i].PaddedIP), []byte(myhosts[j].PaddedIP)) < 0
-			})
-			if printjson {
-				// print json
-				c, err := json.Marshal(myhosts)
-				showerror("cannot marshal json", err, "warn")
-				if webprint == nil {
-					fmt.Printf("%s", c)
-				} else {
-					fmt.Fprintf(webprint, "%s", c)
-				}
+		sort.Slice(myhosts, func(i, j int) bool {
+			return bytes.Compare([]byte(myhosts[i].PaddedIP), []byte(myhosts[j].PaddedIP)) < 0
+		})
+		if printjson {
+			// print json
+			c, err := json.Marshal(myhosts)
+			showerror("cannot marshal json", err, "warn")
+			if webprint == nil {
+				fmt.Printf("%s", c)
 			} else {
-				// print standard
-				if webprint == nil {
-					if showmac {
-						for _, host := range myhosts {
-							fmt.Printf("%-17s  %-15s    %s  %s  %s  %s  %s\n", host.MAC, host.IPv4, host.Hostname, host.Short1, host.Short2, host.Short3, host.Short4)
-						}
-					} else {
-						for _, host := range myhosts {
-							fmt.Printf("%-15s    %s  %s  %s  %s  %s\n", host.IPv4, host.Hostname, host.Short1, host.Short2, host.Short3, host.Short4)
-						}
-					}
-				} else {
-					// webprint
-					if showmac {
-						log.Println("webprint=y showmac=y")
-						for _, host := range myhosts {
-							log.Println("webprint=y showmac=y")
-							fmt.Fprintf(webprint, "%-17s  %-15s    %s  %s  %s  %s  %s\n", host.MAC, host.IPv4, host.Hostname, host.Short1, host.Short2, host.Short3, host.Short4)
-						}
-					} else {
-						log.Println("webprint=y showmac=n")
-						for _, host := range myhosts {
-							fmt.Fprintf(webprint, "%-15s    %s  %s  %s  %s  %s\n", host.IPv4, host.Hostname, host.Short1, host.Short2, host.Short3, host.Short4)
-						}
-					}
-				}
+				fmt.Fprintf(webprint, "%s", c)
 			}
 		} else {
-			log.Println("host not found")
-			if webprint != nil {
-				http.Error(webprint, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+			// print standard
+			if webprint == nil {
+				if showmac {
+					for _, host := range myhosts {
+						fmt.Printf("%-17s  %-15s    %s  %s  %s  %s  %s\n", host.MAC, host.IPv4, host.Hostname, host.Short1, host.Short2, host.Short3, host.Short4)
+					}
+				} else {
+					for _, host := range myhosts {
+						fmt.Printf("%-15s    %s  %s  %s  %s  %s\n", host.IPv4, host.Hostname, host.Short1, host.Short2, host.Short3, host.Short4)
+					}
+				}
+			} else {
+				// webprint
+				if showmac {
+					log.Println("webprint=y showmac=y")
+					for _, host := range myhosts {
+						log.Println("webprint=y showmac=y")
+						fmt.Fprintf(webprint, "%-17s  %-15s    %s  %s  %s  %s  %s\n", host.MAC, host.IPv4, host.Hostname, host.Short1, host.Short2, host.Short3, host.Short4)
+					}
+				} else {
+					log.Println("webprint=y showmac=n")
+					for _, host := range myhosts {
+						fmt.Fprintf(webprint, "%-15s    %s  %s  %s  %s  %s\n", host.IPv4, host.Hostname, host.Short1, host.Short2, host.Short3, host.Short4)
+					}
+				}
 			}
+		}
+	} else {
+		log.Println("host not found")
+		if webprint != nil {
+			http.Error(webprint, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 		}
 	}
 }
