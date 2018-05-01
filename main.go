@@ -392,31 +392,29 @@ func checkNetwork(network string) bool {
 	fmt.Println("Starting checkNetwork")
 	sqlquery := "select * from networks where network like '" + network + "'"
 
-	if ParseSql(sqlquery) {
-		var mynetworks []SingleNetwork
-		rows, err := db.Query(sqlquery)
-		defer rows.Close()
-		showerror("error running db query", err, "warn")
+	var mynetworks []SingleNetwork
+	rows, err := db.Query(sqlquery)
+	defer rows.Close()
+	showerror("error running db query", err, "warn")
 
-		for rows.Next() {
-			var network string
-			var cidr string
-			var description string
-			err = rows.Scan(&network, &cidr, &description)
-			showerror("cannot parse network results", err, "warn")
-			mynetworks = append(mynetworks, SingleNetwork{MakePaddedIp(network), network, cidr, description})
-			//if err != nil {
-			//	log.Fatal(err)
-			//}
-		}
+	for rows.Next() {
+		var network string
+		var cidr string
+		var description string
+		err = rows.Scan(&network, &cidr, &description)
+		showerror("cannot parse network results", err, "warn")
+		mynetworks = append(mynetworks, SingleNetwork{MakePaddedIp(network), network, cidr, description})
+		//if err != nil {
+		//	log.Fatal(err)
+		//}
+	}
 
-		if len(mynetworks) >= 1 {
-			log.Printf("%d networks found\n", len(mynetworks))
-			return true
-		} else {
-			log.Println("no network found for: " + network)
-			return false
-		}
+	if len(mynetworks) >= 1 {
+		log.Printf("%d networks found\n", len(mynetworks))
+		return true
+	} else {
+		log.Println("no network found for: " + network)
+		return false
 	}
 	return false
 }
