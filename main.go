@@ -933,10 +933,9 @@ func handlerHostFile(w http.ResponseWriter, r *http.Request) {
 		//w.WriteHeader(http.StatusNotFound)
 		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 		return
-	} else {
-		w.Header().Set("Content-Type", "application/octet-stream")
-		printFile(viper.GetString("files")+"/"+vars["host"]+"."+queries.Get("file"), w)
 	}
+	w.Header().Set("Content-Type", "application/octet-stream")
+	printFile(viper.GetString("files")+"/"+vars["host"]+"."+queries.Get("file"), w)
 }
 
 func handlerNetworks(w http.ResponseWriter, r *http.Request) {
