@@ -370,10 +370,9 @@ func checkHost(host string, network string) bool {
 		if len(myhosts) >= 1 {
 			log.Printf("%d hosts found matching %s/%s", len(myhosts), host, network)
 			return true
-		} else {
-			log.Println("Error: no host found for host: " + host + " ip: " + network)
-			return false
 		}
+		log.Println("Error: no host found for host: " + host + " ip: " + network)
+		return false
 	}
 	return false
 }
