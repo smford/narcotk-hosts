@@ -684,51 +684,46 @@ func updateNetwork(oldnetwork string, newnetwork string, cidr string, desc strin
 	if checkNetwork(oldnetwork) {
 		sqlquery = "select * from networks where network like '" + oldnetwork + "'"
 
-		if ParseSql(sqlquery) {
-			rows, err := db.Query(sqlquery)
-			defer rows.Close()
-			showerror("error running db query", err, "warn")
+		rows, err := db.Query(sqlquery)
+		defer rows.Close()
+		showerror("error running db query", err, "warn")
 
-			for rows.Next() {
-				var network string
-				var cidr string
-				var description string
-				err = rows.Scan(&network, &cidr, &description)
-				showerror("cannot parse hosts results", err, "warn")
-				originalnetwork = append(originalnetwork, SingleNetwork{MakePaddedIp(network), network, cidr, description})
-				//if err != nil {
-				//	log.Fatal(err)
-				//}
-			}
+		for rows.Next() {
+			var network string
+			var cidr string
+			var description string
+			err = rows.Scan(&network, &cidr, &description)
+			showerror("cannot parse hosts results", err, "warn")
+			originalnetwork = append(originalnetwork, SingleNetwork{MakePaddedIp(network), network, cidr, description})
+			//if err != nil {
+			//	log.Fatal(err)
+			//}
+		}
 
-			if len(originalnetwork) != 1 {
-				log.Println("Error, more than one network with identifier " + oldnetwork + " discovered")
-			} else {
-				for _, network := range originalnetwork {
-					var updatenetwork string
-					var updatecidr string
-					var updatedesc string
-					if newnetwork == "" {
-						updatenetwork = network.Network
-					} else {
-						updatenetwork = newnetwork
-					}
-					if cidr == "" {
-						updatecidr = network.CIDR
-					} else {
-						updatecidr = cidr
-					}
-					if desc == "" {
-						updatedesc = network.Description
-					} else {
-						updatedesc = desc
-					}
-					updatesqlquery = "update networks set network = '" + updatenetwork + "', cidr = '" + updatecidr + "', description = '" + updatedesc + "' where network like '" + oldnetwork + "'"
-				}
-			}
+		if len(originalnetwork) != 1 {
+			log.Println("Error, more than one network with identifier " + oldnetwork + " discovered")
 		} else {
-			log.Println("Error parsing sql: \"" + sqlquery + "\"")
-			os.Exit(1)
+			for _, network := range originalnetwork {
+				var updatenetwork string
+				var updatecidr string
+				var updatedesc string
+				if newnetwork == "" {
+					updatenetwork = network.Network
+				} else {
+					updatenetwork = newnetwork
+				}
+				if cidr == "" {
+					updatecidr = network.CIDR
+				} else {
+					updatecidr = cidr
+				}
+				if desc == "" {
+					updatedesc = network.Description
+				} else {
+					updatedesc = desc
+				}
+				updatesqlquery = "update networks set network = '" + updatenetwork + "', cidr = '" + updatecidr + "', description = '" + updatedesc + "' where network like '" + oldnetwork + "'"
+			}
 		}
 		runSql(updatesqlquery)
 	} else {
