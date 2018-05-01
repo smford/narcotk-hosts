@@ -68,6 +68,12 @@ type AllNetworks struct {
 	Networks []SingleNetwork `json:"Networks"`
 }
 
+func showerror(message string, e error) {
+	if e != nil {
+		log.Fatalf("ERROR: %s:%s", message, e)
+	}
+}
+
 func displayConfig() {
 	fmt.Println("Starting displayConfig function")
 	fmt.Printf("ShowHeader:      %s\n", viper.GetString("ShowHeader"))
@@ -155,16 +161,8 @@ func init() {
 	} else {
 		viper.SetConfigName(*configFile)
 	}
+
 	err := viper.ReadInConfig()
-
-	if *listenPort != "" {
-		viper.Set("ListenPort", listenPort)
-	}
-
-	if *listenIp != "" {
-		viper.Set("ListenIP", listenIp)
-	}
-
 	if err != nil {
 		fmt.Println("No configuration file loaded - using defaults")
 		viper.SetDefault("ShowHeader", false)
@@ -183,19 +181,31 @@ func init() {
 		viper.SetDefault("RegistrationKey", "")
 		viper.SetDefault("Verbose", true)
 	}
+
+	if *listenPort != "" {
+		viper.Set("ListenPort", listenPort)
+	}
+
+	if *listenIp != "" {
+		viper.Set("ListenIP", listenIp)
+	}
 }
 
 func initDb(databaseFile string, databaseType string) {
 	fmt.Println("*** initDb")
 	var err error
 	db, err = sql.Open(databaseType, databaseFile)
-	if err != nil {
-		log.Fatal(err)
-		log.Println("----------")
-	}
-	if err = db.Ping(); err != nil {
-		log.Panic(err)
-	}
+	showerror("cannot open database", err)
+	//if err != nil {
+	//	log.Fatal(err)
+	//	log.Println("----------")
+	//}
+
+	err = db.Ping()
+	showerror("cannot connect to database", err)
+	//if err = db.Ping(); err != nil {
+	//	log.Panic(err)
+	//}
 }
 
 func main() {
@@ -326,7 +336,7 @@ func printFile(filename string, webprint http.ResponseWriter) {
 	fmt.Println("Starting printFile")
 	texttoprint, err := ioutil.ReadFile(filename)
 	if err != nil {
-		log.Println("Error: cannot open file " + filename)
+		log.Printf("ERROR: cannot open file: %s", filename)
 		if webprint != nil {
 			http.Error(webprint, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 		}
@@ -346,6 +356,7 @@ func checkHost(host string, network string) bool {
 		var myhosts []Host
 		rows, err := db.Query(sqlquery)
 		defer rows.Close()
+		showerror("error running db query", err)
 
 		for rows.Next() {
 			var network string
@@ -358,10 +369,11 @@ func checkHost(host string, network string) bool {
 			var short4 string
 			var mac string
 			err = rows.Scan(&network, &ipv4, &ipv6, &fqdn, &short1, &short2, &short3, &short4, &mac)
+			showerror("cannot parse hosts results", err)
 			myhosts = append(myhosts, Host{MakePaddedIp(ipv4), network, ipv4, ipv6, fqdn, short1, short2, short3, short4, mac})
-			if err != nil {
-				log.Fatal(err)
-			}
+			//if err != nil {
+			//	log.Fatal(err)
+			//}
 			if len(myhosts) >= 1 {
 				log.Printf("%d hosts found matching %s/%s", len(myhosts), host, network)
 				return true
@@ -383,16 +395,18 @@ func checkNetwork(network string) bool {
 		var mynetworks []SingleNetwork
 		rows, err := db.Query(sqlquery)
 		defer rows.Close()
+		showerror("error running db query", err)
 
 		for rows.Next() {
 			var network string
 			var cidr string
 			var description string
 			err = rows.Scan(&network, &cidr, &description)
+			showerror("cannot parse network results", err)
 			mynetworks = append(mynetworks, SingleNetwork{MakePaddedIp(network), network, cidr, description})
-			if err != nil {
-				log.Fatal(err)
-			}
+			//if err != nil {
+			//	log.Fatal(err)
+			//}
 		}
 
 		if len(mynetworks) >= 1 {
@@ -437,6 +451,7 @@ func updateHost(oldhost string, oldnetwork string, newhost string, newnetwork st
 			fmt.Println("*** sqlopen 3")
 			rows, err := db.Query(sqlquery)
 			defer rows.Close()
+			showerror("error running db query", err)
 
 			for rows.Next() {
 				var network string
@@ -449,10 +464,11 @@ func updateHost(oldhost string, oldnetwork string, newhost string, newnetwork st
 				var short4 string
 				var mac string
 				err = rows.Scan(&network, &ipv4, &ipv6, &fqdn, &short1, &short2, &short3, &short4, &mac)
+				showerror("cannot parse hosts results", err)
 				originalhost = append(originalhost, Host{MakePaddedIp(ipv4), network, ipv4, ipv6, fqdn, short1, short2, short3, short4, mac})
-				if err != nil {
-					log.Fatal(err)
-				}
+				//if err != nil {
+				//	log.Fatal(err)
+				//}
 			}
 			if len(originalhost) != 1 {
 				log.Println("Error: more than one host with identifier " + oldhost + "/" + oldnetwork + " discovered")
@@ -554,21 +570,19 @@ func runSql(sqlquery string) {
 		fmt.Println("*** sqlopen 4")
 		_, err := db.Exec(sqlquery)
 		if err != nil {
-			log.Printf("%q: %s\n", err, sqlquery)
+			log.Printf("ERROR: error executing squery: %s: %q\n", sqlquery, err)
 			return
 		}
-	} else {
-		log.Printf("ERROR: sql statement is invalid %s", sqlquery)
 	}
-
 }
 
 // ParseSql checks whether the sql generated is valid
 func ParseSql(sqlquery string) bool {
 	//log.Println("Starting ParseSql")
 	_, err := sqlparser.Parse(sqlquery)
+	showerror("error parsing query", err)
 	if err != nil {
-		log.Printf("Error Detected in SQL: \"%s\" :%s\n", sqlquery, err)
+		log.Printf("ERROR: detected in sql: \"%s\" :%s\n", sqlquery, err)
 		return false
 	}
 	return true
@@ -584,16 +598,18 @@ func listNetworks(webprint http.ResponseWriter, sqlquery string, printjson bool)
 		var mynetworks []SingleNetwork
 		rows, err := db.Query(sqlquery)
 		defer rows.Close()
+		showerror("error running db query", err)
 
 		for rows.Next() {
 			var network string
 			var cidr string
 			var description string
 			err = rows.Scan(&network, &cidr, &description)
+			showerror("cannot parse network results", err)
 			mynetworks = append(mynetworks, SingleNetwork{MakePaddedIp(network), network, cidr, description})
-			if err != nil {
-				log.Fatal(err)
-			}
+			//if err != nil {
+			//	log.Fatal(err)
+			//}
 		}
 
 		if len(mynetworks) > 0 {
@@ -604,7 +620,8 @@ func listNetworks(webprint http.ResponseWriter, sqlquery string, printjson bool)
 			})
 
 			if printjson {
-				c, _ := json.Marshal(mynetworks)
+				c, err := json.Marshal(mynetworks)
+				showerror("cannot marshal json", err)
 				if webprint == nil {
 					fmt.Printf("%s", c)
 				} else {
@@ -671,16 +688,18 @@ func updateNetwork(oldnetwork string, newnetwork string, cidr string, desc strin
 			fmt.Println("*** sqlopen 6")
 			rows, err := db.Query(sqlquery)
 			defer rows.Close()
+			showerror("error running db query", err)
 
 			for rows.Next() {
 				var network string
 				var cidr string
 				var description string
 				err = rows.Scan(&network, &cidr, &description)
+				showerror("cannot parse hosts results", err)
 				originalnetwork = append(originalnetwork, SingleNetwork{MakePaddedIp(network), network, cidr, description})
-				if err != nil {
-					log.Fatal(err)
-				}
+				//if err != nil {
+				//	log.Fatal(err)
+				//}
 			}
 
 			if len(originalnetwork) != 1 {
@@ -731,8 +750,9 @@ func listHost(webprint http.ResponseWriter, network string, sqlquery string, sho
 		var myhosts []Host
 		rows, err := db.Query(sqlquery)
 		defer rows.Close()
+		showerror("error running db query", err)
 
-		log.Println("err = ", err)
+		//log.Println("err = ", err)
 		log.Println("rows = ", rows)
 		for rows.Next() {
 			var network string
@@ -745,9 +765,10 @@ func listHost(webprint http.ResponseWriter, network string, sqlquery string, sho
 			var short4 string
 			var mac string
 			err = rows.Scan(&network, &ipv4, &ipv6, &fqdn, &short1, &short2, &short3, &short4, &mac)
-			if err != nil {
-				log.Fatal(err)
-			}
+			//if err != nil {
+			//	log.Fatal(err)
+			//}
+			showerror("cannot parse hosts results", err)
 			myhosts = append(myhosts, Host{MakePaddedIp(ipv4), network, ipv4, ipv6, fqdn, short1, short2, short3, short4, mac})
 		}
 
@@ -759,7 +780,8 @@ func listHost(webprint http.ResponseWriter, network string, sqlquery string, sho
 			})
 			if printjson {
 				// print json
-				c, _ := json.Marshal(myhosts)
+				c, err := json.Marshal(myhosts)
+				showerror("cannot marshal json", err)
 				if webprint == nil {
 					fmt.Printf("%s", c)
 				} else {
@@ -861,15 +883,17 @@ func startWeb(listenip string, listenport string, usetls bool) {
 	if usetls {
 		log.Println("Starting HTTPS Webserver: " + listenip + ":" + listenport)
 		err := http.ListenAndServeTLS(listenip+":"+listenport, viper.GetString("tlscert"), viper.GetString("tlskey"), r)
-		if err != nil {
-			log.Printf("Error starting HTTPS webserver: %s", err)
-		}
+		//if err != nil {
+		//	log.Printf("Error starting HTTPS webserver: %s", err)
+		//}
+		showerror("cannot start https server", err)
 	} else {
 		log.Println("Starting HTTP Webserver: " + listenip + ":" + listenport)
 		err := http.ListenAndServe(listenip+":"+listenport, r)
-		if err != nil {
-			log.Printf("Error starting HTTP webserver: %s", err)
-		}
+		//if err != nil {
+		//	log.Printf("Error starting HTTP webserver: %s", err)
+		//}
+		showerror("cannot start http server", err)
 	}
 }
 
