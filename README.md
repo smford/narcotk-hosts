@@ -43,7 +43,7 @@ A demo of narcotk-hosts running as the web api is available [https://hosts.narco
 ## Example Uses
 
 1. As a simple hosts file maintenance tool: you can run narcotk-hosts as a simple hosts file maintainer, adding and deleting hosts, and to generate a hosts file.
-2. As a boot strapping tool: a VM or IOT device boots then runs ```\curl http://server.com:23000/mac/de:ad:be:ef:ca:fe?file=configure-system | bash ``` where narcotk-hosts provides a configure system script that can configure your VM or IOT device.
+2. As a boot strapping tool: a VM or IOT device boots then runs `curl http://server.com:23000/mac/de:ad:be:ef:ca:fe?file=configure-system | bash` where narcotk-hosts provides a configure system script that can configure your VM or IOT device.
 
 
 ## Installation
@@ -243,12 +243,12 @@ Multiple files are possible, just pass the filename as a query.  Store the files
 ### Usage Examples
 1. Download and run default file:
 
-       \curl -sSL https://server.com:23000/host/server1.something.com?file=example | bash
+       `curl -sSL https://server.com:23000/host/server1.something.com?file=example | bash`
 
 
 2. Download and install a machines MOTD:
 
-       wget http://server.com:23000/host/server1.something.com?file=motd -O /etc/motd
+       `wget http://server.com:23000/host/server1.something.com?file=motd -O /etc/motd`
 
 
 ## Bootstrapping a System
