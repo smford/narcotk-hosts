@@ -200,16 +200,9 @@ func initDb(databaseFile string, databaseType string) {
 	var err error
 	db, err = sql.Open(databaseType, databaseFile)
 	showerror("cannot open database", err, "warn")
-	//if err != nil {
-	//	log.Fatal(err)
-	//	log.Println("----------")
-	//}
 
 	err = db.Ping()
 	showerror("cannot connect to database", err, "warn")
-	//if err = db.Ping(); err != nil {
-	//	log.Panic(err)
-	//}
 }
 
 func main() {
@@ -374,9 +367,6 @@ func checkHost(host string, network string) bool {
 		err = rows.Scan(&network, &ipv4, &ipv6, &fqdn, &short1, &short2, &short3, &short4, &mac)
 		showerror("cannot parse hosts results", err, "warn")
 		myhosts = append(myhosts, Host{MakePaddedIp(ipv4), network, ipv4, ipv6, fqdn, short1, short2, short3, short4, mac})
-		//if err != nil {
-		//	log.Fatal(err)
-		//}
 		if len(myhosts) >= 1 {
 			log.Printf("%d hosts found matching %s/%s", len(myhosts), host, network)
 			return true
@@ -404,9 +394,6 @@ func checkNetwork(network string) bool {
 		err = rows.Scan(&network, &cidr, &description)
 		showerror("cannot parse network results", err, "warn")
 		mynetworks = append(mynetworks, SingleNetwork{MakePaddedIp(network), network, cidr, description})
-		//if err != nil {
-		//	log.Fatal(err)
-		//}
 	}
 
 	if len(mynetworks) >= 1 {
@@ -463,9 +450,6 @@ func updateHost(oldhost string, oldnetwork string, newhost string, newnetwork st
 			err = rows.Scan(&network, &ipv4, &ipv6, &fqdn, &short1, &short2, &short3, &short4, &mac)
 			showerror("cannot parse hosts results", err, "warn")
 			originalhost = append(originalhost, Host{MakePaddedIp(ipv4), network, ipv4, ipv6, fqdn, short1, short2, short3, short4, mac})
-			//if err != nil {
-			//	log.Fatal(err)
-			//}
 		}
 		if len(originalhost) != 1 {
 			log.Println("Error: more than one host with identifier " + oldhost + "/" + oldnetwork + " discovered")
@@ -608,9 +592,6 @@ func listNetworks(webprint http.ResponseWriter, sqlquery string, printjson bool)
 		err = rows.Scan(&network, &cidr, &description)
 		showerror("cannot parse network results", err, "warn")
 		mynetworks = append(mynetworks, SingleNetwork{MakePaddedIp(network), network, cidr, description})
-		//if err != nil {
-		//	log.Fatal(err)
-		//}
 	}
 
 	if len(mynetworks) > 0 {
@@ -695,9 +676,6 @@ func updateNetwork(oldnetwork string, newnetwork string, cidr string, desc strin
 			err = rows.Scan(&network, &cidr, &description)
 			showerror("cannot parse hosts results", err, "warn")
 			originalnetwork = append(originalnetwork, SingleNetwork{MakePaddedIp(network), network, cidr, description})
-			//if err != nil {
-			//	log.Fatal(err)
-			//}
 		}
 
 		if len(originalnetwork) != 1 {
@@ -757,9 +735,6 @@ func listHost(webprint http.ResponseWriter, network string, sqlquery string, sho
 		var short4 string
 		var mac string
 		err = rows.Scan(&network, &ipv4, &ipv6, &fqdn, &short1, &short2, &short3, &short4, &mac)
-		//if err != nil {
-		//	log.Fatal(err)
-		//}
 		showerror("cannot parse hosts results", err, "warn")
 		myhosts = append(myhosts, Host{MakePaddedIp(ipv4), network, ipv4, ipv6, fqdn, short1, short2, short3, short4, mac})
 	}
@@ -874,16 +849,10 @@ func startWeb(listenip string, listenport string, usetls bool) {
 	if usetls {
 		log.Println("Starting HTTPS Webserver: " + listenip + ":" + listenport)
 		err := http.ListenAndServeTLS(listenip+":"+listenport, viper.GetString("tlscert"), viper.GetString("tlskey"), r)
-		//if err != nil {
-		//	log.Printf("Error starting HTTPS webserver: %s", err)
-		//}
 		showerror("cannot start https server", err, "fatal")
 	} else {
 		log.Println("Starting HTTP Webserver: " + listenip + ":" + listenport)
 		err := http.ListenAndServe(listenip+":"+listenport, r)
-		//if err != nil {
-		//	log.Printf("Error starting HTTP webserver: %s", err)
-		//}
 		showerror("cannot start http server", err, "fatal")
 	}
 }
