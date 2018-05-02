@@ -198,7 +198,6 @@ func init() {
 }
 
 func initDb(databaseFile string, databaseType string) {
-	fmt.Println("*** initDb")
 	var err error
 	db, err = sql.Open(databaseType, databaseFile)
 	showerror("cannot open database", err, "warn")
@@ -216,10 +215,9 @@ func main() {
 	}
 
 	if fileExists(viper.GetString("Database")) {
-		log.Printf("Database file %s exists\n", viper.GetString("Database"))
+		showerror("loading database file", errors.New(viper.GetString("Database")), "info")
 	} else {
-		log.Printf("Database file %s does not exist, exiting\n", viper.GetString("Database"))
-		os.Exit(1)
+		showerror("database file does not exist, exiting", errors.New(viper.GetString("Database")), "fatal")
 	}
 
 	if viper.GetBool("help") {
@@ -702,18 +700,10 @@ func updateNetwork(oldnetwork string, newnetwork string, cidr string, desc strin
 
 func listHost(webprint http.ResponseWriter, network string, sqlquery string, showmac bool, printjson bool) {
 	log.Println("Starting listHost")
-	if webprint == nil {
-		fmt.Println("webprint is null, printing to std out")
-	}
-
-	log.Println("succeed ParseSql on ", sqlquery)
 	var myhosts []Host
 	rows, err := db.Query(sqlquery)
 	defer rows.Close()
 	showerror("error running db query", err, "warn")
-
-	//log.Println("err = ", err)
-	log.Println("rows = ", rows)
 	for rows.Next() {
 		var network string
 		var ipv4 string
@@ -759,13 +749,10 @@ func listHost(webprint http.ResponseWriter, network string, sqlquery string, sho
 			} else {
 				// webprint
 				if showmac {
-					log.Println("webprint=y showmac=y")
 					for _, host := range myhosts {
-						log.Println("webprint=y showmac=y")
 						fmt.Fprintf(webprint, "%-17s  %-15s    %s  %s  %s  %s  %s\n", host.MAC, host.IPv4, host.Hostname, host.Short1, host.Short2, host.Short3, host.Short4)
 					}
 				} else {
-					log.Println("webprint=y showmac=n")
 					for _, host := range myhosts {
 						fmt.Fprintf(webprint, "%-15s    %s  %s  %s  %s  %s\n", host.IPv4, host.Hostname, host.Short1, host.Short2, host.Short3, host.Short4)
 					}
@@ -773,7 +760,7 @@ func listHost(webprint http.ResponseWriter, network string, sqlquery string, sho
 			}
 		}
 	} else {
-		log.Println("host not found")
+		showerror("no hosts not found, ignoring", errors.New("no hosts found"), "warn")
 		if webprint != nil {
 			http.Error(webprint, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 		}
@@ -837,11 +824,11 @@ func startWeb(listenip string, listenport string, usetls bool) {
 	}
 
 	if usetls {
-		log.Println("Starting HTTPS Webserver: " + listenip + ":" + listenport)
+		showerror("Starting HTTPS Webserver", errors.New(listenip+":"+listenport), "info")
 		err := http.ListenAndServeTLS(listenip+":"+listenport, viper.GetString("tlscert"), viper.GetString("tlskey"), r)
 		showerror("cannot start https server", err, "fatal")
 	} else {
-		log.Println("Starting HTTP Webserver: " + listenip + ":" + listenport)
+		showerror("Starting HTTP Webserver", errors.New(listenip+":"+listenport), "info")
 		err := http.ListenAndServe(listenip+":"+listenport, r)
 		showerror("cannot start http server", err, "fatal")
 	}
@@ -1031,9 +1018,6 @@ func handlerRegister(w http.ResponseWriter, r *http.Request) {
 		short2 := vars.Get("s2")
 		short3 := vars.Get("s3")
 		short4 := vars.Get("s4")
-		fmt.Println(vars)
-		fmt.Printf("Starting handlerRegister: fqdn=%s / ip=%s / ipv6=%s / nw=%s / mac=%s / s1=%s / s2=%s / s3=%s / s4=%s\n", fqdn, ip, ipv6, nw, mac, short1, short2, short3, short4)
-		log.Printf("%s requested %s", r.RemoteAddr, r.URL)
 		if (fqdn == "") || (ip == "") || (nw == "") {
 			showerror("fqdn, ip and nw are required", errors.New("not enough params passed"), "warn")
 			fmt.Fprintf(w, "ERROR: fqdn, ip and nw are required")
@@ -1046,7 +1030,7 @@ func handlerRegister(w http.ResponseWriter, r *http.Request) {
 	} else {
 		// https://golang.org/src/net/http/status.go
 		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
-		log.Printf("RegistrationKey invalid (%s), ignoring", regkey)
+		showerror("registration key is invalid, ignoring", errors.New(regkey), "warn")
 	}
 }
 
