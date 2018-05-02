@@ -327,7 +327,6 @@ func printFile(filename string, webprint http.ResponseWriter) {
 	fmt.Println("Starting printFile")
 	texttoprint, err := ioutil.ReadFile(filename)
 	if err != nil {
-		//log.Printf("ERROR: cannot open file: %s", filename)
 		showerror("cannot open file", errors.New(filename), "warn")
 		if webprint != nil {
 			http.Error(webprint, http.StatusText(http.StatusNotFound), http.StatusNotFound)
@@ -395,7 +394,6 @@ func checkNetwork(network string) bool {
 		return true
 	}
 	showerror("no network found", errors.New(network), "warn")
-	//log.Println("no network found for: " + network)
 	return false
 }
 
@@ -542,7 +540,6 @@ func delNetwork(network string) {
 		os.Exit(0)
 	} else {
 		showerror("network not found", errors.New(network), "warn")
-		//fmt.Println("ERROR: network " + network + " not found")
 	}
 }
 
@@ -554,7 +551,6 @@ func runSql(sqlquery string) {
 		_, err := db.Exec(sqlquery)
 		if err != nil {
 			showerror("problem executing query", err, "warn")
-			//log.Printf("ERROR: error executing squery: %s: %q\n", sqlquery, err)
 			return
 		}
 	}
@@ -562,12 +558,10 @@ func runSql(sqlquery string) {
 
 // ParseSql checks whether the sql generated is valid
 func ParseSql(sqlquery string) bool {
-	//log.Println("Starting ParseSql")
 	_, err := sqlparser.Parse(sqlquery)
 	showerror("error parsing query", err, "warn")
 	if err != nil {
 		showerror("problem detected in sql", errors.New("\""+sqlquery+"\""), "warn")
-		//log.Printf("ERROR: detected in sql: \"%s\" :%s\n", sqlquery, err)
 		return false
 	}
 	return true
@@ -930,8 +924,6 @@ func handlerHostFile(w http.ResponseWriter, r *http.Request) {
 	queries := r.URL.Query()
 
 	if queries.Get("file") == "" {
-		// error file doesnt exist, return 404
-		//w.WriteHeader(http.StatusNotFound)
 		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 		return
 	}
@@ -998,7 +990,6 @@ func handlerIp(w http.ResponseWriter, r *http.Request) {
 		showmac = true
 	}
 
-	//sqlquery := "select * from hosts where ipv4 like '" + vars["ip"] + "'"
 	sqlquery := "select * from hosts where (ipv4 like '" + vars["ip"] + "') or (ipv6 like '" + vars["ip"] + "')"
 
 	listHost(w, "", sqlquery, showmac, givejson)
