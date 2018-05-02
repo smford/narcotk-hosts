@@ -273,7 +273,6 @@ func main() {
 
 	if viper.GetBool("version") {
 		displayVersion()
-		os.Exit(0)
 	}
 
 	if viper.GetBool("listnetworks") {
@@ -631,6 +630,7 @@ func listNetworks(webprint http.ResponseWriter, sqlquery string, printjson bool)
 
 func displayVersion() {
 	fmt.Println("narcotk-hosts: 0.1")
+	os.Exit(0)
 }
 
 func setupdb() {
