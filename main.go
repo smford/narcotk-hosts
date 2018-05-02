@@ -251,7 +251,6 @@ func main() {
 
 	if viper.GetString("delnetwork") != "" {
 		delNetwork(viper.GetString("delnetwork"))
-		os.Exit(0)
 	}
 
 	if viper.GetString("delhost") != "" {
@@ -260,7 +259,6 @@ func main() {
 			os.Exit(1)
 		} else {
 			delHost(viper.GetString("delhost"), viper.GetString("network"))
-			os.Exit(0)
 		}
 	}
 
@@ -529,6 +527,7 @@ func delHost(host string, network string) {
 	if checkHost(host, network) {
 		sqlquery := "delete from hosts where (fqdn like '" + host + "') and (network like '" + network + "')"
 		runSql(sqlquery)
+		os.Exit(0)
 	}
 }
 
@@ -544,6 +543,7 @@ func delNetwork(network string) {
 	if checkNetwork(network) {
 		sqlquery := "delete from networks where network like '" + network + "'"
 		runSql(sqlquery)
+		os.Exit(0)
 	} else {
 		showerror("network not found", errors.New(network), "warn")
 		//fmt.Println("ERROR: network " + network + " not found")
