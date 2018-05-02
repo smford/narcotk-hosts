@@ -255,8 +255,7 @@ func main() {
 
 	if viper.GetString("delhost") != "" {
 		if viper.GetString("network") == "" {
-			fmt.Println("Error a network must be provided")
-			os.Exit(1)
+			showerror("a network must be provided", errors.New("not enough params passed"), "fatal")
 		} else {
 			delHost(viper.GetString("delhost"), viper.GetString("network"))
 		}
@@ -264,8 +263,7 @@ func main() {
 
 	if viper.GetString("updatenetwork") != "" {
 		if (viper.GetString("network") == "") && (viper.GetString("cidr") == "") && (viper.GetString("desc") == "") {
-			log.Println("Error: at least one of network, cidr or desc must be specified")
-			os.Exit(1)
+			showerror("at least one of network, cidr or desc be specified", errors.New("not enough params passed"), "fatal")
 		} else {
 			updateNetwork(viper.GetString("updatenetwork"), viper.GetString("network"), viper.GetString("cidr"), viper.GetString("desc"))
 		}
