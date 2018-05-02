@@ -255,7 +255,7 @@ func main() {
 
 	if viper.GetString("delhost") != "" {
 		if viper.GetString("network") == "" {
-			showerror("a network must be provided", errors.New("not enough params passed"), "fatal")
+			showerror("--network is required", errors.New("not enough params passed"), "fatal")
 		} else {
 			delHost(viper.GetString("delhost"), viper.GetString("network"))
 		}
@@ -263,7 +263,7 @@ func main() {
 
 	if viper.GetString("updatenetwork") != "" {
 		if (viper.GetString("network") == "") && (viper.GetString("cidr") == "") && (viper.GetString("desc") == "") {
-			showerror("at least one of network, cidr or desc be specified", errors.New("not enough params passed"), "fatal")
+			showerror("at least one of --network, --cidr or --desc is required", errors.New("not enough params passed"), "fatal")
 		} else {
 			updateNetwork(viper.GetString("updatenetwork"), viper.GetString("network"), viper.GetString("cidr"), viper.GetString("desc"))
 		}
@@ -280,8 +280,7 @@ func main() {
 
 	if viper.GetString("addnetwork") != "" {
 		if (viper.GetString("cidr") == "") || (viper.GetString("desc") == "") {
-			fmt.Println("Error: When using --addnetwork you must also provide --cidr and --desc")
-			os.Exit(1)
+			showerror("--cidr and --desc are required", errors.New("not enough params passed"), "fatal")
 		} else {
 			addNetwork(viper.GetString("addnetwork"), viper.GetString("cidr"), viper.GetString("desc"))
 		}
@@ -289,8 +288,7 @@ func main() {
 
 	if viper.GetString("addhost") != "" {
 		if (viper.GetString("network") == "") || (viper.GetString("ip") == "") {
-			fmt.Println("Error: When using --addhost you must also provide --network and --ip")
-			os.Exit(1)
+			showerror("--network and --ip are required", errors.New("not enough params passed"), "fatal")
 		} else {
 			addHost(viper.GetString("addhost"), viper.GetString("network"), viper.GetString("ip"), viper.GetString("ipv6"), viper.GetString("short1"), viper.GetString("short2"), viper.GetString("short3"), viper.GetString("short4"), viper.GetString("mac"))
 			os.Exit(0)
@@ -299,8 +297,7 @@ func main() {
 
 	if viper.GetString("updatehost") != "" {
 		if viper.GetString("network") == "" {
-			fmt.Println("Error: When using --updatehost you must also provide --network")
-			os.Exit(1)
+			showerror("--network is required", errors.New("not enough params passed"), "fatal")
 		} else {
 			updateHost(viper.GetString("updatehost"), viper.GetString("network"), viper.GetString("host"), viper.GetString("newnetwork"), viper.GetString("ip"), viper.GetString("ipv6"), viper.GetString("short1"), viper.GetString("short2"), viper.GetString("short3"), viper.GetString("short4"), viper.GetString("mac"))
 		}
@@ -365,7 +362,7 @@ func checkHost(host string, network string) bool {
 			log.Printf("%d hosts found matching %s/%s", len(myhosts), host, network)
 			return true
 		}
-		log.Println("Error: no host found for host: " + host + " ip: " + network)
+		showerror("no host found", errors.New(host+" / "+network), "warn")
 		return false
 	}
 	return false
@@ -443,7 +440,7 @@ func updateHost(oldhost string, oldnetwork string, newhost string, newnetwork st
 			originalhost = append(originalhost, Host{MakePaddedIp(ipv4), network, ipv4, ipv6, fqdn, short1, short2, short3, short4, mac})
 		}
 		if len(originalhost) != 1 {
-			log.Println("Error: more than one host with identifier " + oldhost + "/" + oldnetwork + " discovered")
+			showerror("more than one host found with identifier", errors.New(oldhost+" / "+oldnetwork), "warn")
 		} else {
 			for _, host := range originalhost {
 				var updatenetwork string
@@ -509,7 +506,7 @@ func updateHost(oldhost string, oldnetwork string, newhost string, newnetwork st
 			}
 		}
 	} else {
-		log.Printf("Error: Could not find host %s/%s", oldhost, oldnetwork)
+		showerror("could not find host", errors.New(oldhost+" / "+oldnetwork), "warn")
 	}
 }
 
@@ -672,7 +669,7 @@ func updateNetwork(oldnetwork string, newnetwork string, cidr string, desc strin
 		}
 
 		if len(originalnetwork) != 1 {
-			log.Println("Error, more than one network with identifier " + oldnetwork + " discovered")
+			showerror("more than one network found with identifier", errors.New(oldnetwork), "warn")
 		} else {
 			for _, network := range originalnetwork {
 				var updatenetwork string
@@ -699,8 +696,7 @@ func updateNetwork(oldnetwork string, newnetwork string, cidr string, desc strin
 		runSql(updatesqlquery)
 		os.Exit(0)
 	} else {
-		log.Println("Error updating network: \"" + oldnetwork + "\" does not exist")
-		os.Exit(1)
+		showerror("network not found, ignoring", errors.New(oldnetwork), "fatal")
 	}
 }
 
@@ -1039,11 +1035,12 @@ func handlerRegister(w http.ResponseWriter, r *http.Request) {
 		fmt.Printf("Starting handlerRegister: fqdn=%s / ip=%s / ipv6=%s / nw=%s / mac=%s / s1=%s / s2=%s / s3=%s / s4=%s\n", fqdn, ip, ipv6, nw, mac, short1, short2, short3, short4)
 		log.Printf("%s requested %s", r.RemoteAddr, r.URL)
 		if (fqdn == "") || (ip == "") || (nw == "") {
-			log.Printf("Error: fqdn, ip or nw cannot be blank")
+			showerror("fqdn, ip and nw are required", errors.New("not enough params passed"), "warn")
+			fmt.Fprintf(w, "ERROR: fqdn, ip and nw are required")
 		} else {
 			if ValidIP(ip) {
 				addHost(fqdn, nw, ip, ipv6, short1, short2, short3, short4, mac)
-				fmt.Fprintf(w, "Added: %s", vars)
+				fmt.Fprintf(w, "ADDED: %s", vars)
 			}
 		}
 	} else {
@@ -1069,7 +1066,7 @@ func ValidIP(ip string) bool {
 	if net.ParseIP(ip) != nil {
 		return true
 	}
-	log.Printf("Error: ip %s is not valid", ip)
+	showerror("ip is not valid", errors.New(ip), "warn")
 	return false
 }
 
