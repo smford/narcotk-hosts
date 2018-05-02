@@ -269,7 +269,6 @@ func main() {
 		} else {
 			updateNetwork(viper.GetString("updatenetwork"), viper.GetString("network"), viper.GetString("cidr"), viper.GetString("desc"))
 		}
-		os.Exit(0)
 	}
 
 	if viper.GetBool("version") {
@@ -308,7 +307,6 @@ func main() {
 			os.Exit(1)
 		} else {
 			updateHost(viper.GetString("updatehost"), viper.GetString("network"), viper.GetString("host"), viper.GetString("newnetwork"), viper.GetString("ip"), viper.GetString("ipv6"), viper.GetString("short1"), viper.GetString("short2"), viper.GetString("short3"), viper.GetString("short4"), viper.GetString("mac"))
-			os.Exit(0)
 		}
 	}
 
@@ -512,6 +510,7 @@ func updateHost(oldhost string, oldnetwork string, newhost string, newnetwork st
 					updatesqlquery = "update hosts set network = '" + updatenetwork + "', ipv4 = '" + updateipv4 + "', ipv6 = '" + updateipv6 + "', fqdn = '" + updatefqdn + "', short1 = '" + updateshort1 + "', short2 = '" + updateshort2 + "', short3 = '" + updateshort3 + "', short4 = '" + updateshort4 + "', mac = '" + updatemac + "' where fqdn like '" + oldhost + "' and network like '" + oldnetwork + "'"
 					runSql(updatesqlquery)
 					fmt.Println("NEW UPDATE=" + updatesqlquery)
+					os.Exit(0)
 				}
 			}
 		}
@@ -706,6 +705,7 @@ func updateNetwork(oldnetwork string, newnetwork string, cidr string, desc strin
 			}
 		}
 		runSql(updatesqlquery)
+		os.Exit(0)
 	} else {
 		log.Println("Error updating network: \"" + oldnetwork + "\" does not exist")
 		os.Exit(1)
