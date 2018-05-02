@@ -286,7 +286,6 @@ func main() {
 			os.Exit(1)
 		} else {
 			addNetwork(viper.GetString("addnetwork"), viper.GetString("cidr"), viper.GetString("desc"))
-			os.Exit(0)
 		}
 	}
 
@@ -534,6 +533,7 @@ func addNetwork(network string, cidr string, desc string) {
 	sqlquery := "insert into networks (network, cidr, description) values ('" + network + "', '" + cidr + "', '" + desc + "')"
 	fmt.Println("addNetwork query: " + sqlquery)
 	runSql(sqlquery)
+	os.Exit(0)
 }
 
 func delNetwork(network string) {
