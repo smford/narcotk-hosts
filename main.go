@@ -68,12 +68,13 @@ type AllNetworks struct {
 	Networks []SingleNetwork `json:"Networks"`
 }
 
+// log an error and if fatal exit app
 func showerror(message string, e error, reaction string) {
 	if e != nil {
 		if strings.ToLower(reaction) == "fatal" {
 			log.Fatalf("ERROR: %s:%s", message, e)
 		} else {
-			log.Printf("ERROR: %s:%s", message, e)
+			log.Printf("%s: %s:%s", strings.ToUpper(reaction), message, e)
 		}
 	}
 }
