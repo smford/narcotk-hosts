@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"flag"
 	"fmt"
 	"github.com/gorilla/mux"
@@ -334,7 +335,8 @@ func printFile(filename string, webprint http.ResponseWriter) {
 	fmt.Println("Starting printFile")
 	texttoprint, err := ioutil.ReadFile(filename)
 	if err != nil {
-		log.Printf("ERROR: cannot open file: %s", filename)
+		//log.Printf("ERROR: cannot open file: %s", filename)
+		showerror("cannot open file", errors.New(filename), "warn")
 		if webprint != nil {
 			http.Error(webprint, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 		}
@@ -526,8 +528,6 @@ func delHost(host string, network string) {
 	if checkHost(host, network) {
 		sqlquery := "delete from hosts where (fqdn like '" + host + "') and (network like '" + network + "')"
 		runSql(sqlquery)
-	} else {
-		fmt.Println("ERROR: host " + host + " / " + network + " not found")
 	}
 }
 
