@@ -402,7 +402,8 @@ func checkNetwork(network string) bool {
 		log.Printf("%d networks found\n", len(mynetworks))
 		return true
 	}
-	log.Println("no network found for: " + network)
+	showerror("no network found", errors.New(network), "warn")
+	//log.Println("no network found for: " + network)
 	return false
 }
 
@@ -544,7 +545,8 @@ func delNetwork(network string) {
 		sqlquery := "delete from networks where network like '" + network + "'"
 		runSql(sqlquery)
 	} else {
-		fmt.Println("ERROR: network " + network + " not found")
+		showerror("network not found", errors.New(network), "warn")
+		//fmt.Println("ERROR: network " + network + " not found")
 	}
 }
 
@@ -555,7 +557,8 @@ func runSql(sqlquery string) {
 	if ParseSql(sqlquery) {
 		_, err := db.Exec(sqlquery)
 		if err != nil {
-			log.Printf("ERROR: error executing squery: %s: %q\n", sqlquery, err)
+			showerror("problem executing query", err, "warn")
+			//log.Printf("ERROR: error executing squery: %s: %q\n", sqlquery, err)
 			return
 		}
 	}
@@ -567,7 +570,8 @@ func ParseSql(sqlquery string) bool {
 	_, err := sqlparser.Parse(sqlquery)
 	showerror("error parsing query", err, "warn")
 	if err != nil {
-		log.Printf("ERROR: detected in sql: \"%s\" :%s\n", sqlquery, err)
+		showerror("problem detected in sql", errors.New("\""+sqlquery+"\""), "warn")
+		//log.Printf("ERROR: detected in sql: \"%s\" :%s\n", sqlquery, err)
 		return false
 	}
 	return true
