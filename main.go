@@ -537,17 +537,25 @@ func delNetwork(network string) {
 	}
 }
 
-func runSql(sqlquery string) {
+func runSql(sqlquery string) bool {
 	fmt.Println("Running generic runSql function")
 	fmt.Println("runSql query: " + sqlquery)
 
 	if ParseSql(sqlquery) {
 		_, err := db.Exec(sqlquery)
+
+		// problem detected when trying to exec query
 		if err != nil {
 			showerror("problem executing query", err, "warn")
-			return
+			return false
 		}
+
+		// no problems detected running sqlquery
+		return true
 	}
+
+	// parseSql returned parse failure
+	return false
 }
 
 // ParseSql checks whether the sql generated is valid
