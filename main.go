@@ -522,14 +522,24 @@ func delHost(host string, network string) {
 
 func addNetwork(network string, cidr string, desc string) {
 	fmt.Println("Adding new network: " + network + "\nCIDR: " + cidr + "\nDescription: " + desc)
-	sqlquery := "insert into networks (network, cidr, description) values ('" + network + "', '" + cidr + "', '" + desc + "')"
-	fmt.Println("addNetwork query: " + sqlquery)
-	runSql(sqlquery)
-	os.Exit(0)
+
+	// only add if no network exists already
+	if !checkNetwork(network) {
+		sqlquery := "insert into networks (network, cidr, description) values ('" + network + "', '" + cidr + "', '" + desc + "')"
+		if !runSql(sqlquery) {
+			showerror("problem detected when tring to add network", errors.New(network+" / "+cidr+" / "+desc), "fatal")
+		}
+		os.Exit(0)
+	} else {
+		showerror("network already exists", errors.New(network), "fatal")
+		os.Exit(1)
+	}
 }
 
 func delNetwork(network string) {
 	fmt.Println("Deleting network: " + network)
+
+	// check if network exists
 	if checkNetwork(network) {
 		sqlquery := "delete from networks where network like '" + network + "'"
 		if !runSql(sqlquery) {
