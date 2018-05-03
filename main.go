@@ -530,11 +530,14 @@ func delNetwork(network string) {
 	fmt.Println("Deleting network: " + network)
 	if checkNetwork(network) {
 		sqlquery := "delete from networks where network like '" + network + "'"
-		runSql(sqlquery)
+		if !runSql(sqlquery) {
+			showerror("problem detected when trying to delete network", errors.New(network), "fatal")
+		}
 		os.Exit(0)
 	} else {
 		showerror("network not found", errors.New(network), "warn")
 	}
+	os.Exit(0)
 }
 
 func runSql(sqlquery string) bool {
@@ -704,11 +707,14 @@ func updateNetwork(oldnetwork string, newnetwork string, cidr string, desc strin
 				updatesqlquery = "update networks set network = '" + updatenetwork + "', cidr = '" + updatecidr + "', description = '" + updatedesc + "' where network like '" + oldnetwork + "'"
 			}
 		}
-		runSql(updatesqlquery)
-		os.Exit(0)
+
+		if !runSql(updatesqlquery) {
+			showerror("problem detected when trying to update network", errors.New(oldnetwork), "fatal")
+		}
 	} else {
 		showerror("network not found, ignoring", errors.New(oldnetwork), "fatal")
 	}
+	os.Exit(0)
 }
 
 func listHost(webprint http.ResponseWriter, network string, sqlquery string, showmac bool, printjson bool) {
