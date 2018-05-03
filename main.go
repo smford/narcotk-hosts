@@ -513,7 +513,7 @@ func delHost(host string, network string) {
 	if checkHost(host, network) {
 		sqlquery := "delete from hosts where (fqdn like '" + host + "') and (network like '" + network + "')"
 		if !runSql(sqlquery) {
-			showerror("problem detected when trying to delete host", errors.New(host+" / "+network), "fatal")
+			showerror("problem detected when trying to delete host from database", errors.New(host+" / "+network), "fatal")
 		}
 		os.Exit(0)
 	} else {
@@ -529,7 +529,7 @@ func addNetwork(network string, cidr string, desc string) {
 	if !checkNetwork(network) {
 		sqlquery := "insert into networks (network, cidr, description) values ('" + network + "', '" + cidr + "', '" + desc + "')"
 		if !runSql(sqlquery) {
-			showerror("problem detected when tring to add network", errors.New(network+" / "+cidr+" / "+desc), "fatal")
+			showerror("problem detected when tring to add network to database", errors.New(network+" / "+cidr+" / "+desc), "fatal")
 		}
 		os.Exit(0)
 	} else {
@@ -545,7 +545,7 @@ func delNetwork(network string) {
 	if checkNetwork(network) {
 		sqlquery := "delete from networks where network like '" + network + "'"
 		if !runSql(sqlquery) {
-			showerror("problem detected when trying to delete network", errors.New(network), "fatal")
+			showerror("problem detected when trying to delete network from database", errors.New(network), "fatal")
 		}
 		os.Exit(0)
 	} else {
@@ -563,7 +563,7 @@ func runSql(sqlquery string) bool {
 
 		// problem detected when trying to exec query
 		if err != nil {
-			showerror("problem executing query", err, "warn")
+			showerror("problem executing query against database", err, "warn")
 			return false
 		}
 
@@ -723,7 +723,7 @@ func updateNetwork(oldnetwork string, newnetwork string, cidr string, desc strin
 		}
 
 		if !runSql(updatesqlquery) {
-			showerror("problem detected when trying to update network", errors.New(oldnetwork), "fatal")
+			showerror("problem detected when trying to update network in database", errors.New(oldnetwork), "fatal")
 		}
 	} else {
 		showerror("network not found, ignoring", errors.New(oldnetwork), "fatal")
