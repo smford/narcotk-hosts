@@ -515,6 +515,8 @@ func delHost(host string, network string) {
 		sqlquery := "delete from hosts where (fqdn like '" + host + "') and (network like '" + network + "')"
 		runSql(sqlquery)
 		os.Exit(0)
+	} else {
+		os.Exit(1)
 	}
 }
 
@@ -535,9 +537,8 @@ func delNetwork(network string) {
 		}
 		os.Exit(0)
 	} else {
-		showerror("network not found", errors.New(network), "warn")
+		os.Exit(1)
 	}
-	os.Exit(0)
 }
 
 func runSql(sqlquery string) bool {
