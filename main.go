@@ -210,8 +210,7 @@ func main() {
 	fmt.Println("Starting main function")
 
 	if viper.GetBool("setupdb") {
-		setupdb()
-		os.Exit(0)
+		setupdb(viper.GetString("Database"), viper.GetString("DatabaseType"))
 	}
 
 	if fileExists(viper.GetString("Database")) {
@@ -620,8 +619,8 @@ func displayVersion() {
 	os.Exit(0)
 }
 
-func setupdb() {
-	fmt.Printf("Setting up a new database: %s / %s", viper.GetString("Database"), viper.GetString("DatabaseType"))
+func setupdb(databaseFile string, databaseType string) {
+	fmt.Printf("Setting up a new database: %s / %s", databaseFile, databaseType)
 	sqlquery := `
   CREATE TABLE hosts (
     network text NOT NULL,
@@ -633,13 +632,19 @@ func setupdb() {
     short3 text DEFAULT '',
     short4 text DEFAULT '',
     mac text DEFAULT '')`
-	runSql(sqlquery)
+	if !runSql(sqlquery) {
+		showerror("problem detected when trying to initialise new database table hosts", errors.New("hosts table / "+databaseFile+" / "+databaseType), "fatal")
+	}
+
 	sqlquery = `
   CREATE TABLE networks (
     network text PRIMARY KEY,
     cidr text NOT NULL,
     description text NOT NULL DEFAULT '')`
-	runSql(sqlquery)
+	if !runSql(sqlquery) {
+		showerror("problem detected when trying to initialise new database table networks", errors.New("network table / "+databaseFile+" / "+databaseType), "fatal")
+	}
+	os.Exit(0)
 }
 
 func updateNetwork(oldnetwork string, newnetwork string, cidr string, desc string) {
