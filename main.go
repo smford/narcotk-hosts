@@ -507,14 +507,17 @@ func updateHost(oldhost string, oldnetwork string, newhost string, newnetwork st
 }
 
 func delHost(host string, network string) {
-	fmt.Println("Deleting host:")
-	fmt.Println(host)
-	fmt.Println(network)
+	fmt.Println("Deleting host: " + host + " / " + network)
+
+	// check if host exists
 	if checkHost(host, network) {
 		sqlquery := "delete from hosts where (fqdn like '" + host + "') and (network like '" + network + "')"
-		runSql(sqlquery)
+		if !runSql(sqlquery) {
+			showerror("problem detected when trying to delete host", errors.New(host+" / "+network), "fatal")
+		}
 		os.Exit(0)
 	} else {
+		showerror("host does not exist", errors.New(host+" / "+network), "fatal")
 		os.Exit(1)
 	}
 }
