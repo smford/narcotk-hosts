@@ -793,7 +793,7 @@ func listHost(webprint http.ResponseWriter, network string, sqlquery string, sho
 			}
 		}
 	} else {
-		showerror("no hosts not found, ignoring", errors.New("no hosts found"), "warn")
+		showerror("no hosts found, ignoring", errors.New("no hosts found"), "warn")
 		if webprint != nil {
 			http.Error(webprint, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 		}
