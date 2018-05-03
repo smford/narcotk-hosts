@@ -391,20 +391,41 @@ func checkNetwork(network string) bool {
 }
 
 func addHost(addhost string, network string, ip string, ipv6 string, short1 string, short2 string, short3 string, short4 string, mac string) {
-	fmt.Println("Adding new host:")
-	fmt.Println(addhost)
-	fmt.Println(network)
-	fmt.Println(ip)
-	fmt.Println(ipv6)
-	fmt.Println(short1)
-	fmt.Println(short2)
-	fmt.Println(short3)
-	fmt.Println(short4)
-	fmt.Println(mac)
 	mac = PrepareMac(mac)
-	if checkNetwork(network) && ValidIP(ip) {
-		sqlquery := "insert into hosts (network, ipv4, ipv6, fqdn, short1, short2, short3, short4, mac) values ('" + network + "', '" + ip + "', '" + ipv6 + "', '" + addhost + "', '" + short1 + "', '" + short2 + "', '" + short3 + "', '" + short4 + "', '" + mac + "')"
-		runSql(sqlquery)
+
+	// make sure host doesn't already exist
+	if !checkHost(addhost, network) {
+
+		// check if valid network
+		if checkNetwork(network) {
+
+			// check if valid ip
+			if ValidIP(ip) {
+				// all is fine, add the host
+
+				fmt.Println("Adding new host:")
+				fmt.Println("FQDN:    " + addhost)
+				fmt.Println("Network: " + network)
+				fmt.Println("IPv4:    " + ip)
+				fmt.Println("IPv6:    " + ipv6)
+				fmt.Println("Short 1: " + short1)
+				fmt.Println("Short 2: " + short2)
+				fmt.Println("Short 3: " + short3)
+				fmt.Println("Short 4: " + short4)
+				fmt.Println("MAC:     " + mac)
+
+				sqlquery := "insert into hosts (network, ipv4, ipv6, fqdn, short1, short2, short3, short4, mac) values ('" + network + "', '" + ip + "', '" + ipv6 + "', '" + addhost + "', '" + short1 + "', '" + short2 + "', '" + short3 + "', '" + short4 + "', '" + mac + "')"
+				runSql(sqlquery)
+
+			} else {
+				showerror("ipv4 address is not valid", errors.New(ip), "fatal")
+			}
+
+		} else {
+			showerror("network does not exist", errors.New(network), "fatal")
+		}
+	} else {
+		showerror("host already exists", errors.New(addhost+" / "+network), "fatal")
 	}
 }
 
