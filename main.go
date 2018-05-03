@@ -387,7 +387,6 @@ func checkNetwork(network string) bool {
 		log.Printf("%d networks found\n", len(mynetworks))
 		return true
 	}
-	showerror("no network found", errors.New(network), "warn")
 	return false
 }
 
@@ -547,6 +546,7 @@ func delNetwork(network string) {
 		}
 		os.Exit(0)
 	} else {
+		showerror("network does not exist", errors.New(network), "fatal")
 		os.Exit(1)
 	}
 }
