@@ -201,7 +201,6 @@ func initDb(databaseFile string, databaseType string) {
 	var err error
 	db, err = sql.Open(databaseType, databaseFile)
 	showerror("cannot open database", err, "warn")
-
 	err = db.Ping()
 	showerror("cannot connect to database", err, "warn")
 }
@@ -514,17 +513,26 @@ func updateHost(oldhost string, oldnetwork string, newhost string, newnetwork st
 				} else {
 					updatemac = newmac
 				}
-				if checkNetwork(updatenetwork) && ValidIP(newipv4) {
-					updatesqlquery = "update hosts set network = '" + updatenetwork + "', ipv4 = '" + updateipv4 + "', ipv6 = '" + updateipv6 + "', fqdn = '" + updatefqdn + "', short1 = '" + updateshort1 + "', short2 = '" + updateshort2 + "', short3 = '" + updateshort3 + "', short4 = '" + updateshort4 + "', mac = '" + updatemac + "' where fqdn like '" + oldhost + "' and network like '" + oldnetwork + "'"
-					runSql(updatesqlquery)
-					fmt.Println("NEW UPDATE=" + updatesqlquery)
-					os.Exit(0)
+
+				if checkNetwork(updatenetwork) {
+					if ValidIP(updateipv4) {
+						updatesqlquery = "update hosts set network = '" + updatenetwork + "', ipv4 = '" + updateipv4 + "', ipv6 = '" + updateipv6 + "', fqdn = '" + updatefqdn + "', short1 = '" + updateshort1 + "', short2 = '" + updateshort2 + "', short3 = '" + updateshort3 + "', short4 = '" + updateshort4 + "', mac = '" + updatemac + "' where fqdn like '" + oldhost + "' and network like '" + oldnetwork + "'"
+						if !runSql(updatesqlquery) {
+							showerror("error detected when trying to update host in database", errors.New(viper.GetString("Database")), "fatal")
+						}
+					} else {
+						showerror("new ipv4 is invalid, cannot update", errors.New(updateipv4), "fatal")
+					}
+
+				} else {
+					showerror("new network not found, cannot update", errors.New(updatenetwork), "fatal")
 				}
 			}
 		}
 	} else {
-		showerror("could not find host", errors.New(oldhost+" / "+oldnetwork), "warn")
+		showerror("could not find host", errors.New(oldhost+" / "+oldnetwork), "fatal")
 	}
+	os.Exit(0)
 }
 
 func delHost(host string, network string) {
