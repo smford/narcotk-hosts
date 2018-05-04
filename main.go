@@ -96,6 +96,7 @@ func displayConfig() {
 	fmt.Printf("TLSKey:          %s\n", viper.GetString("TLSKey"))
 	fmt.Printf("RegistrationKey: %s\n", viper.GetString("RegistationKey"))
 	fmt.Printf("Verbose:         %s\n", viper.GetString("Verbose"))
+	os.Exit(0)
 }
 
 // PrepareMac cleans up a mac address and makes in to a consistent format
@@ -220,12 +221,10 @@ func main() {
 
 	if viper.GetBool("help") {
 		displayHelp()
-		os.Exit(0)
 	}
 
 	if viper.GetBool("displayconfig") {
 		displayConfig()
-		os.Exit(0)
 	}
 
 	initDb(viper.GetString("Database"), viper.GetString("DatabaseType"))
@@ -345,7 +344,7 @@ func checkHost(host string, network string) bool {
 	var myhosts []Host
 	rows, err := db.Query(sqlquery)
 	defer rows.Close()
-	showerror("error running db query", err, "warn")
+	showerror("error running db query", err, "fatal")
 
 	for rows.Next() {
 		var network string
