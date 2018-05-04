@@ -414,7 +414,10 @@ func addHost(addhost string, network string, ip string, ipv6 string, short1 stri
 				fmt.Println("MAC:     " + mac)
 
 				sqlquery := "insert into hosts (network, ipv4, ipv6, fqdn, short1, short2, short3, short4, mac) values ('" + network + "', '" + ip + "', '" + ipv6 + "', '" + addhost + "', '" + short1 + "', '" + short2 + "', '" + short3 + "', '" + short4 + "', '" + mac + "')"
-				runSql(sqlquery)
+				if !runSql(sqlquery) {
+					showerror("problem detected when trying to add host to database", errors.New(addhost+" / "+network), "fatal")
+				}
+				os.Exit(0)
 
 			} else {
 				showerror("ipv4 address is not valid", errors.New(ip), "fatal")
