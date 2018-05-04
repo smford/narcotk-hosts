@@ -303,17 +303,23 @@ func main() {
 		printFile(viper.GetString("HeaderFile"), nil)
 	}
 
+	if viper.GetString("host") != "" {
+		fmt.Println("where host != blank")
+		sqlquery := "select * from hosts where fqdn like '" + viper.GetString("host") + "'"
+		listHost(nil, "", sqlquery, viper.GetBool("showmac"), viper.GetBool("json"))
+		//} else {
+		//listHost(nil, viper.GetString("network"), "select * from hosts", viper.GetBool("showmac"), viper.GetBool("json"))
+		os.Exit(0)
+	}
+
 	if viper.GetString("network") != "" {
 		listHost(nil, viper.GetString("network"), "select * from hosts where network like '"+viper.GetString("network")+"'", viper.GetBool("showmac"), viper.GetBool("json"))
 		os.Exit(0)
 	}
 
-	if viper.GetString("host") != "" {
-		sqlquery := "select * from hosts where fqdn like '" + viper.GetString("host") + "'"
-		listHost(nil, "", sqlquery, viper.GetBool("showmac"), viper.GetBool("json"))
-	} else {
-		listHost(nil, viper.GetString("network"), "select * from hosts", viper.GetBool("showmac"), viper.GetBool("json"))
-	}
+	// catch all print all hosts
+	fmt.Println("catchall/default list hosts")
+	listHost(nil, viper.GetString("network"), "select * from hosts", viper.GetBool("showmac"), viper.GetBool("json"))
 }
 
 func printFile(filename string, webprint http.ResponseWriter) {
