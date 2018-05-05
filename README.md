@@ -100,6 +100,7 @@ When running narcotk-hosts for the first time, you need to run the below command
 | Setting | Default | Details |
 |:--|:--|:--|
 | Database | ./narcotk_hosts_all.db | database file to use |
+| DatabaseType | sqlite3 | database type to use (sqlite3 only supported at moment) |
 | EnableTLS | false | enable or disable TLS |
 | Files | ./files | directory of scripts |
 | HeaderFile | ./header.txt | display header file |
@@ -121,6 +122,7 @@ The default configuration file (narcotk-hosts-config.json) is read from the same
 ```
 {
     "Database": "./narcotk_hosts_all.db",
+    "DatabaseType": "sqlite3",
     "EnableTLS": false,
     "Files": "./files",
     "HeaderFile": "./header.txt",
