@@ -80,6 +80,34 @@ func showerror(message string, e error, reaction string) {
 	}
 }
 
+func findHosts(sqlquery string) []Host {
+	fmt.Println("Starting findHosts: \"" + sqlquery + "\"")
+	var myhosts []Host
+	rows, err := db.Query(sqlquery)
+	defer rows.Close()
+	showerror("error running db query", err, "fatal")
+
+	for rows.Next() {
+		var network string
+		var ipv4 string
+		var ipv6 string
+		var fqdn string
+		var short1 string
+		var short2 string
+		var short3 string
+		var short4 string
+		var mac string
+		err = rows.Scan(&network, &ipv4, &ipv6, &fqdn, &short1, &short2, &short3, &short4, &mac)
+		showerror("cannot parse hosts results", err, "warn")
+		myhosts = append(myhosts, Host{MakePaddedIp(ipv4), network, ipv4, ipv6, fqdn, short1, short2, short3, short4, mac})
+	}
+	log.Printf("%d hosts found for \"%s\"", len(myhosts), sqlquery)
+	sort.Slice(myhosts, func(i, j int) bool {
+		return bytes.Compare([]byte(myhosts[i].PaddedIP), []byte(myhosts[j].PaddedIP)) < 0
+	})
+	return myhosts
+}
+
 func displayConfig() {
 	fmt.Println("Starting displayConfig function")
 	fmt.Printf("ShowHeader:      %s\n", viper.GetString("ShowHeader"))
