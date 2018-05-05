@@ -38,11 +38,6 @@ type Host struct {
 	MAC      string `json:"MAC"`
 }
 
-// Hosts is an array of hosts
-type Hosts struct {
-	Hosts []Host `json:"Hosts"`
-}
-
 // HostsSingleNetwork details a network and all its constituent hosts
 type HostsSingleNetwork struct {
 	Network     string `json:"Network"`
