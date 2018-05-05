@@ -46,11 +46,6 @@ type HostsSingleNetwork struct {
 	Hosts       []Host `json:"Hosts"`
 }
 
-// HostsAllNetworks contains all hosts in all networks
-type HostsAllNetworks struct {
-	Networks []HostsSingleNetwork `json:"Networks"`
-}
-
 // SingleNetwork holds details of a specific network
 type SingleNetwork struct {
 	PaddedNetwork string `json:"PaddedNetwork"`
