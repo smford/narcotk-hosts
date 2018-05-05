@@ -797,6 +797,58 @@ func updateNetwork(oldnetwork string, newnetwork string, cidr string, desc strin
 }
 
 func listHost(webprint http.ResponseWriter, network string, sqlquery string, showmac bool, printjson bool) {
+	log.Println("Starting listHostNew")
+	myhosts := findHosts(sqlquery)
+
+	if len(myhosts) > 0 {
+		log.Printf("%d hosts found\n", len(myhosts))
+
+		sort.Slice(myhosts, func(i, j int) bool {
+			return bytes.Compare([]byte(myhosts[i].PaddedIP), []byte(myhosts[j].PaddedIP)) < 0
+		})
+		if printjson {
+			// print json
+			c, err := json.Marshal(myhosts)
+			showerror("cannot marshal json", err, "warn")
+			if webprint == nil {
+				fmt.Printf("%s", c)
+			} else {
+				fmt.Fprintf(webprint, "%s", c)
+			}
+		} else {
+			// print standard
+			if webprint == nil {
+				if showmac {
+					for _, host := range myhosts {
+						fmt.Printf("%-17s  %-15s    %s  %s  %s  %s  %s\n", host.MAC, host.IPv4, host.Hostname, host.Short1, host.Short2, host.Short3, host.Short4)
+					}
+				} else {
+					for _, host := range myhosts {
+						fmt.Printf("%-15s    %s  %s  %s  %s  %s\n", host.IPv4, host.Hostname, host.Short1, host.Short2, host.Short3, host.Short4)
+					}
+				}
+			} else {
+				// webprint
+				if showmac {
+					for _, host := range myhosts {
+						fmt.Fprintf(webprint, "%-17s  %-15s    %s  %s  %s  %s  %s\n", host.MAC, host.IPv4, host.Hostname, host.Short1, host.Short2, host.Short3, host.Short4)
+					}
+				} else {
+					for _, host := range myhosts {
+						fmt.Fprintf(webprint, "%-15s    %s  %s  %s  %s  %s\n", host.IPv4, host.Hostname, host.Short1, host.Short2, host.Short3, host.Short4)
+					}
+				}
+			}
+		}
+	} else {
+		showerror("no hosts found, ignoring", errors.New("no hosts found"), "warn")
+		if webprint != nil {
+			http.Error(webprint, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+		}
+	}
+}
+
+func listHostOld(webprint http.ResponseWriter, network string, sqlquery string, showmac bool, printjson bool) {
 	log.Println("Starting listHost")
 	var myhosts []Host
 	rows, err := db.Query(sqlquery)
