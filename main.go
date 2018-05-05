@@ -38,14 +38,6 @@ type Host struct {
 	MAC      string `json:"MAC"`
 }
 
-// HostsSingleNetwork details a network and all its constituent hosts
-type HostsSingleNetwork struct {
-	Network     string `json:"Network"`
-	CIDR        string `json:"CIDR"`
-	Description string `json:"Description"`
-	Hosts       []Host `json:"Hosts"`
-}
-
 // SingleNetwork holds details of a specific network
 type SingleNetwork struct {
 	PaddedNetwork string `json:"PaddedNetwork"`
