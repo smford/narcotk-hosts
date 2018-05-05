@@ -54,11 +54,6 @@ type SingleNetwork struct {
 	Description   string `json:"Description"`
 }
 
-// AllNetworks holds details of all networks
-type AllNetworks struct {
-	Networks []SingleNetwork `json:"Networks"`
-}
-
 // log an error and if fatal exit app
 func showerror(message string, e error, reaction string) {
 	if e != nil {
