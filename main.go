@@ -85,6 +85,28 @@ func findHosts(sqlquery string) []Host {
 	return myhosts
 }
 
+func findNetworks(sqlquery string) []SingleNetwork {
+	fmt.Println("Starting findNetworks: \"" + sqlquery + "\"")
+	var mynetworks []SingleNetwork
+	rows, err := db.Query(sqlquery)
+	defer rows.Close()
+	showerror("error running db query", err, "fatal")
+
+	for rows.Next() {
+		var network string
+		var cidr string
+		var description string
+		err = rows.Scan(&network, &cidr, &description)
+		showerror("cannot parse network results", err, "warn")
+		mynetworks = append(mynetworks, SingleNetwork{MakePaddedIp(network), network, cidr, description})
+	}
+	log.Printf("%d networks found\n", len(mynetworks))
+	sort.Slice(mynetworks, func(i, j int) bool {
+		return bytes.Compare([]byte(mynetworks[i].PaddedNetwork), []byte(mynetworks[j].PaddedNetwork)) < 0
+	})
+	return mynetworks
+}
+
 func displayConfig() {
 	fmt.Println("Starting displayConfig function")
 	fmt.Printf("ShowHeader:      %s\n", viper.GetString("ShowHeader"))
@@ -628,7 +650,7 @@ func ParseSql(sqlquery string) bool {
 	return true
 }
 
-func listNetworks(webprint http.ResponseWriter, sqlquery string, printjson bool) {
+func listNetworksOld(webprint http.ResponseWriter, sqlquery string, printjson bool) {
 	fmt.Println("Starting listNetworks")
 	if webprint == nil {
 		fmt.Println("webprint is null, printing to std out")
@@ -653,6 +675,43 @@ func listNetworks(webprint http.ResponseWriter, sqlquery string, printjson bool)
 		sort.Slice(mynetworks, func(i, j int) bool {
 			return bytes.Compare([]byte(mynetworks[i].PaddedNetwork), []byte(mynetworks[j].PaddedNetwork)) < 0
 		})
+
+		if printjson {
+			c, err := json.Marshal(mynetworks)
+			showerror("cannot marshal json", err, "warn")
+			if webprint == nil {
+				fmt.Printf("%s", c)
+			} else {
+				fmt.Fprintf(webprint, "%s", c)
+			}
+		} else {
+			if webprint == nil {
+				for _, network := range mynetworks {
+					fmt.Printf("%-15s  %-18s  %s\n", network.Network, network.CIDR, network.Description)
+				}
+			} else {
+				for _, network := range mynetworks {
+					fmt.Fprintf(webprint, "%-15s  %-18s  %s\n", network.Network, network.CIDR, network.Description)
+				}
+			}
+		}
+	} else {
+		log.Println("no networks found")
+		if webprint != nil {
+			http.Error(webprint, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+		}
+	}
+}
+
+func listNetworks(webprint http.ResponseWriter, sqlquery string, printjson bool) {
+	fmt.Println("Starting listNetworksNew")
+	if webprint == nil {
+		fmt.Println("webprint is null, printing to std out")
+	}
+	mynetworks := findNetworks(sqlquery)
+
+	if len(mynetworks) > 0 {
+		log.Printf("%d networks found\n", len(mynetworks))
 
 		if printjson {
 			c, err := json.Marshal(mynetworks)
