@@ -1175,7 +1175,7 @@ Commands:
   Display a host:
       --host=server1.domain.com
 
-  Adding a host:
+  Add a host:
       --addhost=server-1-199.domain.com --network=192.168.1 --ip=192.168.1.13 --ipv6=::6 --short1=server-1-199 --short2=server --short3=serv --short4=ser --mac=de:ad:be:ef:ca:fe
 
   Update a host:
