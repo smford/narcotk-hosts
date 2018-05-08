@@ -1197,16 +1197,16 @@ Commands:
   Start Web Service using config file EnableTLS setting:
       --startweb
 
-  Start Web Service using:
+  Start Web Service using HTTP:
       --starthttp
 
-  Start Web HTTPS Service:
+  Start Web Service using HTTPS:
       --starthttps
 
-  Port to listen upon:
+  Port to listen on:
       --listenport=23000
 
-  IP Address to listen upon:
+  IP Address to listen on:
       --listenip=10.0.0.14
 `
 	fmt.Printf("%s", helpmessage)
