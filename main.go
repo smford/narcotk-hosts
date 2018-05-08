@@ -839,9 +839,6 @@ func listHost(webprint http.ResponseWriter, network string, sqlquery string, sho
 	if len(myhosts) > 0 {
 		log.Printf("%d hosts found\n", len(myhosts))
 
-		sort.Slice(myhosts, func(i, j int) bool {
-			return bytes.Compare([]byte(myhosts[i].PaddedIP), []byte(myhosts[j].PaddedIP)) < 0
-		})
 		if printjson {
 			// print json
 			c, err := json.Marshal(myhosts)
