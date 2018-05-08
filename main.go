@@ -1148,7 +1148,7 @@ func displayHelp() {
 Options:
   --help           Display help information
   --json           Print output in json
-  --showheader     Prepend ./header.txt to the output [default=false]
+  --showheader     Prepend header file to the output [default=false]
   --displayconfig  Prints out the applied configuration
   --version
 
