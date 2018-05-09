@@ -139,16 +139,54 @@ The default configuration file (narcotk-hosts-config.json) is read from the same
 ```
 
 
-### Command Line Configuration Options
+## Command Line Usage
 
-| Argument | Details | Example |
+### General Options
+| Command | Description | Example |
 |:--|:--|:--|
-| ```--configfile``` | Configuration File | --configfile=/path/to/file.yaml |
-| ```--database``` | Database File | --database=/path/to/somefile.db |
-| ```--json``` | Print output as JSON | --json |
-| ```--listenip``` | IP for narcotk-hosts to bind to | --listenip=127.0.0.1 |
-| ```--listenport``` | Port for narcotk-hosts to listen on | --listenport=23000 |
-| ```--showheader``` | Show header | --showheader |
+| `--displayconfig` | Prints out the applied configuration | |
+| `--help` | Display help information |  |
+| `--json` | Print output in json | |
+| `--showheader` | Prepend headerfile to the output [default=false] | |
+| `--version` | Display version | |
+
+
+### Configuration and Database Options
+| Command | Description | Example |
+|:--|:--|:--|
+| `--configfile` | Configuration file | --configfile=/path/to/file.yaml |
+| `--database` | Database file | --database=/path/to/somefile.db |
+| `--setupdb` | Setup a new blank database file | --setupdb  --database=./newfile.db |
+
+
+### Host
+| Command | Description | Example |
+|:--|:--|:--|
+| `--addhost` | Add a host (--addhost, --network and --ip are mandatory, the other params are optional) | --addhost=server-1-199.domain.com --network=192.168.1 --ip=192.168.1.13 --ipv6=::6 --short1=server-1-199 --short2=server --short3=serv --short4=ser --mac=de:ad:be:ef:ca:fe |
+| `--delhost` | Delete a host (--delhost and --network are mandatory)| --delhost=server-1-200.domain.com --network=192.168.1 |
+| `--host` | Display a host | --host=server1.domain.com |
+| `--network` | Print all hosts in a network | --network=192.168.1 |
+| `--showmac` | Show MAC addresses | --showmac |
+| `--updatehost` | Update a host (--updatehost and --network are mandatory, other params are optional) | --updatehost=server-1-199.domain.com --network=192.168.1 --host=server-1-200.domain.com --newnetwork=192.168.1 --ip=192.168.1.200 --ipv6=::6 --short1=server-1-200 --short2=server --short3=serv --short4=ser --mac=de:ad:be:ef:ca:fe |
+
+
+### Network
+| Command | Description | Example |
+|:--|:--|:--|
+| `--addnetwork` | Add a new network | --addnetwork=192.168.2 --cidr=192.168.2.0/24 --desc="Management Network" |
+| `--delnetwork` | Delete a network |--delnetwork=192.168.3 |
+| `--listnetworks` | List all networks | --listnetworks |
+| `--updatenetwork` | Update a network (--updatenetwork with one or more of --network, --cidr or --desc required) | --updatenetwork=192.168.2 --network=192.168.3 --cidr=192.168.3/24 --desc="3rd Management Network" |
+
+
+### Web API
+| Command | Description | Example |
+|:--|:--|:--|
+| `--listenip` | IP Address to listen on | --listenip=10.0.0.14 (ipv4 or ipv6)|
+| `--listenport` | Port for webservice to listen on | --listenport=23000 |
+| `--starthttp` | Start Web Service in foreground using HTTP | --starthttp |
+| `--starthttps` | Start Web Service in foreground using HTTPS | --starthttps |
+| `--startweb` | Start Web Service in foreground using config file EnableTLS setting | --startweb |
 
 
 ## Generating HTTPS Certificates and Keys
