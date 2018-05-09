@@ -644,7 +644,7 @@ func ParseSql(sqlquery string) bool {
 	_, err := sqlparser.Parse(sqlquery)
 	showerror("error parsing query", err, "warn")
 	if err != nil {
-		showerror("problem detected in sql", errors.New("\""+sqlquery+"\""), "warn")
+		showerror("problem detected in sql", errors.New("\""+sqlquery+"\""), "fatal")
 		return false
 	}
 	return true
