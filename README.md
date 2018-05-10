@@ -75,6 +75,8 @@ go build -o narcotk-hosts main.go
 
 ### Install on Heroku
 
+To test, simply click the below button
+[![Deploy](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy)
 
 ### Use Docker
 

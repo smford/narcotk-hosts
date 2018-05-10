@@ -1,0 +1,24 @@
+{
+  "name": "narcotk-hosts",
+  "description": "This app does one little thing, and does it well.",
+  "keywords": [
+    "narcotk-hosts",
+    "something",
+  ],
+  "website": "https://hosts.narco.tk/",
+  "repository": "https://github.com/smford/narcotk-hosts",
+  "scripts": {
+    "postdeploy": "bundle exec rake bootstrap"
+  },
+  "env": {
+    "PORT": {
+      "description": "The port to listen on",
+			"value": "80",
+    },
+  },
+  "buildpacks": [
+    {
+      "url": "heroku/go"
+    }
+  ],
+}
