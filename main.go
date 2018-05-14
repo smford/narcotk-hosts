@@ -56,10 +56,9 @@ func showerror(message string, e error, reaction string) bool {
 		}
 		// return true if an error was shown
 		return true
-	} else {
-		// return false as no error shown
-		return false
 	}
+	// return false as no error shown
+	return false
 }
 
 func findHosts(sqlquery string) []Host {
