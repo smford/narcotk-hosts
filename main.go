@@ -47,13 +47,18 @@ type SingleNetwork struct {
 }
 
 // log an error and if fatal exit app
-func showerror(message string, e error, reaction string) {
+func showerror(message string, e error, reaction string) bool {
 	if e != nil {
 		if strings.ToLower(reaction) == "fatal" {
 			log.Fatalf("ERROR: %s:%s", message, e)
 		} else {
 			log.Printf("%s: %s:%s", strings.ToUpper(reaction), message, e)
 		}
+		// return true if an error was shown
+		return true
+	} else {
+		// return false as no error shown
+		return false
 	}
 }
 
