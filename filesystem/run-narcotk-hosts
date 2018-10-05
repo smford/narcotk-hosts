@@ -1,0 +1,2 @@
+#!/bin/bash
+/go/src/narcotk-hosts/narcotk-hosts --configfile=/laptop/narcotk-hosts-config.json --startweb --listenip=

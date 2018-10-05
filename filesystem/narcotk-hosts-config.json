@@ -1,0 +1,16 @@
+{
+    "Database": "/laptop/narcotk_hosts_all.db",
+    "DatabaseType": "sqlite3",
+    "EnableTLS": false,
+    "Files": "/go/src/narcotk-hosts/files",
+    "HeaderFile": "/go/src/narcotk-hosts/header.txt",
+    "IndexFile": "/go/src/narcotk-hosts/index.html",
+    "JSON": false,
+    "ListenIP": "",
+    "ListenPort": "23000",
+    "RegistrationKey": "",
+    "ShowHeader": false,
+    "TLSCert": "/go/src/narcotk-hosts/tls/server.crt",
+    "TLSKey": "/go/src/narcotk-hosts/tls/server.key",
+    "Verbose": true
+}
