@@ -1,2 +1,4 @@
 #!/bin/bash
-/go/src/narcotk-hosts/narcotk-hosts --configfile=/laptop/narcotk-hosts-config.json --startweb --listenip=
+cp /go/src/narcotk-hosts/narcotk-hosts /laptop/narcotk-hosts-$(hostname)
+cd /laptop
+./narcotk-hosts-$(hostname) --configfile=/laptop/narcotk-hosts-config.json --startweb --listenip=
